@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36623.8
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		docs\ARCHITECTURE.md = docs\ARCHITECTURE.md
+		docs\DEVELOPMENT_GUIDE.md = docs\DEVELOPMENT_GUIDE.md
+		..\..\OneDrive - Coherent Corporation\WorkSpace\my-project\MSA and IEEE802.3\CMIS\OIF-CMIS-05.2.pdf = ..\..\OneDrive - Coherent Corporation\WorkSpace\my-project\MSA and IEEE802.3\CMIS\OIF-CMIS-05.2.pdf
+		docs\PROJECT_OVERVIEW.md = docs\PROJECT_OVERVIEW.md
+		docs\PROJECT_STRUCTURE.md = docs\PROJECT_STRUCTURE.md
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B8612683-B9DA-4AEE-9C81-082D5C9C3BAC}
+	EndGlobalSection
+EndGlobal
