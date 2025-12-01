@@ -5,15 +5,37 @@ VisualStudioVersion = 17.14.36623.8
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 	ProjectSection(SolutionItems) = preProject
-		docs\ARCHITECTURE.md = docs\ARCHITECTURE.md
-		docs\DEVELOPMENT_GUIDE.md = docs\DEVELOPMENT_GUIDE.md
 		..\..\OneDrive - Coherent Corporation\WorkSpace\my-project\MSA and IEEE802.3\CMIS\OIF-CMIS-05.2.pdf = ..\..\OneDrive - Coherent Corporation\WorkSpace\my-project\MSA and IEEE802.3\CMIS\OIF-CMIS-05.2.pdf
-		docs\PROJECT_OVERVIEW.md = docs\PROJECT_OVERVIEW.md
-		docs\PROJECT_STRUCTURE.md = docs\PROJECT_STRUCTURE.md
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCMIS.Core", "src\OpenCMIS.Core\OpenCMIS.Core.csproj", "{BEB6E9D3-750D-4D14-1390-0900CC22C56D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BEB6E9D3-750D-4D14-1390-0900CC22C56D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEB6E9D3-750D-4D14-1390-0900CC22C56D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEB6E9D3-750D-4D14-1390-0900CC22C56D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BEB6E9D3-750D-4D14-1390-0900CC22C56D}.Debug|x64.Build.0 = Debug|Any CPU
+		{BEB6E9D3-750D-4D14-1390-0900CC22C56D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BEB6E9D3-750D-4D14-1390-0900CC22C56D}.Debug|x86.Build.0 = Debug|Any CPU
+		{BEB6E9D3-750D-4D14-1390-0900CC22C56D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEB6E9D3-750D-4D14-1390-0900CC22C56D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BEB6E9D3-750D-4D14-1390-0900CC22C56D}.Release|x64.ActiveCfg = Release|Any CPU
+		{BEB6E9D3-750D-4D14-1390-0900CC22C56D}.Release|x64.Build.0 = Release|Any CPU
+		{BEB6E9D3-750D-4D14-1390-0900CC22C56D}.Release|x86.ActiveCfg = Release|Any CPU
+		{BEB6E9D3-750D-4D14-1390-0900CC22C56D}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
