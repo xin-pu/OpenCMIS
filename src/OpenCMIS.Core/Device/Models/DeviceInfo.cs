@@ -1,54 +1,54 @@
-namespace OpenCMIS.Core;
-
-/// <summary>
-/// Represents device information.
-/// </summary>
-public class DeviceInfo
+namespace OpenCMIS.Core
 {
     /// <summary>
-    /// Gets or sets the device identifier.
+    ///     Represents device information.
     /// </summary>
-    public string Id { get; set; } = string.Empty;
+    public class DeviceInfo
+    {
+        /// <summary>
+        ///     Gets or sets the device identifier.
+        /// </summary>
+        public string Id { get; set; } = string.Empty;
+
+        /// <summary>
+        ///     Gets or sets the device name.
+        /// </summary>
+        public string Name { get; set; } = string.Empty;
+
+        /// <summary>
+        ///     Gets or sets the connection type.
+        /// </summary>
+        public ConnectionType ConnectionType { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the connection parameters.
+        /// </summary>
+        public Dictionary<string, string> ConnectionParameters { get; set; } = new();
+    }
 
     /// <summary>
-    /// Gets or sets the device name.
+    ///     Defines the types of device connections.
     /// </summary>
-    public string Name { get; set; } = string.Empty;
+    public enum ConnectionType
+    {
+        /// <summary>
+        ///     I2C connection.
+        /// </summary>
+        I2C = 0,
 
-    /// <summary>
-    /// Gets or sets the connection type.
-    /// </summary>
-    public ConnectionType ConnectionType { get; set; }
+        /// <summary>
+        ///     USB connection.
+        /// </summary>
+        USB = 1,
 
-    /// <summary>
-    /// Gets or sets the connection parameters.
-    /// </summary>
-    public Dictionary<string, string> ConnectionParameters { get; set; } = new();
+        /// <summary>
+        ///     Serial port connection.
+        /// </summary>
+        Serial = 2,
+
+        /// <summary>
+        ///     SPI connection.
+        /// </summary>
+        SPI = 3
+    }
 }
-
-/// <summary>
-/// Defines the types of device connections.
-/// </summary>
-public enum ConnectionType
-{
-    /// <summary>
-    /// I2C connection.
-    /// </summary>
-    I2C = 0,
-
-    /// <summary>
-    /// USB connection.
-    /// </summary>
-    USB = 1,
-
-    /// <summary>
-    /// Serial port connection.
-    /// </summary>
-    Serial = 2,
-
-    /// <summary>
-    /// SPI connection.
-    /// </summary>
-    SPI = 3
-}
-

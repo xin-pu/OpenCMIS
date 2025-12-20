@@ -1,18 +1,18 @@
-namespace OpenCMIS.Core;
-
-/// <summary>
-/// Provides implementation for validating Configuration Data Blocks.
-/// </summary>
-public class CdbValidator : ICdbValidator
+namespace OpenCMIS.Core
 {
-    /// <inheritdoc/>
-    public bool Validate(ConfigurationDataBlock cdb)
+    /// <summary>
+    ///     Provides implementation for validating Configuration Data Blocks.
+    /// </summary>
+    public class CdbValidator : ICdbValidator
     {
-        // TODO: Implement CDB validation logic
-        // - Checksum verification
-        // - Field range checking
-        // - Dependency validation
-        return true;
+        /// <inheritdoc />
+        public bool Validate(ConfigurationDataBlock cdb)
+        {
+            // TODO: Implement CDB validation logic
+            // - Checksum verification
+            // - Field range checking
+            // - Dependency validation
+            return true;
+        }
     }
 }
-

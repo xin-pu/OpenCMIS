@@ -1,15 +1,15 @@
-namespace OpenCMIS.Core;
-
-/// <summary>
-/// Provides implementation for reading Configuration Data Blocks.
-/// </summary>
-public class CdbReader : ICdbReader
+namespace OpenCMIS.Core
 {
-    /// <inheritdoc/>
-    public async Task<ConfigurationDataBlock> ReadAsync(ICmisDevice device)
+    /// <summary>
+    ///     Provides implementation for reading Configuration Data Blocks.
+    /// </summary>
+    public class CdbReader : ICdbReader
     {
-        // TODO: Implement CDB reading logic
-        return await Task.FromResult(new ConfigurationDataBlock());
+        /// <inheritdoc />
+        public async Task<ConfigurationDataBlock> ReadAsync(ICmisDevice device)
+        {
+            // TODO: Implement CDB reading logic
+            return await Task.FromResult(new ConfigurationDataBlock());
+        }
     }
 }
-
