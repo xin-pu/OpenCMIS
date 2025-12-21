@@ -216,16 +216,21 @@ OpenCMIS.CLI
 
 ### 异常处理
 
-- 使用自定义异常类型
-- 提供详细的错误信息
+- 使用统一的异常类型 `CmisException` 配合 `CmisErrorCode` 错误代码
+- 提供详细的错误信息和错误代码
+- 支持本地化错误描述（中英文）
 - 区分可恢复和不可恢复错误
 
-主要异常类型：
-- `CmisException` - 基础异常
-- `DeviceNotConnectedException` - 设备未连接
-- `DeviceTimeoutException` - 设备超时
-- `InvalidRegisterException` - 无效寄存器
-- `CdbValidationException` - CDB验证失败
+异常使用方式：
+- `CmisException` - 统一的异常基类
+- `CmisErrorCode` - 错误代码枚举，按功能分类（设备连接、协议、CDB等）
+- 使用示例：
+  ```csharp
+  throw new CmisException(CmisErrorCode.DeviceNotConnected);
+  throw new CmisException(CmisErrorCode.InvalidRegister, address);
+  throw CmisException.Create(CmisErrorCode.DeviceTimeout);
+  CmisException.ThrowIf(condition, CmisErrorCode.ProtocolViolation);
+  ```
 
 ### 日志记录
 
