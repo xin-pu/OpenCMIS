@@ -169,8 +169,8 @@ OpenCMIS.Core
 ├── Protocol/            # 协议相关文件，命名空间：OpenCMIS.Core
 ├── Device/              # 设备相关文件，命名空间：OpenCMIS.Core
 ├── CDB/                 # CDB相关文件，命名空间：OpenCMIS.Core
-├── Common/              # 公共组件文件，命名空间：OpenCMIS.Core
-└── Extensions/          # 扩展方法，命名空间：OpenCMIS.Core.Extensions
+└── Common/              # 公共组件文件，命名空间：OpenCMIS.Core
+    └── Extensions/      # 扩展方法，命名空间：OpenCMIS.Core.Extensions
 
 OpenCMIS.GUI
 ├── Views/               # 视图文件，命名空间：OpenCMIS.GUI
@@ -189,6 +189,10 @@ OpenCMIS.CLI
 - 只有 `Extensions` 文件夹可以放入命名空间（如 `OpenCMIS.Core.Extensions`）
 
 ## 开发规范
+
+> 📋 **详细开发规范请参考**：[AI Development Guidelines](AI_DEVELOPMENT_GUIDELINES.md)
+>
+> 本文档包含完整的 AI 辅助开发规范，包括异常处理、代码注释、文件组织、目录结构等详细说明。
 
 ### 命名约定
 
