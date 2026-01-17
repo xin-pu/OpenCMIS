@@ -1,8 +1,4 @@
-using OpenCMIS.Protocol.Abstractions;
-using OpenCMIS.Shared;
-using OpenCMIS.Transport.Abstractions;
-
-namespace OpenCMIS.Protocol.Core
+namespace OpenCMIS.Core
 {
     /// <summary>
     ///     Provides implementation for register access operations.
@@ -10,9 +6,9 @@ namespace OpenCMIS.Protocol.Core
     /// </summary>
     public class RegisterAccess : IRegisterAccess
     {
-        private const    byte               PageSelectRegister = 0x7F;
+        private const byte PageSelectRegister = 0x7F;
         private readonly IRegisterTransport _registerTransport;
-        private          byte               _currentPage = 0xFF;
+        private byte _currentPage = 0xFF;
 
         /// <summary>
         ///     Initializes a new instance of the RegisterAccess class.
@@ -20,19 +16,14 @@ namespace OpenCMIS.Protocol.Core
         /// <param name="registerTransport">The register transport interface.</param>
         public RegisterAccess(IRegisterTransport registerTransport)
         {
-            _registerTransport = registerTransport ??
-                                 throw new CmisException(CmisErrorCode.InvalidParameterValue,
-                                                         nameof(registerTransport));
+            _registerTransport = registerTransport ?? throw new CmisException(CmisErrorCode.InvalidParameterValue, nameof(registerTransport));
         }
 
         /// <inheritdoc />
         public async Task<byte> ReadByteAsync(byte page, byte address)
         {
             CmisException.ThrowIf(!_registerTransport.IsConnected, CmisErrorCode.DeviceNotConnected);
-            CmisException.ThrowIf(address > 0x7F && address != PageSelectRegister,
-                                  CmisErrorCode.InvalidRegister,
-                                  address,
-                                  page);
+            CmisException.ThrowIf(address > 0x7F && address != PageSelectRegister, CmisErrorCode.InvalidRegister, address, page);
 
             await EnsurePageAsync(page);
 
@@ -43,10 +34,7 @@ namespace OpenCMIS.Protocol.Core
         public async Task WriteByteAsync(byte page, byte address, byte value)
         {
             CmisException.ThrowIf(!_registerTransport.IsConnected, CmisErrorCode.DeviceNotConnected);
-            CmisException.ThrowIf(address > 0x7F && address != PageSelectRegister,
-                                  CmisErrorCode.InvalidRegister,
-                                  address,
-                                  page);
+            CmisException.ThrowIf(address > 0x7F && address != PageSelectRegister, CmisErrorCode.InvalidRegister, address, page);
 
             await EnsurePageAsync(page);
 

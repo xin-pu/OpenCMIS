@@ -11,4 +11,7 @@
     <ProjectReference Include="..\OpenCMIS.Shared\OpenCMIS.Shared.csproj" />
     <ProjectReference Include="..\OpenCMIS.Transport.Abstractions\OpenCMIS.Transport.Abstractions.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.IO.Ports" Version="10.0.2" />
+  </ItemGroup>
 </Project>

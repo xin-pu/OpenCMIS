@@ -8,9 +8,9 @@ namespace OpenCMIS.CDB.Core
     /// </summary>
     public class CdbManager
     {
-        private readonly ICdbReader _reader;
+        private readonly ICdbReader    _reader;
         private readonly ICdbValidator _validator;
-        private readonly ICdbWriter _writer;
+        private readonly ICdbWriter    _writer;
 
         /// <summary>
         ///     Initializes a new instance of the CdbManager class.

@@ -8,9 +8,9 @@ namespace OpenCMIS.App.Core
     /// </summary>
     public class DeviceMonitor
     {
-        private readonly ICmisDevice _device;
-        private CancellationTokenSource? _cancellationTokenSource;
-        private bool _isMonitoring;
+        private readonly ICmisDevice              _device;
+        private          CancellationTokenSource? _cancellationTokenSource;
+        private          bool                     _isMonitoring;
 
         /// <summary>
         ///     Initializes a new instance of the DeviceMonitor class.

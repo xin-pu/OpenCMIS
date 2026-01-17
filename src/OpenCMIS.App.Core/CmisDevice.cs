@@ -10,7 +10,7 @@ namespace OpenCMIS.App.Core
     public class CmisDevice : ICmisDevice
     {
         private readonly IDeviceConnection _deviceConnection;
-        private readonly IRegisterAccess _registerAccess;
+        private readonly IRegisterAccess   _registerAccess;
 
         /// <summary>
         ///     Initializes a new instance of the CmisDevice class.

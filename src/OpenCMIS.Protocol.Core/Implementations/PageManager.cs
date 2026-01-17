@@ -8,7 +8,7 @@ namespace OpenCMIS.Protocol.Core
     public class PageManager
     {
         private readonly IRegisterAccess _registerAccess;
-        private byte _currentPage;
+        private          byte            _currentPage;
 
         /// <summary>
         ///     Initializes a new instance of the PageManager class.
