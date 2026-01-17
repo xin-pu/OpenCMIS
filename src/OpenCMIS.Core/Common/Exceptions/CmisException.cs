@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using OpenCMIS.Core.Extensions;
@@ -29,7 +28,7 @@ namespace OpenCMIS.Core
                 : base(message)
         {
             ErrorCode   = CmisErrorCode.NotDefined;
-            _formatArgs = Array.Empty<object>();
+            _formatArgs = [];
             HResult     = unchecked((int) (0xB0000000 + (ushort) CmisErrorCode.NotDefined));
         }
 
@@ -44,7 +43,7 @@ namespace OpenCMIS.Core
                 : base(message, innerException)
         {
             ErrorCode   = CmisErrorCode.NotDefined;
-            _formatArgs = Array.Empty<object>();
+            _formatArgs = [];
             HResult     = unchecked((int) (0xB0000000 + (ushort) CmisErrorCode.NotDefined));
         }
 
@@ -57,7 +56,7 @@ namespace OpenCMIS.Core
                 : base(GetFormattedMessage(errorCode, formatArgs))
         {
             ErrorCode   = errorCode;
-            _formatArgs = formatArgs ?? Array.Empty<object>();
+            _formatArgs = formatArgs ?? [];
             HResult     = unchecked((int) (0xB0000000 + (ushort) errorCode));
         }
 
@@ -72,7 +71,7 @@ namespace OpenCMIS.Core
                 : base(GetFormattedMessage(errorCode, formatArgs), innerException)
         {
             ErrorCode   = errorCode;
-            _formatArgs = formatArgs ?? Array.Empty<object>();
+            _formatArgs = formatArgs;
             HResult     = unchecked((int) (0xB0000000 + (ushort) errorCode));
         }
 
