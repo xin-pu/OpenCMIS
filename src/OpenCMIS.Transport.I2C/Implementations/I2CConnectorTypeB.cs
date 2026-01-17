@@ -1,4 +1,3 @@
-using System.IO.Ports;
 using OpenCMIS.Shared;
 using OpenCMIS.Transport.Abstractions;
 
@@ -11,9 +10,9 @@ namespace OpenCMIS.Transport.I2C
     public class I2CConnectorTypeB : SerialDeviceConnectionBase, IRegisterTransport
     {
         private const byte DefaultSlaveAddress = 0xa0;
-        private const byte CommandWrite = 0xd2;
-        private const byte CommandRead = 0xd3;
-        private const byte StatusSuccess = 0x01;
+        private const byte CommandWrite        = 0xd2;
+        private const byte CommandRead         = 0xd3;
+        private const byte StatusSuccess       = 0x01;
 
         private readonly byte _slaveAddress;
 
@@ -24,7 +23,7 @@ namespace OpenCMIS.Transport.I2C
         /// <param name="baudRate">The baud rate for the serial port (default is 1,500,000).</param>
         /// <param name="slaveAddress">The I2C slave address (default is 0xA0).</param>
         public I2CConnectorTypeB(string portName, int baudRate = 1500000, byte slaveAddress = DefaultSlaveAddress)
-            : base(portName, baudRate, Parity.None, 8, StopBits.One)
+            : base(portName, baudRate)
         {
             _slaveAddress = slaveAddress;
         }

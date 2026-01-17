@@ -1,4 +1,3 @@
-using System.IO.Ports;
 using OpenCMIS.Shared;
 using OpenCMIS.Transport.Abstractions;
 
@@ -10,14 +9,14 @@ namespace OpenCMIS.Transport.I2C
     /// </summary>
     public class I2CConnectorTypeA : SerialDeviceConnectionBase, IRegisterTransport
     {
-        private const byte CommandRead = 0x11;
-        private const byte CommandWrite = 0x10;
-        private const byte Header = 0x55;
-        private const byte ResponseHeader = 0xaa;
+        private const byte CommandRead         = 0x11;
+        private const byte CommandWrite        = 0x10;
+        private const byte Header              = 0x55;
+        private const byte ResponseHeader      = 0xaa;
         private const byte DefaultSlaveAddress = 0xa0;
-        private const byte StatusSuccess = 0x00;
-        private const byte EndByte1 = 0x0d;
-        private const byte EndByte2 = 0x0a;
+        private const byte StatusSuccess       = 0x00;
+        private const byte EndByte1            = 0x0d;
+        private const byte EndByte2            = 0x0a;
 
         private readonly byte _slaveAddress;
 
