@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="OpenCMIS.Transport.I2C.csproj.DotSettings" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OpenCMIS.Shared\OpenCMIS.Shared.csproj" />
+    <ProjectReference Include="..\OpenCMIS.Transport.Abstractions\OpenCMIS.Transport.Abstractions.csproj" />
+  </ItemGroup>
+</Project>

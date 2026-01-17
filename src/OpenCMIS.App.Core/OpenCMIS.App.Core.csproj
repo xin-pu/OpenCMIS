@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OpenCMIS.Shared\OpenCMIS.Shared.csproj" />
+    <ProjectReference Include="..\OpenCMIS.Transport.Abstractions\OpenCMIS.Transport.Abstractions.csproj" />
+    <ProjectReference Include="..\OpenCMIS.Protocol.Abstractions\OpenCMIS.Protocol.Abstractions.csproj" />
+    <ProjectReference Include="..\OpenCMIS.Protocol.Core\OpenCMIS.Protocol.Core.csproj" />
+    <ProjectReference Include="..\OpenCMIS.CDB.Abstractions\OpenCMIS.CDB.Abstractions.csproj" />
+    <ProjectReference Include="..\OpenCMIS.CDB.Core\OpenCMIS.CDB.Core.csproj" />
+  </ItemGroup>
+</Project>
