@@ -1,64 +1,49 @@
 using OpenCMIS.Protocol.Abstractions;
+using OpenCMIS.Shared;
+using OpenCMIS.Transport.Abstractions;
 
 namespace OpenCMIS.Protocol.Core
 {
     /// <summary>
-    ///     Manages page switching and access control for CMIS protocol.
+    ///     Implements page management for CMIS protocol.
     /// </summary>
-    public class PageManager
+    public class PageManager : IPageManager
     {
-        private readonly IRegisterAccess _registerAccess;
-        private          byte            _currentPage;
+        private const byte PageSelectRegister = CmisConstants.PageSelectRegister;
+        private readonly IRegisterTransport _registerTransport;
+        private byte _currentPage = 0xFF; // Start with unknown state
 
-        /// <summary>
-        ///     Initializes a new instance of the PageManager class.
-        /// </summary>
-        /// <param name="registerAccess">The register access interface.</param>
-        public PageManager(IRegisterAccess registerAccess)
+        public PageManager(IRegisterTransport registerTransport)
         {
-            _registerAccess = registerAccess;
-            _currentPage    = 0;
+            _registerTransport = registerTransport ?? throw new CmisException(CmisErrorCode.InvalidParameterValue, nameof(registerTransport));
         }
 
-        /// <summary>
-        ///     Gets the current active page number.
-        /// </summary>
-        public byte GetCurrentPage()
+        /// <inheritdoc />
+        public byte CurrentPage => _currentPage;
+
+        /// <inheritdoc />
+        public async Task SwitchPageAsync(byte page)
         {
-            return _currentPage;
+            if (_currentPage == page)
+                return;
+
+            CmisException.ThrowIf(!_registerTransport.IsConnected, CmisErrorCode.DeviceNotConnected);
+
+            try
+            {
+                await _registerTransport.WriteRegisterAsync(PageSelectRegister, page);
+                _currentPage = page;
+            }
+            catch (Exception ex)
+            {
+                throw new CmisException(CmisErrorCode.RegisterWriteFailed, ex, PageSelectRegister, page);
+            }
         }
 
-        /// <summary>
-        ///     Switches to the specified page.
-        /// </summary>
-        /// <param name="pageNumber">The target page number.</param>
-        /// <returns>True if the page switch was successful; otherwise, false.</returns>
-        public async Task<bool> SwitchPageAsync(byte pageNumber)
+        /// <inheritdoc />
+        public async Task ResetAsync()
         {
-            // TODO: Implement page switching logic
-            _currentPage = pageNumber;
-            return await Task.FromResult(true);
-        }
-
-        /// <summary>
-        ///     Locks the specified page for exclusive access.
-        /// </summary>
-        /// <param name="pageNumber">The page number to lock.</param>
-        /// <returns>True if the page was successfully locked; otherwise, false.</returns>
-        public async Task<bool> LockPageAsync(byte pageNumber)
-        {
-            // TODO: Implement page locking logic
-            return await Task.FromResult(true);
-        }
-
-        /// <summary>
-        ///     Unlocks the specified page.
-        /// </summary>
-        /// <param name="pageNumber">The page number to unlock.</param>
-        public async Task UnlockPageAsync(byte pageNumber)
-        {
-            // TODO: Implement page unlocking logic
-            await Task.CompletedTask;
+            await SwitchPageAsync(0);
         }
     }
 }

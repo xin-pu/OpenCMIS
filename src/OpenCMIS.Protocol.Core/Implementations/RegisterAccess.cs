@@ -6,89 +6,85 @@ namespace OpenCMIS.Protocol.Core
 {
     /// <summary>
     ///     Provides implementation for register access operations.
-    ///     This implementation supports CMIS protocol page-based register access.
+    ///     This implementation supports CMIS protocol page-based register access with swappable strategies.
     /// </summary>
     public class RegisterAccess : IRegisterAccess
     {
-        private const    byte               PageSelectRegister = 0x7F;
-        private readonly IRegisterTransport _registerTransport;
-        private          byte               _currentPage = 0xFF;
+        private readonly IRegisterTransport  _registerTransport;
+        private readonly IAddressingStrategy _addressingStrategy;
+        private readonly IPageManager        _pageManager;
 
         /// <summary>
-        ///     Initializes a new instance of the RegisterAccess class.
+        ///     Initializes a new instance of the <see cref="RegisterAccess"/> class.
         /// </summary>
         /// <param name="registerTransport">The register transport interface.</param>
-        public RegisterAccess(IRegisterTransport registerTransport)
+        /// <param name="pageManager">The page manager.</param>
+        /// <param name="addressingStrategy">The addressing strategy (defaults to standard CMIS).</param>
+        public RegisterAccess(
+            IRegisterTransport registerTransport, 
+            IPageManager pageManager,
+            IAddressingStrategy? addressingStrategy = null)
         {
-            _registerTransport = registerTransport ??
-                                 throw new CmisException(CmisErrorCode.InvalidParameterValue,
-                                                         nameof(registerTransport));
+            _registerTransport  = registerTransport  ?? throw new CmisException(CmisErrorCode.InvalidParameterValue, nameof(registerTransport));
+            _pageManager        = pageManager        ?? throw new CmisException(CmisErrorCode.InvalidParameterValue, nameof(pageManager));
+            _addressingStrategy = addressingStrategy ?? new StandardAddressingStrategy();
         }
 
         /// <inheritdoc />
         public async Task<byte> ReadByteAsync(byte page, byte address)
         {
-            CmisException.ThrowIf(!_registerTransport.IsConnected, CmisErrorCode.DeviceNotConnected);
-            CmisException.ThrowIf(address > 0x7F && address != PageSelectRegister,
-                                  CmisErrorCode.InvalidRegister,
-                                  address,
-                                  page);
+            EnsureConnected();
+            ValidateAddress(page, address);
 
-            await EnsurePageAsync(page);
-
+            await _pageManager.SwitchPageAsync(page);
             return await _registerTransport.ReadRegisterAsync(address);
         }
 
         /// <inheritdoc />
         public async Task WriteByteAsync(byte page, byte address, byte value)
         {
-            CmisException.ThrowIf(!_registerTransport.IsConnected, CmisErrorCode.DeviceNotConnected);
-            CmisException.ThrowIf(address > 0x7F && address != PageSelectRegister,
-                                  CmisErrorCode.InvalidRegister,
-                                  address,
-                                  page);
+            EnsureConnected();
+            ValidateAddress(page, address);
 
-            await EnsurePageAsync(page);
-
+            await _pageManager.SwitchPageAsync(page);
             await _registerTransport.WriteRegisterAsync(address, value);
         }
 
         /// <inheritdoc />
         public async Task<byte[]> ReadBlockAsync(byte page, byte startAddress, int length)
         {
-            CmisException.ThrowIf(!_registerTransport.IsConnected, CmisErrorCode.DeviceNotConnected);
-            CmisException.ThrowIf(length <= 0, CmisErrorCode.InvalidParameterValue, nameof(length));
-            CmisException.ThrowIf(startAddress + length > 0x80, CmisErrorCode.InvalidRegister, startAddress, page);
+            EnsureConnected();
+            if (length <= 0) throw new CmisException(CmisErrorCode.InvalidParameterValue, nameof(length));
+            
+            if (startAddress + length > 256) throw new CmisException(CmisErrorCode.InvalidRegister, startAddress, page);
 
-            await EnsurePageAsync(page);
-
+            await _pageManager.SwitchPageAsync(page);
             return await _registerTransport.ReadRegisterBlockAsync(startAddress, length);
         }
 
         /// <inheritdoc />
         public async Task WriteBlockAsync(byte page, byte startAddress, byte[] data)
         {
-            CmisException.ThrowIf(!_registerTransport.IsConnected, CmisErrorCode.DeviceNotConnected);
-            CmisException.ThrowIf(data == null || data.Length == 0, CmisErrorCode.InvalidParameterValue, nameof(data));
-            CmisException.ThrowIf(startAddress + data.Length > 0x80, CmisErrorCode.InvalidRegister, startAddress, page);
+            EnsureConnected();
+            if (data == null || data.Length == 0) throw new CmisException(CmisErrorCode.InvalidParameterValue, nameof(data));
+            
+            if (startAddress + data.Length > 256) throw new CmisException(CmisErrorCode.InvalidRegister, startAddress, page);
 
-            await EnsurePageAsync(page);
-
+            await _pageManager.SwitchPageAsync(page);
             await _registerTransport.WriteRegisterBlockAsync(startAddress, data);
         }
 
-        /// <summary>
-        ///     Ensures the specified page is selected.
-        /// </summary>
-        /// <param name="page">The target page number.</param>
-        private async Task EnsurePageAsync(byte page)
+        private void EnsureConnected()
         {
-            if (_currentPage == page)
-                return;
+            CmisException.ThrowIf(!_registerTransport.IsConnected, CmisErrorCode.DeviceNotConnected);
+        }
 
-            await _registerTransport.WriteRegisterAsync(PageSelectRegister, page);
-
-            _currentPage = page;
+        private void ValidateAddress(byte page, byte address)
+        {
+            if (!_addressingStrategy.Validate(page, address))
+            {
+                throw new CmisException(CmisErrorCode.InvalidRegister, address, page);
+            }
         }
     }
 }

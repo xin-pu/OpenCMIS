@@ -31,6 +31,45 @@ namespace OpenCMIS.Shared
         public const byte UpperPageEnd = 0xFF;
 
         /// <summary>
+        ///     Page select register address (0x7F).
+        /// </summary>
+        public const byte PageSelectRegister = 0x7F;
+
+        #region Common Register Addresses (Lower Page)
+
+        /// <summary>
+        ///     Identifier register (0x00).
+        /// </summary>
+        public const byte RegIdentifier = 0x00;
+
+        /// <summary>
+        ///     Revision register (0x01).
+        /// </summary>
+        public const byte RegRevision = 0x01;
+
+        /// <summary>
+        ///     Status register (0x02).
+        /// </summary>
+        public const byte RegStatus = 0x02;
+
+        /// <summary>
+        ///     Module state register (0x03).
+        /// </summary>
+        public const byte RegModuleState = 0x03;
+
+        /// <summary>
+        ///     Interrupt flags (0x04-0x05).
+        /// </summary>
+        public const byte RegInterruptFlags = 0x04;
+
+        /// <summary>
+        ///     Module flags (0x06-0x07).
+        /// </summary>
+        public const byte RegModuleFlags = 0x06;
+
+        #endregion
+
+        /// <summary>
         ///     Default I2C address for CMIS modules.
         /// </summary>
         public const byte DefaultI2cAddress = 0x50;
