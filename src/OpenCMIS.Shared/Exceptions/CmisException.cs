@@ -11,6 +11,12 @@ namespace OpenCMIS.Shared
             ErrorCode = errorCode;
         }
 
+        public CmisException(CmisErrorCode errorCode, params object[] args)
+            : base(string.Format(errorCode.ToString(), args))
+        {
+            ErrorCode = errorCode;
+        }
+
         public CmisException(CmisErrorCode errorCode, Exception innerException, params object[] args)
             : base(string.Format(errorCode.ToString(), args), innerException)
         {

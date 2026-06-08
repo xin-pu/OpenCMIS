@@ -60,7 +60,7 @@ namespace OpenCMIS.Transport.I2C
                 var response = await ReadFromPortAsync(port, length + 6);
 
                 if (response[2] != StatusSuccess)
-                    throw new CmisException(CmisErrorCode.RegisterReadFailed, null, registerAddress);
+                    throw new CmisException(CmisErrorCode.RegisterReadFailed, registerAddress);
 
                 var result = new byte[length];
                 Array.Copy(response, 6, result, 0, length);
@@ -88,7 +88,7 @@ namespace OpenCMIS.Transport.I2C
                 // HM protocol write returns 1 byte status
                 var statusResponse = await ReadFromPortAsync(port, 1);
                 if (statusResponse[0] != StatusSuccess)
-                    throw new CmisException(CmisErrorCode.RegisterWriteFailed, null, registerAddress);
+                    throw new CmisException(CmisErrorCode.RegisterWriteFailed, registerAddress);
             });
         }
     }

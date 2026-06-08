@@ -1,0 +1,136 @@
+<Window x:Class="OpenCMIS.UI.WPF.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:OpenCMIS.UI.WPF.ViewModels"
+        xmlns:views="clr-namespace:OpenCMIS.UI.WPF.Views"
+        xmlns:converters="clr-namespace:OpenCMIS.UI.WPF.Converters"
+        Title="OpenCMIS Manager"
+        Height="700" Width="1100"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:ModuleStateToColorConverter x:Key="ModuleStateToColorConverter" />
+
+        <DataTemplate DataType="{x:Type vm:DeviceConnectionViewModel}">
+            <views:DeviceConnectionView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
+            <views:DashboardView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ControlPanelViewModel}">
+            <views:ControlPanelView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:CdbEditorViewModel}">
+            <views:CdbEditorView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ApplicationSwitchViewModel}">
+            <views:ApplicationSwitchView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:PageEditorViewModel}">
+            <views:PageEditorView />
+        </DataTemplate>
+
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Sidebar -->
+        <Border Grid.Column="0"
+                Background="{DynamicResource MaterialDesignPaper}"
+                BorderBrush="{DynamicResource MaterialDesignDivider}"
+                BorderThickness="0,0,1,0">
+            <StackPanel>
+                <TextBlock Text="OpenCMIS"
+                           FontSize="20" FontWeight="Bold"
+                           Margin="16,16,16,8" />
+
+                <ListBox x:Name="NavListBox"
+                         SelectedValue="{Binding SelectedViewName, Mode=TwoWay}"
+                         SelectionChanged="NavListBox_SelectionChanged"
+                         BorderThickness="0"
+                         Background="Transparent"
+                         Margin="4,4,4,0">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Height" Value="40" />
+                            <Setter Property="Padding" Value="12,0" />
+                            <Setter Property="Margin" Value="0,1" />
+                            <Setter Property="BorderThickness" Value="0" />
+                            <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="Cursor" Value="Hand" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <Border x:Name="ItemBorder"
+                                                Background="{TemplateBinding Background}"
+                                                CornerRadius="6"
+                                                Padding="{TemplateBinding Padding}">
+                                            <ContentPresenter HorizontalAlignment="Left"
+                                                              VerticalAlignment="Center" />
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter TargetName="ItemBorder" Property="Background" Value="#1A1976D2" />
+                                                <Setter Property="Foreground" Value="#1565C0" />
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="ItemBorder" Property="Background" Value="#0D000000" />
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+
+                    <ListBoxItem Tag="DeviceConnection">Device Connection</ListBoxItem>
+                    <ListBoxItem Tag="Dashboard">Dashboard</ListBoxItem>
+                    <ListBoxItem Tag="ControlPanel">Control Panel</ListBoxItem>
+                    <ListBoxItem Tag="CdbEditor">CDB Editor</ListBoxItem>
+                    <ListBoxItem Tag="ApplicationSwitch">Application Switch</ListBoxItem>
+                    <ListBoxItem Tag="PageEditor">Page Editor</ListBoxItem>
+                </ListBox>
+            </StackPanel>
+        </Border>
+
+        <!-- Main Content -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="30" />
+            </Grid.RowDefinitions>
+
+            <ContentControl Content="{Binding ActiveView}"
+                            Margin="12" />
+
+            <StatusBar Grid.Row="1"
+                       Background="{DynamicResource MaterialDesignPaper}">
+                <StatusBar.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                        </Grid>
+                    </ItemsPanelTemplate>
+                </StatusBar.ItemsPanel>
+                <StatusBarItem Grid.Column="0">
+                    <TextBlock>
+                        <Run Text="Status: " />
+                        <Run Text="{Binding ConnectionStatus}" />
+                    </TextBlock>
+                </StatusBarItem>
+                <StatusBarItem Grid.Column="2">
+                    <TextBlock Text="{Binding DeviceName}" />
+                </StatusBarItem>
+            </StatusBar>
+        </Grid>
+    </Grid>
+</Window>

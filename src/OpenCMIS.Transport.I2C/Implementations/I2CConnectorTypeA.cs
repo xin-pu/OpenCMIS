@@ -78,7 +78,7 @@ namespace OpenCMIS.Transport.I2C
 
                 if (!ValidateWriteResponse(response))
                 {
-                    throw new CmisException(CmisErrorCode.RegisterWriteFailed, null, registerAddress);
+                    throw new CmisException(CmisErrorCode.RegisterWriteFailed, registerAddress);
                 }
             });
         }

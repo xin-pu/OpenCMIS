@@ -1,0 +1,77 @@
+<UserControl x:Class="OpenCMIS.UI.WPF.Views.ControlPanelView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="clr-namespace:OpenCMIS.UI.WPF.Converters">
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    </UserControl.Resources>
+
+    <StackPanel>
+        <TextBlock Text="Control Panel" FontSize="22" FontWeight="Bold" Margin="0,0,0,20" />
+
+        <GroupBox Header="Module State Control" Padding="10" Margin="0,0,0,15">
+            <StackPanel>
+                <TextBlock Margin="0,0,0,10">
+                    <Run Text="Current State: " FontWeight="Bold" />
+                    <Run Text="{Binding CurrentState}" />
+                </TextBlock>
+
+                <WrapPanel>
+                    <Button Content="Low Power"
+                            Command="{Binding SetStateCommand}"
+                            CommandParameter="LowPwr"
+                            IsEnabled="{Binding CanSetLowPwr}"
+                            Margin="0,0,5,5" />
+                    <Button Content="Power Up"
+                            Command="{Binding SetStateCommand}"
+                            CommandParameter="PwrUp"
+                            IsEnabled="{Binding CanSetPwrUp}"
+                            Margin="0,0,5,5" />
+                    <Button Content="Ready"
+                            Command="{Binding SetStateCommand}"
+                            CommandParameter="Ready"
+                            IsEnabled="{Binding CanSetReady}"
+                            Margin="0,0,5,5" />
+                    <Button Content="Power Down"
+                            Command="{Binding SetStateCommand}"
+                            CommandParameter="PwrDn"
+                            IsEnabled="{Binding CanSetPwrDn}"
+                            Margin="0,0,5,5" />
+                </WrapPanel>
+            </StackPanel>
+        </GroupBox>
+
+        <GroupBox Header="Register Access" Padding="10">
+            <StackPanel>
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Margin="0,0,5,0">
+                        <TextBlock Text="Page" />
+                        <TextBox Text="{Binding RegPage}" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Margin="5,0">
+                        <TextBlock Text="Address" />
+                        <TextBox Text="{Binding RegAddress}" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Margin="5,0,0,0">
+                        <TextBlock Text="Value" />
+                        <TextBox Text="{Binding RegValue}" />
+                    </StackPanel>
+                </Grid>
+
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Read" Command="{Binding ReadRegisterCommand}" Margin="0,0,10,0" />
+                    <Button Content="Write" Command="{Binding WriteRegisterCommand}" />
+                </StackPanel>
+
+                <TextBox Text="{Binding RegReadResult}" IsReadOnly="True" Margin="0,10,0,0"
+                         MinHeight="24" Background="{DynamicResource MaterialDesignPaper}" />
+            </StackPanel>
+        </GroupBox>
+    </StackPanel>
+</UserControl>

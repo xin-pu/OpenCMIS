@@ -37,6 +37,11 @@ namespace OpenCMIS.Protocol.Abstractions
         Task SetStateAsync(ModuleState state);
 
         /// <summary>
+        ///     Gets the register access interface for low-level operations.
+        /// </summary>
+        IRegisterAccess RegisterAccess { get; }
+
+        /// <summary>
         ///     Closes the device connection.
         /// </summary>
         Task CloseAsync();

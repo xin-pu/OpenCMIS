@@ -1,16 +1,17 @@
 using OpenCMIS.CDB.Abstractions;
 using OpenCMIS.Protocol.Abstractions;
+using OpenCMIS.Shared;
 
 namespace OpenCMIS.CDB.Core
 {
     /// <summary>
-    ///     Manages Configuration Data Block (CDB) operations.
+    ///     Manages CDB operations including read, write, validate, and apply.
     /// </summary>
     public class CdbManager
     {
         private readonly ICdbReader    _reader;
-        private readonly ICdbValidator _validator;
         private readonly ICdbWriter    _writer;
+        private readonly ICdbValidator _validator;
 
         /// <summary>
         ///     Initializes a new instance of the CdbManager class.
@@ -20,53 +21,62 @@ namespace OpenCMIS.CDB.Core
         /// <param name="validator">The CDB validator.</param>
         public CdbManager(ICdbReader reader, ICdbWriter writer, ICdbValidator validator)
         {
-            _reader    = reader;
-            _writer    = writer;
-            _validator = validator;
+            _reader    = reader    ?? throw new CmisException(CmisErrorCode.InvalidParameterValue, nameof(reader));
+            _writer    = writer    ?? throw new CmisException(CmisErrorCode.InvalidParameterValue, nameof(writer));
+            _validator = validator ?? throw new CmisException(CmisErrorCode.InvalidParameterValue, nameof(validator));
         }
 
         /// <summary>
-        ///     Reads a CDB from the specified device.
+        ///     Reads the CDB from the specified device.
         /// </summary>
         /// <param name="device">The CMIS device.</param>
         /// <returns>The configuration data block.</returns>
         public async Task<ConfigurationDataBlock> ReadCdbAsync(ICmisDevice device)
         {
-            // TODO: Implement CDB reading logic
-            return await Task.FromResult(new ConfigurationDataBlock());
+            var cdb = await _reader.ReadAsync(device);
+
+            if (!_validator.Validate(cdb))
+                throw new CmisException(CmisErrorCode.CdbValidationFailed);
+
+            return cdb;
         }
 
         /// <summary>
-        ///     Writes a CDB to the specified device.
+        ///     Writes the CDB to the specified device after validation.
         /// </summary>
         /// <param name="device">The CMIS device.</param>
         /// <param name="cdb">The configuration data block to write.</param>
         public async Task WriteCdbAsync(ICmisDevice device, ConfigurationDataBlock cdb)
         {
-            // TODO: Implement CDB writing logic
-            await Task.CompletedTask;
+            if (!_validator.Validate(cdb))
+                throw new CmisException(CmisErrorCode.CdbValidationFailed);
+
+            await _writer.WriteAsync(device, cdb);
         }
 
         /// <summary>
-        ///     Validates a CDB.
+        ///     Validates the CDB without reading from or writing to a device.
         /// </summary>
         /// <param name="cdb">The configuration data block to validate.</param>
         /// <returns>True if the CDB is valid; otherwise, false.</returns>
         public bool ValidateCdb(ConfigurationDataBlock cdb)
         {
-            // TODO: Implement CDB validation logic
             return _validator.Validate(cdb);
         }
 
         /// <summary>
-        ///     Applies a CDB configuration to the specified device.
+        ///     Reads, applies modifications, validates, and writes the CDB in a single operation.
         /// </summary>
         /// <param name="device">The CMIS device.</param>
-        /// <param name="cdb">The configuration data block to apply.</param>
-        public async Task ApplyCdbAsync(ICmisDevice device, ConfigurationDataBlock cdb)
+        /// <param name="modifications">A function that modifies the CDB.</param>
+        public async Task ApplyCdbAsync(ICmisDevice device, Action<ConfigurationDataBlock> modifications)
         {
-            // TODO: Implement CDB application logic
-            await Task.CompletedTask;
+            if (modifications == null)
+                throw new CmisException(CmisErrorCode.InvalidParameterValue, nameof(modifications));
+
+            var cdb = await ReadCdbAsync(device);
+            modifications(cdb);
+            await WriteCdbAsync(device, cdb);
         }
     }
 }

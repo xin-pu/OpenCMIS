@@ -1,18 +1,128 @@
+using System.Text;
 using OpenCMIS.CDB.Abstractions;
 using OpenCMIS.Protocol.Abstractions;
+using OpenCMIS.Shared;
 
 namespace OpenCMIS.CDB.Core
 {
     /// <summary>
-    ///     Provides implementation for writing Configuration Data Blocks.
+    ///     Provides implementation for writing Configuration Data Blocks to CMIS devices.
     /// </summary>
     public class CdbWriter : ICdbWriter
     {
+        private const byte CdbPage         = 0x9F;
+        private const byte CdbHeaderOffset = 0x80;
+
         /// <inheritdoc />
         public async Task WriteAsync(ICmisDevice device, ConfigurationDataBlock cdb)
         {
-            // TODO: Implement CDB writing logic
-            await Task.CompletedTask;
+            if (device == null)
+                throw new CmisException(CmisErrorCode.InvalidParameterValue, nameof(device));
+
+            if (cdb == null)
+                throw new CmisException(CmisErrorCode.InvalidParameterValue, nameof(cdb));
+
+            if (!device.IsConnected)
+                throw new CmisException(CmisErrorCode.DeviceNotConnected);
+
+            try
+            {
+                // Serialize CDB to byte array
+                var data = SerializeCdb(cdb);
+
+                // Calculate CRC over body (all bytes except the 2-byte checksum at end)
+                var bodyLength = data.Length - 2;
+                var crcData = new byte[bodyLength];
+                Array.Copy(data, 0, crcData, 0, bodyLength);
+
+                var crc = CrcCalculator.CalculateCrc16(crcData);
+
+                // Write CRC to last 2 bytes
+                data[bodyLength]     = (byte)(crc & 0xFF);
+                data[bodyLength + 1] = (byte)((crc >> 8) & 0xFF);
+
+                // Write to device
+                await device.RegisterAccess.WriteBlockAsync(CdbPage, CdbHeaderOffset, data);
+
+                // Verify by reading back
+                var verifyData = await device.RegisterAccess.ReadBlockAsync(CdbPage, CdbHeaderOffset, data.Length);
+                for (var i = 0; i < data.Length; i++)
+                {
+                    if (data[i] != verifyData[i])
+                        throw new CmisException(CmisErrorCode.CdbWriteFailed, i);
+                }
+            }
+            catch (CmisException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CmisException(CmisErrorCode.CdbWriteFailed, ex);
+            }
+        }
+
+        private static byte[] SerializeCdb(ConfigurationDataBlock cdb)
+        {
+            var fields = new List<byte>();
+
+            foreach (var field in cdb.Fields)
+            {
+                SerializeField(field, fields);
+            }
+
+            // Build complete CDB: Header(4) + Fields + Checksum(2)
+            var bodyLength = 4 + fields.Count;
+            var totalLength = bodyLength + 2;
+            var result = new byte[totalLength];
+
+            // Header: Length[2], Version[1], Flags[1]
+            result[0] = (byte)(totalLength & 0xFF);
+            result[1] = (byte)((totalLength >> 8) & 0xFF);
+            result[2] = cdb.Header.Version;
+            result[3] = cdb.Header.Flags;
+
+            // Fields
+            fields.CopyTo(result, 4);
+
+            // Checksum placeholder (will be filled by caller)
+            result[^2] = 0;
+            result[^1] = 0;
+
+            return result;
+        }
+
+        private static void SerializeField(CdbField field, List<byte> buffer)
+        {
+            var idBytes = Encoding.ASCII.GetBytes(field.Id);
+            var valueBytes = SerializeFieldValue(field.Type, field.Value);
+
+            // Type
+            buffer.Add((byte)field.Type);
+            // Id Length
+            buffer.Add((byte)idBytes.Length);
+            // Id
+            buffer.AddRange(idBytes);
+            // Value Length
+            buffer.Add((byte)(valueBytes.Length & 0xFF));
+            buffer.Add((byte)((valueBytes.Length >> 8) & 0xFF));
+            // Value
+            buffer.AddRange(valueBytes);
+        }
+
+        private static byte[] SerializeFieldValue(CdbFieldType type, object? value)
+        {
+            if (value == null)
+                return [];
+
+            return type switch
+            {
+                CdbFieldType.Byte   => [(byte)Convert.ToByte(value)],
+                CdbFieldType.Word   => [(byte)(Convert.ToUInt16(value) & 0xFF), (byte)((Convert.ToUInt16(value) >> 8) & 0xFF)],
+                CdbFieldType.DWord  => BitConverter.GetBytes(Convert.ToUInt32(value)),
+                CdbFieldType.String => Encoding.ASCII.GetBytes((string)value),
+                _                   => value is byte[] bytes ? bytes : []
+            };
         }
     }
 }

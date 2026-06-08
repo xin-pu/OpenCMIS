@@ -1,4 +1,5 @@
 using OpenCMIS.Protocol.Abstractions;
+using OpenCMIS.Shared;
 using OpenCMIS.Transport.Abstractions;
 
 namespace OpenCMIS.App.Core
@@ -11,6 +12,7 @@ namespace OpenCMIS.App.Core
         private readonly ICmisDevice              _device;
         private          CancellationTokenSource? _cancellationTokenSource;
         private          bool                     _isMonitoring;
+        private          ModuleStatus?            _lastStatus;
 
         /// <summary>
         ///     Initializes a new instance of the DeviceMonitor class.
@@ -18,7 +20,7 @@ namespace OpenCMIS.App.Core
         /// <param name="device">The CMIS device to monitor.</param>
         public DeviceMonitor(ICmisDevice device)
         {
-            _device = device;
+            _device = device ?? throw new ArgumentNullException(nameof(device));
         }
 
         /// <summary>
@@ -32,19 +34,25 @@ namespace OpenCMIS.App.Core
         public event EventHandler<AlertEventArgs>? Alert;
 
         /// <summary>
+        ///     Gets a value indicating whether monitoring is active.
+        /// </summary>
+        public bool IsMonitoring => _isMonitoring;
+
+        /// <summary>
         ///     Starts monitoring the device with the specified interval.
         /// </summary>
         /// <param name="interval">The monitoring interval.</param>
-        public async Task StartMonitoringAsync(TimeSpan interval)
+        public Task StartMonitoringAsync(TimeSpan interval)
         {
             if (_isMonitoring)
-                return;
+                return Task.CompletedTask;
 
             _isMonitoring            = true;
             _cancellationTokenSource = new CancellationTokenSource();
 
-            // TODO: Implement monitoring loop
-            await Task.CompletedTask;
+            _ = Task.Run(() => MonitoringLoopAsync(interval, _cancellationTokenSource.Token));
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -57,10 +65,58 @@ namespace OpenCMIS.App.Core
 
             _isMonitoring = false;
             _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource?.Dispose();
-            _cancellationTokenSource = null;
 
             await Task.CompletedTask;
+        }
+
+        private async Task MonitoringLoopAsync(TimeSpan interval, CancellationToken ct)
+        {
+            while (!ct.IsCancellationRequested)
+            {
+                try
+                {
+                    var currentStatus = await _device.GetStatusAsync();
+
+                    // Check for status changes
+                    if (_lastStatus != null && currentStatus.CurrentState != _lastStatus.CurrentState)
+                    {
+                        var args = new StatusChangedEventArgs(_lastStatus, currentStatus);
+                        StatusChanged?.Invoke(this, args);
+                    }
+
+                    // Check for alerts
+                    if (currentStatus.HasAlerts)
+                    {
+                        foreach (var alertMessage in currentStatus.ActiveAlerts)
+                        {
+                            var alertArgs = new AlertEventArgs { AlertType = AlertType.Warning, Message = alertMessage };
+                            Alert?.Invoke(this, alertArgs);
+                        }
+                    }
+
+                    _lastStatus = currentStatus;
+                }
+                catch (Exception ex)
+                {
+                    // Report communication errors as alerts
+                    var alertArgs = new AlertEventArgs { AlertType = AlertType.Error, Message = $"Monitor error: {ex.Message}" };
+                    Alert?.Invoke(this, alertArgs);
+                }
+
+                try
+                {
+                    await Task.Delay(interval, ct);
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+            }
+
+            // Cleanup
+            _cancellationTokenSource?.Dispose();
+            _cancellationTokenSource = null;
+            _lastStatus              = null;
         }
     }
 }

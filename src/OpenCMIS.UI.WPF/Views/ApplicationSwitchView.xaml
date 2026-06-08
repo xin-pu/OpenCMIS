@@ -1,0 +1,23 @@
+<UserControl x:Class="OpenCMIS.UI.WPF.Views.ApplicationSwitchView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <TextBlock Text="Application Switch" FontSize="22" FontWeight="Bold" Margin="0,0,0,20" />
+
+        <GroupBox Header="Current Application" Padding="10" Margin="0,0,0,15">
+            <TextBlock Text="{Binding CurrentApplication}" FontSize="16" FontWeight="Bold" />
+        </GroupBox>
+
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <Button Content="Refresh" Command="{Binding RefreshApplicationsCommand}" Margin="0,0,10,0" />
+        </StackPanel>
+
+        <GroupBox Header="Available Applications" Padding="10">
+            <ListBox ItemsSource="{Binding AvailableApplications}"
+                     DisplayMemberPath="Name"
+                     MaxHeight="300" />
+        </GroupBox>
+
+        <TextBlock Text="{Binding StatusMessage}" Foreground="Gray" Margin="0,10,0,0" />
+    </StackPanel>
+</UserControl>
