@@ -69,6 +69,58 @@ namespace OpenCMIS.Shared
 
         #endregion
 
+        #region Monitor and Identity Registers
+
+        /// <summary>Temperature monitor, lower page 0x00 (0x0E-0x0F, 2 bytes, signed int16, LSB=1/256°C).</summary>
+        public const byte RegTemperatureMSB = 0x0E;
+
+        /// <summary>VCC monitor, lower page 0x00 (0x10-0x11, 2 bytes, unsigned int16, LSB=100µV).</summary>
+        public const byte RegVccMSB = 0x10;
+
+        /// <summary>Vendor name start, upper page 0x01 (0x81, 16 bytes).</summary>
+        public const byte RegVendorNameStart = 0x81;
+
+        /// <summary>Vendor OUI, upper page 0x01 (0x90, 3 bytes).</summary>
+        public const byte RegVendorOUI = 0x90;
+
+        /// <summary>Part number start, upper page 0x01 (0x94, 16 bytes).</summary>
+        public const byte RegPartNumberStart = 0x94;
+
+        /// <summary>Serial number start, upper page 0x01 (0xA0, 16 bytes).</summary>
+        public const byte RegSerialNumberStart = 0xA0;
+
+        /// <summary>Hardware revision, upper page 0x01 (0xB0, 2 bytes BCD).</summary>
+        public const byte RegHardwareRevision = 0xB0;
+
+        /// <summary>Firmware revision, upper page 0x01 (0xB2, 2 bytes BCD).</summary>
+        public const byte RegFirmwareRevision = 0xB2;
+
+        /// <summary>Date code, upper page 0x01 (0xB4, 8 bytes ASCII).</summary>
+        public const byte RegDateCode = 0xB4;
+
+        /// <summary>CLEI code, upper page 0x01 (0xBC, 10 bytes ASCII).</summary>
+        public const byte RegCLEICode = 0xBC;
+
+        /// <summary>First per-lane upper page number.</summary>
+        public const byte FirstLanePage = 0x10;
+
+        /// <summary>Maximum supported lanes.</summary>
+        public const byte MaxLanes = 8;
+
+        /// <summary>Per-lane TX bias monitor (2 bytes, unsigned int16, LSB=2µA).</summary>
+        public const byte RegLaneTxBiasMSB = 0xA0;
+
+        /// <summary>Per-lane TX power monitor (2 bytes, unsigned int16, LSB=0.1µW).</summary>
+        public const byte RegLaneTxPowerMSB = 0xA2;
+
+        /// <summary>Per-lane RX power monitor (2 bytes, unsigned int16, LSB=0.1µW).</summary>
+        public const byte RegLaneRxPowerMSB = 0xA4;
+
+        /// <summary>Per-lane status flags (1 byte, bit0=enabled, bit1=fault).</summary>
+        public const byte RegLaneStatusFlags = 0xA6;
+
+        #endregion
+
         /// <summary>
         ///     Default I2C address for CMIS modules.
         /// </summary>

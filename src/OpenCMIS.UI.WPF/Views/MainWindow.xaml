@@ -30,6 +30,9 @@
         <DataTemplate DataType="{x:Type vm:PageEditorViewModel}">
             <views:PageEditorView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ModuleHomeViewModel}">
+            <views:ModuleHomeView />
+        </DataTemplate>
 
     </Window.Resources>
 
@@ -94,6 +97,7 @@
                     <ListBoxItem Tag="CdbEditor">CDB Editor</ListBoxItem>
                     <ListBoxItem Tag="ApplicationSwitch">Application Switch</ListBoxItem>
                     <ListBoxItem Tag="PageEditor">Page Editor</ListBoxItem>
+                    <ListBoxItem Tag="ModuleHome">Module Home</ListBoxItem>
                 </ListBox>
             </StackPanel>
         </Border>

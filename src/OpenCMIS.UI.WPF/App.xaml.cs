@@ -33,6 +33,7 @@ namespace OpenCMIS.UI.WPF
                     services.AddTransient<CdbEditorViewModel>();
                     services.AddTransient<ApplicationSwitchViewModel>();
                     services.AddTransient<PageEditorViewModel>();
+                    services.AddTransient<ModuleHomeViewModel>();
 
                     // Views
                     services.AddTransient<MainWindow>();

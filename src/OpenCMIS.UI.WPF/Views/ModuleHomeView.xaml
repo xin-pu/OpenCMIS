@@ -1,0 +1,270 @@
+<UserControl x:Class="OpenCMIS.UI.WPF.Views.ModuleHomeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="clr-namespace:OpenCMIS.UI.WPF.Converters">
+    <UserControl.Resources>
+        <converters:ModuleStateToColorConverter x:Key="ModuleStateToColorConverter" />
+        <converters:MonitorValueToColorConverter x:Key="MonitorValueToColorConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+
+        <Style x:Key="GaugeCardBorderStyle" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource MaterialDesignPaper}" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="12" />
+            <Setter Property="Margin" Value="4" />
+            <Setter Property="Width" Value="200" />
+            <Setter Property="Height" Value="120" />
+        </Style>
+
+        <Style x:Key="IdentityLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBodyLight}" />
+            <Setter Property="Margin" Value="0,3" />
+        </Style>
+
+        <Style x:Key="IdentityValueStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Consolas, Courier New" />
+            <Setter Property="Margin" Value="0,3" />
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <!-- Header -->
+            <StackPanel Margin="0,0,0,15">
+                <StackPanel Orientation="Horizontal">
+                    <Ellipse Width="18" Height="18" Margin="0,0,10,0" VerticalAlignment="Center"
+                             Fill="{Binding CurrentStateText, Converter={StaticResource ModuleStateToColorConverter}}" />
+                    <TextBlock Text="Module Home" FontSize="22" FontWeight="Bold" />
+                </StackPanel>
+                <TextBlock Margin="28,2,0,0" FontSize="13">
+                    <Run Text="State: " Foreground="Gray" />
+                    <Run Text="{Binding CurrentStateText}" FontWeight="Bold" />
+                    <Run Text=" | " Foreground="Gray" />
+                    <Run Text="Ready: " Foreground="Gray" />
+                    <Run Text="{Binding DashData.IsReady}" FontWeight="Bold" />
+                </TextBlock>
+            </StackPanel>
+
+            <!-- Module Identity Card -->
+            <GroupBox Header="Module Identity" Padding="10" Margin="0,0,0,15">
+                <UniformGrid Columns="2" Rows="6">
+                    <!-- Row 1 -->
+                    <StackPanel>
+                        <TextBlock Text="Vendor Name" Style="{StaticResource IdentityLabelStyle}" />
+                        <TextBlock Text="{Binding DashData.Identity.VendorName}" Style="{StaticResource IdentityValueStyle}" />
+                    </StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="Vendor OUI" Style="{StaticResource IdentityLabelStyle}" />
+                        <TextBlock Text="{Binding DashData.Identity.VendorOUI}" Style="{StaticResource IdentityValueStyle}" />
+                    </StackPanel>
+                    <!-- Row 2 -->
+                    <StackPanel>
+                        <TextBlock Text="Part Number" Style="{StaticResource IdentityLabelStyle}" />
+                        <TextBlock Text="{Binding DashData.Identity.PartNumber}" Style="{StaticResource IdentityValueStyle}" />
+                    </StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="Serial Number" Style="{StaticResource IdentityLabelStyle}" />
+                        <TextBlock Text="{Binding DashData.Identity.SerialNumber}" Style="{StaticResource IdentityValueStyle}" />
+                    </StackPanel>
+                    <!-- Row 3 -->
+                    <StackPanel>
+                        <TextBlock Text="Hardware Revision" Style="{StaticResource IdentityLabelStyle}" />
+                        <TextBlock Text="{Binding DashData.Identity.HardwareRevision}" Style="{StaticResource IdentityValueStyle}" />
+                    </StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="Firmware Revision" Style="{StaticResource IdentityLabelStyle}" />
+                        <TextBlock Text="{Binding DashData.Identity.FirmwareRevision}" Style="{StaticResource IdentityValueStyle}" />
+                    </StackPanel>
+                    <!-- Row 4 -->
+                    <StackPanel>
+                        <TextBlock Text="Date Code" Style="{StaticResource IdentityLabelStyle}" />
+                        <TextBlock Text="{Binding DashData.Identity.DateCode}" Style="{StaticResource IdentityValueStyle}" />
+                    </StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="Module Type" Style="{StaticResource IdentityLabelStyle}" />
+                        <TextBlock Text="{Binding DashData.Identity.ModuleType}" Style="{StaticResource IdentityValueStyle}" />
+                    </StackPanel>
+                    <!-- Row 5 -->
+                    <StackPanel>
+                        <TextBlock Text="Connector Type" Style="{StaticResource IdentityLabelStyle}" />
+                        <TextBlock Text="{Binding DashData.Identity.ConnectorType}" Style="{StaticResource IdentityValueStyle}" />
+                    </StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="CMIS Version" Style="{StaticResource IdentityLabelStyle}" />
+                        <TextBlock Text="{Binding DashData.Identity.CmisVersion}" Style="{StaticResource IdentityValueStyle}" />
+                    </StackPanel>
+                    <!-- Row 6 -->
+                    <StackPanel>
+                        <TextBlock Text="CLEI Code" Style="{StaticResource IdentityLabelStyle}" />
+                        <TextBlock Text="{Binding DashData.Identity.CLEICode}" Style="{StaticResource IdentityValueStyle}" />
+                    </StackPanel>
+                    <StackPanel />
+                </UniformGrid>
+            </GroupBox>
+
+            <!-- Real-Time Monitor Gauges -->
+            <GroupBox Header="Real-Time Monitors" Padding="10" Margin="0,0,0,15">
+                <WrapPanel>
+                    <!-- Temperature -->
+                    <Border Style="{StaticResource GaugeCardBorderStyle}">
+                        <Border.BorderBrush>
+                            <Binding Path="DashData.Monitors.Temperature" Converter="{StaticResource MonitorValueToColorConverter}" />
+                        </Border.BorderBrush>
+                        <Border.BorderThickness>
+                            <Binding Path="DashData.Monitors.Temperature.HasAlarm" FallbackValue="1">
+                                <Binding.Converter>
+                                    <converters:BoolToVisibilityConverter />
+                                </Binding.Converter>
+                            </Binding>
+                        </Border.BorderThickness>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="TEMPERATURE" FontSize="10" Foreground="Gray" />
+                            <TextBlock FontSize="24" FontWeight="Bold" Margin="0,4,0,0">
+                                <Run Text="{Binding DashData.Monitors.Temperature.Value, StringFormat=F2}" />
+                                <Run Text=" " FontSize="14" />
+                                <Run Text="{Binding DashData.Monitors.Temperature.Unit}" FontSize="14" Foreground="Gray" />
+                            </TextBlock>
+                            <TextBlock FontSize="11" Margin="0,2,0,0"
+                                       Foreground="{Binding DashData.Monitors.Temperature, Converter={StaticResource MonitorValueToColorConverter}}">
+                                <Run Text="{Binding DashData.Monitors.Temperature.GetStatusText}" />
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- VCC -->
+                    <Border Style="{StaticResource GaugeCardBorderStyle}"
+                            BorderBrush="{Binding DashData.Monitors.VCC, Converter={StaticResource MonitorValueToColorConverter}}"
+                            BorderThickness="1">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="SUPPLY VOLTAGE" FontSize="10" Foreground="Gray" />
+                            <TextBlock FontSize="24" FontWeight="Bold" Margin="0,4,0,0">
+                                <Run Text="{Binding DashData.Monitors.VCC.Value, StringFormat=F3}" />
+                                <Run Text=" " FontSize="14" />
+                                <Run Text="{Binding DashData.Monitors.VCC.Unit}" FontSize="14" Foreground="Gray" />
+                            </TextBlock>
+                            <TextBlock FontSize="11" Margin="0,2,0,0"
+                                       Foreground="{Binding DashData.Monitors.VCC, Converter={StaticResource MonitorValueToColorConverter}}">
+                                <Run Text="{Binding DashData.Monitors.VCC.GetStatusText}" />
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- TX Power Total -->
+                    <Border Style="{StaticResource GaugeCardBorderStyle}" BorderThickness="1"
+                            BorderBrush="{DynamicResource MaterialDesignDivider}">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="TX POWER TOTAL" FontSize="10" Foreground="Gray" />
+                            <TextBlock FontSize="24" FontWeight="Bold" Margin="0,4,0,0">
+                                <Run Text="{Binding DashData.Monitors.TotalTxPower, StringFormat=F3}" />
+                                <Run Text=" mW" FontSize="14" Foreground="Gray" />
+                            </TextBlock>
+                            <TextBlock Text="AGGREGATE" FontSize="11" Foreground="Gray" Margin="0,2,0,0" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- RX Power Total -->
+                    <Border Style="{StaticResource GaugeCardBorderStyle}" BorderThickness="1"
+                            BorderBrush="{DynamicResource MaterialDesignDivider}">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="RX POWER TOTAL" FontSize="10" Foreground="Gray" />
+                            <TextBlock FontSize="24" FontWeight="Bold" Margin="0,4,0,0">
+                                <Run Text="{Binding DashData.Monitors.TotalRxPower, StringFormat=F3}" />
+                                <Run Text=" mW" FontSize="14" Foreground="Gray" />
+                            </TextBlock>
+                            <TextBlock Text="AGGREGATE" FontSize="11" Foreground="Gray" Margin="0,2,0,0" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- TX Bias Max -->
+                    <Border Style="{StaticResource GaugeCardBorderStyle}" BorderThickness="1"
+                            BorderBrush="{DynamicResource MaterialDesignDivider}">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="TX BIAS MAX" FontSize="10" Foreground="Gray" />
+                            <TextBlock FontSize="24" FontWeight="Bold" Margin="0,4,0,0">
+                                <Run Text="{Binding DashData.Monitors.MaxTxBias, StringFormat=F2}" />
+                                <Run Text=" mA" FontSize="14" Foreground="Gray" />
+                            </TextBlock>
+                            <TextBlock Text="MAX ACROSS LANES" FontSize="11" Foreground="Gray" Margin="0,2,0,0" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Summary -->
+                    <Border Style="{StaticResource GaugeCardBorderStyle}" BorderThickness="1"
+                            BorderBrush="{DynamicResource MaterialDesignDivider}">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="STATUS" FontSize="10" Foreground="Gray" />
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <Ellipse Width="14" Height="14"
+                                         Fill="{Binding DashData.CurrentState, Converter={StaticResource ModuleStateToColorConverter}}" />
+                                <TextBlock Text="{Binding DashData.CurrentState}" FontSize="16" FontWeight="Bold"
+                                           Margin="8,0,0,0" VerticalAlignment="Center" />
+                            </StackPanel>
+                            <TextBlock FontSize="11" Margin="0,4,0,0" Foreground="Gray">
+                                <Run Text="{Binding DashData.Lanes.Count, StringFormat={}{0} lanes}" />
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+            </GroupBox>
+
+            <!-- Lane Details Table -->
+            <GroupBox Header="Lane Details" Padding="10" Margin="0,0,0,15">
+                <DataGrid ItemsSource="{Binding DashData.Lanes}"
+                          AutoGenerateColumns="False"
+                          CanUserAddRows="False"
+                          MaxHeight="250"
+                          IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Lane" Binding="{Binding LaneNumber}" Width="50" />
+                        <DataGridTextColumn Header="TX Power (mW)" Binding="{Binding TxPower, StringFormat=F4}" Width="120" />
+                        <DataGridTextColumn Header="RX Power (mW)" Binding="{Binding RxPower, StringFormat=F4}" Width="120" />
+                        <DataGridTextColumn Header="TX Bias (mA)" Binding="{Binding TxBias, StringFormat=F3}" Width="120" />
+                        <DataGridTextColumn Header="Enabled" Binding="{Binding IsEnabled}" Width="70" />
+                        <DataGridTextColumn Header="Status" Binding="{Binding StatusText}" Width="*">
+                            <DataGridTextColumn.CellStyle>
+                                <Style TargetType="DataGridCell">
+                                    <Setter Property="Foreground" Value="Green" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasFault}" Value="True">
+                                            <Setter Property="Foreground" Value="Red" />
+                                            <Setter Property="FontWeight" Value="Bold" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsEnabled}" Value="False">
+                                            <Setter Property="Foreground" Value="Gray" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGridTextColumn.CellStyle>
+                        </DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </GroupBox>
+
+            <!-- Controls -->
+            <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                <TextBlock Text="Refresh:" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="Bold" />
+                <ComboBox ItemsSource="{Binding RefreshIntervalOptions}"
+                          SelectedItem="{Binding RefreshInterval}"
+                          Width="60"
+                          IsEnabled="{Binding IsMonitoring, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" />
+                <TextBlock Text="s" VerticalAlignment="Center" Margin="2,0,12,0" />
+
+                <Button Content="Start Monitor"
+                        Command="{Binding StartMonitoringCommand}"
+                        Margin="0,0,8,0"
+                        Visibility="{Binding IsMonitoring, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" />
+                <Button Content="Stop Monitor"
+                        Command="{Binding StopMonitoringCommand}"
+                        Visibility="{Binding IsMonitoring, Converter={StaticResource BoolToVisibilityConverter}}" />
+                <Button Content="Refresh Identity"
+                        Command="{Binding RefreshIdentityCommand}"
+                        Margin="16,0,0,0"
+                        Style="{DynamicResource MaterialDesignFlatButton}" />
+            </StackPanel>
+
+            <!-- Status -->
+            <TextBlock Text="{Binding StatusText}" Foreground="Gray" Margin="0,10,0,0" />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

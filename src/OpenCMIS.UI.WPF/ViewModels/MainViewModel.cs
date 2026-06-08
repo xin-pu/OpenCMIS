@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using OpenCMIS.Protocol.Abstractions;
 
 namespace OpenCMIS.UI.WPF.ViewModels
 {
@@ -23,6 +24,7 @@ namespace OpenCMIS.UI.WPF.ViewModels
         public CdbEditorViewModel CdbEditorVM { get; }
         public ApplicationSwitchViewModel ApplicationSwitchVM { get; }
         public PageEditorViewModel PageEditorVM { get; }
+        public ModuleHomeViewModel ModuleHomeVM { get; }
 
         public MainViewModel(
             DeviceConnectionViewModel deviceConnectionVM,
@@ -30,7 +32,8 @@ namespace OpenCMIS.UI.WPF.ViewModels
             ControlPanelViewModel controlPanelVM,
             CdbEditorViewModel cdbEditorVM,
             ApplicationSwitchViewModel applicationSwitchVM,
-            PageEditorViewModel pageEditorVM)
+            PageEditorViewModel pageEditorVM,
+            ModuleHomeViewModel moduleHomeVM)
         {
             DeviceConnectionVM = deviceConnectionVM;
             DashboardVM = dashboardVM;
@@ -38,8 +41,19 @@ namespace OpenCMIS.UI.WPF.ViewModels
             CdbEditorVM = cdbEditorVM;
             ApplicationSwitchVM = applicationSwitchVM;
             PageEditorVM = pageEditorVM;
+            ModuleHomeVM = moduleHomeVM;
 
             ActiveView = DeviceConnectionVM;
+        }
+
+        public void SetDevice(ICmisDevice? device)
+        {
+            DashboardVM.SetDevice(device);
+            ControlPanelVM.SetDevice(device);
+            CdbEditorVM.SetDevice(device);
+            ApplicationSwitchVM.SetDevice(device);
+            PageEditorVM.SetDevice(device);
+            ModuleHomeVM.SetDevice(device);
         }
 
         [RelayCommand]
@@ -53,6 +67,7 @@ namespace OpenCMIS.UI.WPF.ViewModels
                 "CdbEditor"          => CdbEditorVM,
                 "ApplicationSwitch"  => ApplicationSwitchVM,
                 "PageEditor"         => PageEditorVM,
+                "ModuleHome"         => ModuleHomeVM,
                 _                    => DeviceConnectionVM
             };
         }
