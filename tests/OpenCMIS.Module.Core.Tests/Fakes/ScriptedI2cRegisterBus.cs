@@ -9,7 +9,10 @@ internal sealed class ScriptedI2cRegisterBus : II2cRegisterBus
         new(TaskCreationOptions.RunContinuationsAsynchronously);
     private readonly TaskCompletionSource _resume =
         new(TaskCreationOptions.RunContinuationsAsynchronously);
+    private readonly TaskCompletionSource _readObserved =
+        new(TaskCreationOptions.RunContinuationsAsynchronously);
     private bool _pauseAfterFirstWrite;
+    private string? _pauseAfterOperation;
     private int _writeCount;
 
     public bool IsOpen { get; private set; }
@@ -25,6 +28,8 @@ internal sealed class ScriptedI2cRegisterBus : II2cRegisterBus
 
     public Task PauseObserved => _pauseObserved.Task;
 
+    public Task ReadObserved => _readObserved.Task;
+
     public void QueueRead(byte[] data)
     {
         _reads.Enqueue(data);
@@ -33,6 +38,11 @@ internal sealed class ScriptedI2cRegisterBus : II2cRegisterBus
     public void PauseAfterFirstWrite()
     {
         _pauseAfterFirstWrite = true;
+    }
+
+    public void PauseAfterOperation(string operation)
+    {
+        _pauseAfterOperation = operation;
     }
 
     public void Resume()
@@ -62,6 +72,7 @@ internal sealed class ScriptedI2cRegisterBus : II2cRegisterBus
     {
         cancellationToken.ThrowIfCancellationRequested();
         Operations.Add($"R {device.Value:X2}:{offset.Value:X2} {destination.Length}");
+        _readObserved.TrySetResult();
         var data = _reads.Dequeue();
         if (data.Length != destination.Length)
         {
@@ -93,6 +104,13 @@ internal sealed class ScriptedI2cRegisterBus : II2cRegisterBus
 
         if (_pauseAfterFirstWrite && _writeCount == 1)
         {
+            _pauseObserved.TrySetResult();
+            await _resume.Task.WaitAsync(cancellationToken);
+        }
+
+        if (_pauseAfterOperation == Operations[^1])
+        {
+            _pauseAfterOperation = null;
             _pauseObserved.TrySetResult();
             await _resume.Task.WaitAsync(cancellationToken);
         }

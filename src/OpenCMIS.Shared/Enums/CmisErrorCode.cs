@@ -227,6 +227,15 @@ namespace OpenCMIS.Shared
         [Info("MSA page selection failed", "MSA page selection failed")]
         MsaPageSelectionFailed = 640,
 
+        [Info("HCI command timed out", "HCI command timed out")]
+        HciCommandTimeout = 650,
+
+        [Info("Invalid HCI response", "Invalid HCI response")]
+        HciInvalidResponse = 660,
+
+        [Info("HCI command rejected", "HCI command rejected")]
+        HciCommandRejected = 670,
+
         #endregion
 
         #region Unclassified Errors - 9990-9999
