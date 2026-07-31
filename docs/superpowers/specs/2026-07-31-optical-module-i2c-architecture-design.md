@@ -1,7 +1,7 @@
 # OpenCMIS Optical Module and I2C Architecture Design
 
 Date: 2026-07-31
-Status: Pending written-spec review
+Status: Approved on 2026-07-31
 Target branch: `codex/refactor-module-i2c-architecture`
 
 ## 1. Purpose
