@@ -224,6 +224,9 @@ namespace OpenCMIS.Shared
         [Info("Invalid I2C response", "Invalid I2C response")]
         I2cInvalidResponse = 630,
 
+        [Info("MSA page selection failed", "MSA page selection failed")]
+        MsaPageSelectionFailed = 640,
+
         #endregion
 
         #region Unclassified Errors - 9990-9999
