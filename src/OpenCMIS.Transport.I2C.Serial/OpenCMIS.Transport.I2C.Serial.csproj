@@ -5,12 +5,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="OpenCMIS.Transport.I2C.csproj.DotSettings" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\OpenCMIS.Shared\OpenCMIS.Shared.csproj" />
     <ProjectReference Include="..\OpenCMIS.Transport.Abstractions\OpenCMIS.Transport.Abstractions.csproj" />
-    <ProjectReference Include="..\OpenCMIS.Transport.I2C.Serial\OpenCMIS.Transport.I2C.Serial.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.IO.Ports" Version="10.0.2" />
