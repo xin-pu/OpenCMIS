@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>OpenCMIS.Cypress</RootNamespace>
+    <AssemblyName>OpenCMIS.Cypress</AssemblyName>
+    <!-- Imported legacy source is kept behaviorally unchanged in this project. -->
+    <NoWarn>$(NoWarn);CA2022;CS0472;SYSLIB0003</NoWarn>
+  </PropertyGroup>
+
+</Project>
