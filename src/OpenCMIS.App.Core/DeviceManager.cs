@@ -1,138 +1,203 @@
-using System.IO.Ports;
 using OpenCMIS.Protocol.Abstractions;
-using OpenCMIS.Protocol.Core;
 using OpenCMIS.Shared;
 using OpenCMIS.Transport.Abstractions;
-using OpenCMIS.Transport.I2C;
 
-namespace OpenCMIS.App.Core
+namespace OpenCMIS.App.Core;
+
+/// <summary>
+/// Coordinates adapter providers without constructing hardware implementations.
+/// </summary>
+public sealed class DeviceManager : IDeviceManager
 {
-    /// <summary>
-    ///     Manages device lifecycle, enumeration, and identification.
-    /// </summary>
-    public class DeviceManager : IDeviceManager
+    private readonly IReadOnlyDictionary<string, II2cAdapterProvider> _providers;
+    private readonly IOpticalModuleFactory _moduleFactory;
+
+    public DeviceManager(
+        IEnumerable<II2cAdapterProvider> providers,
+        IOpticalModuleFactory moduleFactory)
     {
-        private const int ProbeTimeoutMs = 500;
+        ArgumentNullException.ThrowIfNull(providers);
+        _moduleFactory = moduleFactory ??
+                         throw new ArgumentNullException(nameof(moduleFactory));
+        _providers = providers.ToDictionary(
+            provider => provider.AdapterId,
+            StringComparer.OrdinalIgnoreCase);
+    }
 
-        /// <inheritdoc />
-        public async Task<IEnumerable<DeviceInfo>> EnumerateDevicesAsync()
-        {
-            var devices = new List<DeviceInfo>();
-            var portNames = SerialPort.GetPortNames();
+    public IReadOnlyList<I2cProbeFailure> LastProbeFailures { get; private set; } =
+        [];
 
-            foreach (var portName in portNames)
-            {
-                var deviceInfo = await TryProbePortAsync(portName);
-                if (deviceInfo != null)
-                    devices.Add(deviceInfo);
-            }
+    public async Task<IEnumerable<DeviceInfo>> EnumerateDevicesAsync()
+    {
+        var devices = new List<DeviceInfo>();
+        var failures = new List<I2cProbeFailure>();
 
-            return devices;
-        }
-
-        /// <inheritdoc />
-        public async Task<ICmisDevice> OpenDeviceAsync(DeviceInfo deviceInfo)
-        {
-            if (deviceInfo == null)
-                throw new CmisException(CmisErrorCode.InvalidParameterValue, nameof(deviceInfo));
-
-            // Extract connection parameters
-            var portName = deviceInfo.ConnectionParameters.GetValueOrDefault("PortName", "");
-            var baudRate = int.Parse(deviceInfo.ConnectionParameters.GetValueOrDefault("BaudRate", "115200"));
-            var slaveAddressStr = deviceInfo.ConnectionParameters.GetValueOrDefault("SlaveAddress", "0xA0");
-            var slaveAddress = Convert.ToByte(slaveAddressStr, slaveAddressStr.StartsWith("0x") ? 16 : 10);
-
-            // Create transport based on connection type
-            IRegisterTransport transport = deviceInfo.ConnectionType switch
-            {
-                ConnectionType.I2C => new I2CConnectorTypeA(portName, baudRate, slaveAddress),
-                _ => throw new CmisException(CmisErrorCode.InvalidParameterValue, deviceInfo.ConnectionType)
-            };
-
-            // Build the dependency chain
-            var pageManager = new PageManager(transport);
-            var addressingStrategy = new StandardAddressingStrategy();
-            var registerAccess = new RegisterAccess(transport, pageManager, addressingStrategy);
-
-            // Open connection
-            var connected = await transport.OpenAsync();
-            if (!connected)
-                throw new CmisException(CmisErrorCode.DeviceConnectionFailed, portName);
-
-            return new CmisDevice(deviceInfo, transport, registerAccess);
-        }
-
-        /// <inheritdoc />
-        public async Task CloseDeviceAsync(ICmisDevice device)
-        {
-            if (device == null)
-                throw new CmisException(CmisErrorCode.InvalidParameterValue, nameof(device));
-
-            await device.CloseAsync();
-        }
-
-        private async Task<DeviceInfo?> TryProbePortAsync(string portName)
+        foreach (var provider in _providers.Values)
         {
             try
             {
-                using var cts = new CancellationTokenSource(ProbeTimeoutMs);
-
-                // Try Type A connector first (most common)
-                var typeAResult = await ProbeWithConnectorTypeA(portName, cts.Token);
-                if (typeAResult != null)
-                    return typeAResult;
-
-                return null;
-            }
-            catch (Exception)
-            {
-                // Port is not available or not a CMIS device
-                return null;
-            }
-        }
-
-        private static async Task<DeviceInfo?> ProbeWithConnectorTypeA(string portName, CancellationToken ct)
-        {
-            var connector = new I2CConnectorTypeA(portName, baudRate: 115200, slaveAddress: 0xA0);
-
-            try
-            {
-                var connected = await connector.OpenAsync();
-                if (!connected)
-                    return null;
-
-                try
-                {
-                    // Try to read the Identifier register (0x00) to verify CMIS module
-                    var identifier = await connector.ReadRegisterAsync(CmisConstants.RegIdentifier);
-
-                    // Basic validation: CMIS identifiers should be nonzero and in known ranges
-                    if (identifier == 0x00 || identifier == 0xFF)
-                        return null;
-
-                    return new DeviceInfo
-                    {
-                        Id               = portName,
-                        Name             = $"CMIS Module on {portName}",
-                        ConnectionType   = ConnectionType.I2C,
-                        ConnectionParameters = new Dictionary<string, string>
+                var descriptors = await provider.DiscoverAsync()
+                    .ConfigureAwait(false);
+                devices.AddRange(
+                    descriptors.Select(
+                        descriptor => new DeviceInfo
                         {
-                            ["PortName"]      = portName,
-                            ["BaudRate"]      = "115200",
-                            ["SlaveAddress"]  = "0xA0",
-                            ["ConnectorType"] = "TypeA"
-                        }
-                    };
-                }
-                finally
-                {
-                    await connector.CloseAsync();
-                }
+                            Id = descriptor.DeviceId,
+                            Name = descriptor.DisplayName,
+                            ConnectionType = ConnectionType.I2C,
+                            Profile = descriptor.Profile,
+                            ConnectionParameters =
+                                ToLegacyParameters(descriptor.Profile)
+                        }));
             }
-            catch
+            catch (Exception exception)
             {
-                return null;
+                failures.Add(
+                    new I2cProbeFailure(
+                        provider.AdapterId,
+                        "*",
+                        exception.Message));
             }
         }
+
+        LastProbeFailures = failures;
+        return devices;
+    }
+
+    public async Task<ICmisDevice> OpenDeviceAsync(DeviceInfo deviceInfo)
+    {
+        if (deviceInfo is null)
+        {
+            throw new CmisException(
+                CmisErrorCode.InvalidParameterValue,
+                nameof(deviceInfo));
+        }
+
+        var profile = deviceInfo.Profile ?? ParseLegacyProfile(deviceInfo);
+        deviceInfo.Profile = profile;
+        if (!_providers.TryGetValue(profile.AdapterId, out var provider))
+        {
+            throw new CmisException(
+                CmisErrorCode.I2cAdapterNotFound,
+                profile.AdapterId);
+        }
+
+        var bus = await provider.OpenAsync(profile).ConfigureAwait(false);
+        try
+        {
+            return await _moduleFactory.CreateAsync(deviceInfo, bus)
+                .ConfigureAwait(false);
+        }
+        catch
+        {
+            await bus.DisposeAsync().ConfigureAwait(false);
+            throw;
+        }
+    }
+
+    public Task CloseDeviceAsync(ICmisDevice device)
+    {
+        if (device is null)
+        {
+            throw new CmisException(
+                CmisErrorCode.InvalidParameterValue,
+                nameof(device));
+        }
+
+        return device.CloseAsync();
+    }
+
+    private static I2cConnectionProfile ParseLegacyProfile(DeviceInfo deviceInfo)
+    {
+        var parameters = deviceInfo.ConnectionParameters;
+        var connector = parameters.GetValueOrDefault("ConnectorType", "TypeA");
+        var adapterId = connector.Equals(
+            "TypeB",
+            StringComparison.OrdinalIgnoreCase)
+            ? "hm"
+            : "linktel";
+        var portName = parameters.GetValueOrDefault("PortName", deviceInfo.Id);
+        if (string.IsNullOrWhiteSpace(portName))
+        {
+            throw new CmisException(
+                CmisErrorCode.InvalidParameterValue,
+                "PortName");
+        }
+
+        var defaultBaudRate = adapterId == "hm" ? 1500000 : 115200;
+        if (!int.TryParse(
+                parameters.GetValueOrDefault(
+                    "BaudRate",
+                    defaultBaudRate.ToString()),
+                out var baudRate))
+        {
+            throw new CmisException(
+                CmisErrorCode.InvalidParameterValue,
+                "BaudRate");
+        }
+
+        var legacyAddressText = parameters.GetValueOrDefault(
+            "SlaveAddress",
+            "0xA0");
+        var address = ParseLegacyAddress(legacyAddressText);
+        return new SerialI2cConnectionProfile(
+            adapterId,
+            portName,
+            baudRate,
+            address);
+    }
+
+    private static I2cDeviceAddress ParseLegacyAddress(string value)
+    {
+        try
+        {
+            var legacy = Convert.ToByte(
+                value,
+                value.StartsWith("0x", StringComparison.OrdinalIgnoreCase)
+                    ? 16
+                    : 10);
+            return I2cDeviceAddress.FromLegacy8Bit(legacy);
+        }
+        catch (Exception exception)
+            when (exception is FormatException or
+                  OverflowException or
+                  ArgumentOutOfRangeException)
+        {
+            throw new CmisException(
+                CmisErrorCode.InvalidParameterValue,
+                "SlaveAddress",
+                exception);
+        }
+    }
+
+    private static Dictionary<string, string> ToLegacyParameters(
+        I2cConnectionProfile profile)
+    {
+        var parameters = new Dictionary<string, string>
+        {
+            ["ConnectorType"] = profile.AdapterId,
+            ["SlaveAddress"] =
+                $"0x{profile.DeviceAddress.ToWriteAddress8Bit():X2}"
+        };
+
+        switch (profile)
+        {
+            case SerialI2cConnectionProfile serial:
+                parameters["PortName"] = serial.PortName;
+                parameters["BaudRate"] = serial.BaudRate.ToString();
+                break;
+            case HmMultiChannelConnectionProfile multi:
+                parameters["PortName"] = multi.PortName;
+                parameters["BaudRate"] = multi.BaudRate.ToString();
+                parameters["Channel"] = multi.Channel.ToString();
+                break;
+            case CypressI2cConnectionProfile cypress:
+                parameters["SerialNumber"] = cypress.SerialNumber;
+                parameters["Port"] = cypress.Port.ToString();
+                parameters["SpeedKhz"] = cypress.SpeedKhz.ToString();
+                break;
+        }
+
+        return parameters;
     }
 }

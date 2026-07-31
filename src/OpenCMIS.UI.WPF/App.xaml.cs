@@ -2,6 +2,7 @@ using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OpenCMIS.App.Core;
+using OpenCMIS.Transport.I2C.Serial;
 using OpenCMIS.UI.WPF.ViewModels;
 using OpenCMIS.UI.WPF.Views;
 using Serilog;
@@ -24,6 +25,7 @@ namespace OpenCMIS.UI.WPF
                 .ConfigureServices(services =>
                 {
                     services.AddOpenCmisCore();
+                    services.AddOpenCmisSerialAdapters();
 
                     // ViewModels
                     services.AddTransient<MainViewModel>();
