@@ -1,4 +1,4 @@
-namespace OpenCMIS.Transport.Abstractions
+namespace OpenCMIS.Protocol.Abstractions.Models
 {
     /// <summary>
     ///     Provides data for the StatusChanged event.

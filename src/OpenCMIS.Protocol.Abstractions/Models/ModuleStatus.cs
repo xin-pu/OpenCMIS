@@ -1,6 +1,6 @@
 using OpenCMIS.Shared;
 
-namespace OpenCMIS.Transport.Abstractions
+namespace OpenCMIS.Protocol.Abstractions.Models
 {
     /// <summary>
     ///     Represents the current module status.

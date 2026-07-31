@@ -1,4 +1,6 @@
-namespace OpenCMIS.Shared.Models
+using OpenCMIS.Shared;
+
+namespace OpenCMIS.Protocol.Abstractions.Models
 {
     public class ModuleDashData
     {

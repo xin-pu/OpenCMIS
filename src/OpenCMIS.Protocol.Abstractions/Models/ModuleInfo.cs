@@ -1,4 +1,6 @@
-namespace OpenCMIS.Transport.Abstractions
+using OpenCMIS.Transport.Abstractions;
+
+namespace OpenCMIS.Protocol.Abstractions.Models
 {
     /// <summary>
     ///     Represents module identification and capability information.

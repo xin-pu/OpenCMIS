@@ -1,4 +1,4 @@
-namespace OpenCMIS.Shared.Models
+namespace OpenCMIS.Protocol.Abstractions.Models
 {
     public class MonitorValue
     {

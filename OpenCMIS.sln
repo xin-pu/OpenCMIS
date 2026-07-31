@@ -47,6 +47,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCMIS.Module.Core", "src
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCMIS.Module.Core.Tests", "tests\OpenCMIS.Module.Core.Tests\OpenCMIS.Module.Core.Tests.csproj", "{3467C023-A35F-4AD5-AD88-1653E09D42EB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCMIS.App.Core.Tests", "tests\OpenCMIS.App.Core.Tests\OpenCMIS.App.Core.Tests.csproj", "{6A58027C-D48F-4E08-89E5-BE57F60213EE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -237,6 +239,18 @@ Global
 		{3467C023-A35F-4AD5-AD88-1653E09D42EB}.Release|x64.Build.0 = Release|Any CPU
 		{3467C023-A35F-4AD5-AD88-1653E09D42EB}.Release|x86.ActiveCfg = Release|Any CPU
 		{3467C023-A35F-4AD5-AD88-1653E09D42EB}.Release|x86.Build.0 = Release|Any CPU
+		{6A58027C-D48F-4E08-89E5-BE57F60213EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A58027C-D48F-4E08-89E5-BE57F60213EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A58027C-D48F-4E08-89E5-BE57F60213EE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6A58027C-D48F-4E08-89E5-BE57F60213EE}.Debug|x64.Build.0 = Debug|Any CPU
+		{6A58027C-D48F-4E08-89E5-BE57F60213EE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6A58027C-D48F-4E08-89E5-BE57F60213EE}.Debug|x86.Build.0 = Debug|Any CPU
+		{6A58027C-D48F-4E08-89E5-BE57F60213EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A58027C-D48F-4E08-89E5-BE57F60213EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A58027C-D48F-4E08-89E5-BE57F60213EE}.Release|x64.ActiveCfg = Release|Any CPU
+		{6A58027C-D48F-4E08-89E5-BE57F60213EE}.Release|x64.Build.0 = Release|Any CPU
+		{6A58027C-D48F-4E08-89E5-BE57F60213EE}.Release|x86.ActiveCfg = Release|Any CPU
+		{6A58027C-D48F-4E08-89E5-BE57F60213EE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -257,6 +271,7 @@ Global
 		{83A01934-5E7F-4C7E-A391-F022FEB43F84} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{9EACDD55-59CB-4050-AA4E-77011C97F1AD} = {8F9C1C2A-A6B1-4A2E-9C3E-A5B27C3F8112}
 		{3467C023-A35F-4AD5-AD88-1653E09D42EB} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{6A58027C-D48F-4E08-89E5-BE57F60213EE} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B8612683-B9DA-4AEE-9C81-082D5C9C3BAC}
