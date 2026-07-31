@@ -24,6 +24,9 @@ namespace OpenCMIS.Protocol.Core
         /// <param name="registerTransport">The register transport interface.</param>
         /// <param name="pageManager">The page manager.</param>
         /// <param name="addressingStrategy">The addressing strategy (defaults to standard CMIS).</param>
+        [Obsolete(
+            "Use RegisterAccess(IMsaMemoryAccessor, I2cDeviceAddress, ...) " +
+            "for atomic MSA access.")]
         public RegisterAccess(
             IRegisterTransport registerTransport, 
             IPageManager pageManager,

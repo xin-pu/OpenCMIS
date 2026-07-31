@@ -6,6 +6,9 @@ namespace OpenCMIS.Transport.I2C;
 /// <summary>
 /// Compatibility name for the Linktel serial I2C adapter.
 /// </summary>
+[Obsolete(
+    "Use LinktelSerialI2cAdapter or adapter ID 'linktel'. " +
+    "This compatibility name will be removed in a future release.")]
 public sealed class I2CConnectorTypeA : LegacyRegisterTransportAdapter
 {
     public I2CConnectorTypeA(

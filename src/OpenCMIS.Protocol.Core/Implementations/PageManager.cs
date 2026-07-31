@@ -7,6 +7,9 @@ namespace OpenCMIS.Protocol.Core
     /// <summary>
     ///     Implements page management for CMIS protocol.
     /// </summary>
+    [Obsolete(
+        "Use IMsaMemoryAccessor through OpticalModuleSession so page selection " +
+        "and transfer share one atomic gate.")]
     public class PageManager : IPageManager
     {
         private const byte PageSelectRegister = CmisConstants.PageSelectRegister;

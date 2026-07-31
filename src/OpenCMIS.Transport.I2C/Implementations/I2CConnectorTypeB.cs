@@ -6,6 +6,9 @@ namespace OpenCMIS.Transport.I2C;
 /// <summary>
 /// Compatibility name for the HM serial I2C adapter.
 /// </summary>
+[Obsolete(
+    "Use HmSerialI2cAdapter or adapter ID 'hm'. " +
+    "This compatibility name will be removed in a future release.")]
 public sealed class I2CConnectorTypeB : LegacyRegisterTransportAdapter
 {
     public I2CConnectorTypeB(

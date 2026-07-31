@@ -5,6 +5,9 @@ namespace OpenCMIS.Transport.I2C;
 /// <summary>
 /// Bridges the original register transport API to the address-aware I2C bus.
 /// </summary>
+[Obsolete(
+    "Use II2cRegisterBus and a typed I2cConnectionProfile. " +
+    "This compatibility adapter will be removed in a future release.")]
 public abstract class LegacyRegisterTransportAdapter : IRegisterTransport
 {
     private readonly II2cRegisterBus _inner;

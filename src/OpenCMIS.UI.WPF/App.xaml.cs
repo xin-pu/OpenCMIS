@@ -2,6 +2,7 @@ using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OpenCMIS.App.Core;
+using OpenCMIS.Transport.I2C.Cypress;
 using OpenCMIS.Transport.I2C.Serial;
 using OpenCMIS.UI.WPF.ViewModels;
 using OpenCMIS.UI.WPF.Views;
@@ -26,6 +27,7 @@ namespace OpenCMIS.UI.WPF
                 {
                     services.AddOpenCmisCore();
                     services.AddOpenCmisSerialAdapters();
+                    services.AddOpenCmisCypressAdapters();
 
                     // ViewModels
                     services.AddTransient<MainViewModel>();
