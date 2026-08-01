@@ -2,7 +2,7 @@ using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OpenCMIS.Protocol.Abstractions;
-using OpenCMIS.Shared.Models;
+using OpenCMIS.Protocol.Abstractions.Models;
 
 namespace OpenCMIS.UI.WPF.ViewModels
 {

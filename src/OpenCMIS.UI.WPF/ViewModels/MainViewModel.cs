@@ -1,22 +1,25 @@
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+using DevExpress.Mvvm.CodeGenerators;
 using OpenCMIS.Protocol.Abstractions;
 
 namespace OpenCMIS.UI.WPF.ViewModels
 {
-    public partial class MainViewModel : ObservableObject
+    [GenerateViewModel]
+    public partial class MainViewModel
     {
-        [ObservableProperty]
+        [GenerateProperty]
         private object? _activeView;
 
-        [ObservableProperty]
+        [GenerateProperty]
         private string _selectedViewName = "DeviceConnection";
 
-        [ObservableProperty]
+        [GenerateProperty]
         private string _connectionStatus = "Disconnected";
 
-        [ObservableProperty]
+        [GenerateProperty]
         private string _deviceName = "No Device";
+
+        [GenerateProperty]
+        private bool _isNavigationPaneExpanded = true;
 
         public DeviceConnectionViewModel DeviceConnectionVM { get; }
         public DashboardViewModel DashboardVM { get; }
@@ -56,7 +59,7 @@ namespace OpenCMIS.UI.WPF.ViewModels
             ModuleHomeVM.SetDevice(device);
         }
 
-        [RelayCommand]
+        [GenerateCommand]
         private void NavigateTo(string viewName)
         {
             SelectedViewName = viewName;
@@ -70,6 +73,12 @@ namespace OpenCMIS.UI.WPF.ViewModels
                 "ModuleHome"         => ModuleHomeVM,
                 _                    => DeviceConnectionVM
             };
+        }
+
+        [GenerateCommand]
+        private void ToggleNavigation()
+        {
+            IsNavigationPaneExpanded = !IsNavigationPaneExpanded;
         }
 
         public void UpdateConnectionStatus(bool connected, string deviceName)

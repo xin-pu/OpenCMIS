@@ -6,6 +6,7 @@ using OpenCMIS.Protocol.Abstractions;
 using OpenCMIS.Protocol.Core;
 using OpenCMIS.Shared;
 using OpenCMIS.Transport.Abstractions;
+using OpenCMIS.Transport.I2C.Serial;
 using Serilog;
 
 try
@@ -111,13 +112,15 @@ static IHost CreateHost()
         .ConfigureServices(services =>
         {
             services.AddOpenCmisCore();
+            services.AddOpenCmisSerialAdapters();
         })
         .Build();
 }
 
 static async Task ListDevicesAsync()
 {
-    var manager = new DeviceManager();
+    using var host = CreateHost();
+    var manager = host.Services.GetRequiredService<IDeviceManager>();
     Console.WriteLine("Scanning for CMIS devices...");
     var devices = await manager.EnumerateDevicesAsync();
 

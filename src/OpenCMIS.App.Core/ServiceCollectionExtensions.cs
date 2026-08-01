@@ -25,6 +25,8 @@ namespace OpenCMIS.App.Core
             services.AddSingleton<IAddressingStrategy, StandardAddressingStrategy>();
 
             // App layer services
+            services.AddSingleton(TimeProvider.System);
+            services.AddSingleton<IOpticalModuleFactory, OpticalModuleFactory>();
             services.AddSingleton<IDeviceManager, DeviceManager>();
 
             // CDB layer services

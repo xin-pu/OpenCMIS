@@ -1,0 +1,7 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Thickness x:Key="OpenCmisSpacing4">4</Thickness>
+    <Thickness x:Key="OpenCmisSpacing6">6</Thickness>
+    <Thickness x:Key="OpenCmisSpacing8">8</Thickness>
+</ResourceDictionary>

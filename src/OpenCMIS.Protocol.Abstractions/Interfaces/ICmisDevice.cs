@@ -1,5 +1,6 @@
+using OpenCMIS.Module.Core.Hci;
 using OpenCMIS.Shared;
-using OpenCMIS.Shared.Models;
+using OpenCMIS.Protocol.Abstractions.Models;
 using OpenCMIS.Transport.Abstractions;
 
 namespace OpenCMIS.Protocol.Abstractions
@@ -41,6 +42,11 @@ namespace OpenCMIS.Protocol.Abstractions
         ///     Gets the register access interface for low-level operations.
         /// </summary>
         IRegisterAccess RegisterAccess { get; }
+
+        /// <summary>
+        ///     Gets vendor HCI table access when supported by the device session.
+        /// </summary>
+        IHciMemoryAccessor? HciAccess { get; }
 
         /// <summary>
         ///     Reads the full module identity information.

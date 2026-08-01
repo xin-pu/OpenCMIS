@@ -13,5 +13,6 @@
     <ProjectReference Include="..\OpenCMIS.Shared\OpenCMIS.Shared.csproj" />
     <ProjectReference Include="..\OpenCMIS.Protocol.Abstractions\OpenCMIS.Protocol.Abstractions.csproj" />
     <ProjectReference Include="..\OpenCMIS.App.Core\OpenCMIS.App.Core.csproj" />
+    <ProjectReference Include="..\OpenCMIS.Transport.I2C.Serial\OpenCMIS.Transport.I2C.Serial.csproj" />
   </ItemGroup>
 </Project>

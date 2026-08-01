@@ -1,4 +1,5 @@
 using OpenCMIS.Protocol.Abstractions;
+using OpenCMIS.Protocol.Abstractions.Models;
 using OpenCMIS.Shared;
 using OpenCMIS.Transport.Abstractions;
 

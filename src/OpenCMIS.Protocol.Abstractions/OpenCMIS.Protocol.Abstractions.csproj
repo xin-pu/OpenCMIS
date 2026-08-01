@@ -10,5 +10,6 @@
   <ItemGroup>
     <ProjectReference Include="..\OpenCMIS.Shared\OpenCMIS.Shared.csproj" />
     <ProjectReference Include="..\OpenCMIS.Transport.Abstractions\OpenCMIS.Transport.Abstractions.csproj" />
+    <ProjectReference Include="..\OpenCMIS.Module.Core\OpenCMIS.Module.Core.csproj" />
   </ItemGroup>
 </Project>

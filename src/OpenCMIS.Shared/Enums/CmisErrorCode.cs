@@ -210,6 +210,34 @@ namespace OpenCMIS.Shared
 
         #endregion
 
+        #region I2C Transport Errors - 600-699
+
+        [Info("I2C adapter not found", "I2C adapter not found")]
+        I2cAdapterNotFound = 600,
+
+        [Info("I2C connection failed", "I2C connection failed")]
+        I2cConnectionFailed = 610,
+
+        [Info("I2C transfer failed", "I2C transfer failed")]
+        I2cTransferFailed = 620,
+
+        [Info("Invalid I2C response", "Invalid I2C response")]
+        I2cInvalidResponse = 630,
+
+        [Info("MSA page selection failed", "MSA page selection failed")]
+        MsaPageSelectionFailed = 640,
+
+        [Info("HCI command timed out", "HCI command timed out")]
+        HciCommandTimeout = 650,
+
+        [Info("Invalid HCI response", "Invalid HCI response")]
+        HciInvalidResponse = 660,
+
+        [Info("HCI command rejected", "HCI command rejected")]
+        HciCommandRejected = 670,
+
+        #endregion
+
         #region Unclassified Errors - 9990-9999
 
         /// <summary>

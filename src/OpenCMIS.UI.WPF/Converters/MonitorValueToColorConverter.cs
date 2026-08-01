@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media;
-using OpenCMIS.Shared.Models;
+using OpenCMIS.Protocol.Abstractions.Models;
 
 namespace OpenCMIS.UI.WPF.Converters
 {

@@ -26,5 +26,10 @@ namespace OpenCMIS.Transport.Abstractions
         ///     Gets or sets the connection parameters.
         /// </summary>
         public Dictionary<string, string> ConnectionParameters { get; set; } = new();
+
+        /// <summary>
+        ///     Gets or sets the typed I2C connection profile.
+        /// </summary>
+        public I2cConnectionProfile? Profile { get; set; }
     }
 }
