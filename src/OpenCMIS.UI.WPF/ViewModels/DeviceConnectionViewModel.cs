@@ -1,141 +1,214 @@
 using System.Collections.ObjectModel;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using OpenCMIS.App.Core;
+using DevExpress.Mvvm.CodeGenerators;
 using OpenCMIS.Protocol.Abstractions;
-using OpenCMIS.Shared;
 using OpenCMIS.Transport.Abstractions;
+using OpenCMIS.UI.WPF.Models;
+using OpenCMIS.UI.WPF.Services;
 
-namespace OpenCMIS.UI.WPF.ViewModels
+namespace OpenCMIS.UI.WPF.ViewModels;
+
+[GenerateViewModel]
+public partial class DeviceConnectionViewModel
 {
-    public partial class DeviceConnectionViewModel : ObservableObject
+    private readonly IDeviceManager _deviceManager;
+    private readonly DeviceSession _session;
+    private IReadOnlyList<DeviceInfo> _discoveredDevices = [];
+
+    [GenerateProperty(OnChangedMethod = nameof(OnSelectedAdapterChanged))]
+    private AdapterChoice? _selectedAdapter;
+
+    [GenerateProperty(OnChangedMethod = nameof(OnSelectedDeviceChanged))]
+    private DeviceInfo? _selectedDevice;
+
+    [GenerateProperty(OnChangedMethod = nameof(OnSelectedPortChanged))]
+    private string _selectedPort = string.Empty;
+
+    [GenerateProperty]
+    private bool _isRefreshing;
+
+    [GenerateProperty]
+    private bool _isScanning;
+
+    [GenerateProperty]
+    private bool _isConnected;
+
+    [GenerateProperty]
+    private string _statusMessage = "Ready";
+
+    [GenerateProperty]
+    private string _vendorName = string.Empty;
+
+    [GenerateProperty]
+    private string _partNumber = string.Empty;
+
+    [GenerateProperty]
+    private string _serialNumber = string.Empty;
+
+    public DeviceConnectionViewModel(
+        IDeviceManager deviceManager,
+        DeviceSession session)
     {
-        private readonly IDeviceManager _deviceManager;
+        _deviceManager = deviceManager ?? throw new ArgumentNullException(nameof(deviceManager));
+        _session = session ?? throw new ArgumentNullException(nameof(session));
+    }
 
-        [ObservableProperty]
-        private string _selectedPort = string.Empty;
+    public ObservableCollection<AdapterChoice> AvailableAdapters { get; } = [];
+    public ObservableCollection<DeviceInfo> AvailableDevices { get; } = [];
 
-        [ObservableProperty]
-        private ObservableCollection<string> _availablePorts = [];
+    // Temporary compatibility surface for the current pre-refactor connection view.
+    public ObservableCollection<string> AvailablePorts { get; } = [];
+    public ICmisDevice? CurrentDevice => _session.CurrentDevice;
+    public event Action<bool, string>? ConnectionChanged;
 
-        [ObservableProperty]
-        private bool _isConnected;
+    [GenerateCommand(Name = "ScanPortsCommand")]
+    public async Task RefreshAsync()
+    {
+        IsRefreshing = true;
+        IsScanning = true;
+        StatusMessage = "Scanning...";
 
-        [ObservableProperty]
-        private bool _isScanning;
-
-        [ObservableProperty]
-        private string _statusMessage = "Ready";
-
-        [ObservableProperty]
-        private string _vendorName = string.Empty;
-
-        [ObservableProperty]
-        private string _partNumber = string.Empty;
-
-        [ObservableProperty]
-        private string _serialNumber = string.Empty;
-
-        public ICmisDevice? CurrentDevice { get; private set; }
-        public event Action<bool, string>? ConnectionChanged;
-
-        public DeviceConnectionViewModel(IDeviceManager deviceManager)
+        try
         {
-            _deviceManager = deviceManager;
+            _discoveredDevices = (await _deviceManager.EnumerateDevicesAsync()).ToArray();
+            ReplaceAdapters();
+            SelectedAdapter = AvailableAdapters.FirstOrDefault();
+            ApplyAdapterFilter();
+            StatusMessage = _discoveredDevices.Count == 0
+                ? "No devices found."
+                : $"Found {_discoveredDevices.Count} device(s).";
         }
-
-        [RelayCommand]
-        private async Task ScanPortsAsync()
+        catch (Exception exception)
         {
-            IsScanning = true;
-            StatusMessage = "Scanning...";
-
-            try
-            {
-                var devices = await _deviceManager.EnumerateDevicesAsync();
-                AvailablePorts.Clear();
-                foreach (var device in devices)
-                {
-                    var portName = device.ConnectionParameters.GetValueOrDefault("PortName", device.Id);
-                    AvailablePorts.Add(portName);
-                }
-
-                if (AvailablePorts.Count == 0)
-                    StatusMessage = "No devices found.";
-                else
-                    StatusMessage = $"Found {AvailablePorts.Count} device(s).";
-            }
-            catch (Exception ex)
-            {
-                StatusMessage = $"Scan error: {ex.Message}";
-            }
-            finally
-            {
-                IsScanning = false;
-            }
+            _discoveredDevices = [];
+            AvailableAdapters.Clear();
+            ApplyAdapterFilter();
+            StatusMessage = $"Scan error: {exception.Message}";
         }
-
-        [RelayCommand]
-        private async Task ConnectAsync()
+        finally
         {
-            if (string.IsNullOrEmpty(SelectedPort))
-            {
-                StatusMessage = "Select a port first.";
-                return;
-            }
-
-            StatusMessage = $"Connecting to {SelectedPort}...";
-
-            try
-            {
-                var deviceInfo = new DeviceInfo
-                {
-                    Id = SelectedPort,
-                    Name = $"CMIS Module on {SelectedPort}",
-                    ConnectionType = ConnectionType.I2C,
-                    ConnectionParameters = new Dictionary<string, string>
-                    {
-                        ["PortName"] = SelectedPort,
-                        ["BaudRate"] = "115200",
-                        ["SlaveAddress"] = "0xA0"
-                    }
-                };
-
-                CurrentDevice = await _deviceManager.OpenDeviceAsync(deviceInfo);
-                IsConnected = true;
-
-                // Read basic info
-                var info = await CurrentDevice.GetModuleInfoAsync();
-                VendorName = info.VendorName;
-                PartNumber = info.PartNumber;
-                SerialNumber = info.SerialNumber;
-
-                StatusMessage = "Connected.";
-                ConnectionChanged?.Invoke(true, info.VendorName);
-            }
-            catch (Exception ex)
-            {
-                IsConnected = false;
-                StatusMessage = $"Connection failed: {ex.Message}";
-                ConnectionChanged?.Invoke(false, "");
-            }
-        }
-
-        [RelayCommand]
-        private async Task DisconnectAsync()
-        {
-            if (CurrentDevice != null)
-            {
-                await CurrentDevice.CloseAsync();
-                CurrentDevice = null;
-            }
-
-            IsConnected = false;
-            StatusMessage = "Disconnected.";
-            VendorName = string.Empty;
-            PartNumber = string.Empty;
-            SerialNumber = string.Empty;
-            ConnectionChanged?.Invoke(false, "");
+            IsRefreshing = false;
+            IsScanning = false;
         }
     }
+
+    [GenerateCommand]
+    public async Task ConnectAsync()
+    {
+        if (SelectedDevice is null)
+        {
+            StatusMessage = "Select a device first.";
+            return;
+        }
+
+        StatusMessage = $"Connecting to {SelectedDevice.Name}...";
+        _session.SetConnecting();
+        ICmisDevice? openedDevice = null;
+
+        try
+        {
+            openedDevice = await _deviceManager.OpenDeviceAsync(SelectedDevice);
+            var moduleInfo = await openedDevice.GetModuleInfoAsync();
+            _session.SetConnected(SelectedDevice, openedDevice);
+            VendorName = moduleInfo.VendorName;
+            PartNumber = moduleInfo.PartNumber;
+            SerialNumber = moduleInfo.SerialNumber;
+            IsConnected = true;
+            StatusMessage = "Connected.";
+            ConnectionChanged?.Invoke(true, VendorName);
+        }
+        catch (Exception exception)
+        {
+            if (openedDevice is not null)
+            {
+                await _deviceManager.CloseDeviceAsync(openedDevice);
+            }
+
+            _session.SetConnectionFailed(exception);
+            IsConnected = false;
+            StatusMessage = $"Connection failed: {exception.Message}";
+            ConnectionChanged?.Invoke(false, string.Empty);
+        }
+    }
+
+    [GenerateCommand]
+    public async Task DisconnectAsync()
+    {
+        var device = _session.CurrentDevice;
+        if (device is not null)
+        {
+            _session.SetDisconnecting();
+            await _deviceManager.CloseDeviceAsync(device);
+        }
+
+        _session.SetDisconnected();
+        IsConnected = false;
+        VendorName = string.Empty;
+        PartNumber = string.Empty;
+        SerialNumber = string.Empty;
+        StatusMessage = "Disconnected.";
+        ConnectionChanged?.Invoke(false, string.Empty);
+    }
+
+    private void ReplaceAdapters()
+    {
+        AvailableAdapters.Clear();
+        foreach (var adapterId in _discoveredDevices
+                     .Select(device => device.Profile?.AdapterId)
+                     .Where(adapterId => !string.IsNullOrWhiteSpace(adapterId))
+                     .Distinct(StringComparer.OrdinalIgnoreCase)
+                     .OrderBy(adapterId => adapterId, StringComparer.OrdinalIgnoreCase))
+        {
+            AvailableAdapters.Add(new AdapterChoice(adapterId!, adapterId!));
+        }
+    }
+
+    private void OnSelectedAdapterChanged(AdapterChoice? _) => ApplyAdapterFilter();
+
+    private void ApplyAdapterFilter()
+    {
+        AvailableDevices.Clear();
+        AvailablePorts.Clear();
+        var adapterId = SelectedAdapter?.AdapterId;
+        foreach (var device in _discoveredDevices.Where(
+                     device => adapterId is null || string.Equals(
+                         device.Profile?.AdapterId,
+                         adapterId,
+                         StringComparison.OrdinalIgnoreCase)))
+        {
+            AvailableDevices.Add(device);
+            AvailablePorts.Add(GetDeviceLabel(device));
+        }
+
+        if (SelectedDevice is not null && !AvailableDevices.Contains(SelectedDevice))
+        {
+            SelectedDevice = null;
+        }
+    }
+
+    private void OnSelectedDeviceChanged(DeviceInfo? device)
+    {
+        var label = device is null ? string.Empty : GetDeviceLabel(device);
+        if (!string.Equals(SelectedPort, label, StringComparison.Ordinal))
+        {
+            SelectedPort = label;
+        }
+    }
+
+    private void OnSelectedPortChanged(string? port)
+    {
+        var device = AvailableDevices.FirstOrDefault(
+            candidate => string.Equals(GetDeviceLabel(candidate), port, StringComparison.Ordinal));
+        if (!ReferenceEquals(SelectedDevice, device))
+        {
+            SelectedDevice = device;
+        }
+    }
+
+    private static string GetDeviceLabel(DeviceInfo device) => device.Profile switch
+    {
+        SerialI2cConnectionProfile serial => serial.PortName,
+        HmMultiChannelConnectionProfile multi => $"{multi.PortName} / CH{multi.Channel}",
+        CypressI2cConnectionProfile cypress => $"{cypress.SerialNumber} / Port {cypress.Port}",
+        _ => device.Name.Length == 0 ? device.Id : device.Name
+    };
 }

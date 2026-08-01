@@ -7,6 +7,7 @@ using OpenCMIS.Transport.I2C.Cypress;
 using OpenCMIS.Transport.I2C.Serial;
 using OpenCMIS.UI.WPF.ViewModels;
 using OpenCMIS.UI.WPF.Views;
+using OpenCMIS.UI.WPF.Services;
 using Serilog;
 
 namespace OpenCMIS.UI.WPF
@@ -37,8 +38,9 @@ namespace OpenCMIS.UI.WPF
                     services.AddOpenCmisCypressAdapters();
 
                     // ViewModels
-                    services.AddTransient<MainViewModel>();
-                    services.AddTransient<DeviceConnectionViewModel>();
+                    services.AddSingleton<DeviceSession>();
+                    services.AddSingleton<MainViewModel>();
+                    services.AddSingleton<DeviceConnectionViewModel>();
                     services.AddTransient<DashboardViewModel>();
                     services.AddTransient<ControlPanelViewModel>();
                     services.AddTransient<CdbEditorViewModel>();
