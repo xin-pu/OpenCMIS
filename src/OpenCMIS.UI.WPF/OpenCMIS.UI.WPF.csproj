@@ -3,13 +3,32 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <IncludePackageReferencesDuringMarkupCompilation>true</IncludePackageReferencesDuringMarkupCompilation>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!-- The explicit security pin is intentionally retained despite NuGet pruning analysis. -->
+    <NoWarn>$(NoWarn);NU1510</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MaterialDesignThemes" Version="5.2.0" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="DevExpress.Mvvm" Version="25.2.4" />
+    <PackageReference Include="DevExpress.Mvvm.CodeGenerators" Version="22.1.1">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="DevExpress.Wpf.Accordion" Version="25.2.4" />
+    <PackageReference Include="DevExpress.Wpf.Controls" Version="25.2.4" />
+    <PackageReference Include="DevExpress.Wpf.Core" Version="25.2.4" />
+    <PackageReference Include="DevExpress.Wpf.Grid" Version="25.2.4" />
+    <PackageReference Include="DevExpress.Wpf.Themes.Win11Light" Version="25.2.4" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
+    <!-- Security pin: DevExpress 25.2.4 resolves vulnerable 8.0.2 transitively. -->
+    <PackageReference Include="System.Security.Cryptography.Xml"
+                      Version="10.0.10" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Remove="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OpenCMIS.Shared\OpenCMIS.Shared.csproj" />

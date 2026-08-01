@@ -1,0 +1,10 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Color x:Key="OpenCmisPrimaryColor">#17365D</Color>
+    <Color x:Key="OpenCmisAccentColor">#2F6FED</Color>
+    <SolidColorBrush x:Key="OpenCmisPrimaryBrush"
+                     Color="{StaticResource OpenCmisPrimaryColor}" />
+    <SolidColorBrush x:Key="OpenCmisAccentBrush"
+                     Color="{StaticResource OpenCmisAccentColor}" />
+</ResourceDictionary>

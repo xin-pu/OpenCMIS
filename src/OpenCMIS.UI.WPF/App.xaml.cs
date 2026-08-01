@@ -1,4 +1,5 @@
 using System.Windows;
+using DevExpress.Xpf.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OpenCMIS.App.Core;
@@ -13,6 +14,12 @@ namespace OpenCMIS.UI.WPF
     public partial class App : Application
     {
         private IHost _host = null!;
+
+        static App()
+        {
+            ApplicationThemeHelper.ApplicationThemeName = Theme.Win11LightName;
+            ApplicationThemeHelper.Preload(PreloadCategories.Core);
+        }
 
         private void OnStartup(object sender, StartupEventArgs e)
         {
