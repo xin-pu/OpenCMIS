@@ -12,6 +12,36 @@ public sealed class MsaMemoryAccessorTests
     private static readonly RegisterOffset Offset = new(0x80);
 
     [Fact]
+    public void Page_without_bank_defaults_to_zero()
+    {
+        var page = new ModulePage(0x11);
+
+        Assert.Equal(0, page.Bank);
+        Assert.Equal(0x11, page.Value);
+    }
+
+    [Fact]
+    public async Task Read_selects_bank_then_page_then_reads()
+    {
+        var bus = new ScriptedI2cRegisterBus();
+        bus.QueueRead([0xAB]);
+        await using var session = new OpticalModuleSession(bus);
+        await session.OpenAsync();
+        var accessor = new MsaMemoryAccessor(session);
+
+        var result = await accessor.ReadAsync(
+            Address,
+            new ModulePage(0x02, 0x11),
+            Offset,
+            1);
+
+        Assert.Equal(new byte[] { 0xAB }, result);
+        Assert.Equal(
+            new[] { "W 50:7E 02", "W 50:7F 11", "R 50:80 1" },
+            bus.Operations);
+    }
+
+    [Fact]
     public async Task Read_selects_page_then_reads()
     {
         var bus = new ScriptedI2cRegisterBus();
@@ -28,7 +58,7 @@ public sealed class MsaMemoryAccessorTests
 
         Assert.Equal(new byte[] { 0x11, 0x22 }, result);
         Assert.Equal(
-            new[] { "W 50:7F 11", "R 50:80 2" },
+            new[] { "W 50:7E 00", "W 50:7F 11", "R 50:80 2" },
             bus.Operations);
     }
 
@@ -47,7 +77,7 @@ public sealed class MsaMemoryAccessorTests
             new byte[] { 0x12, 0x34 });
 
         Assert.Equal(
-            new[] { "W 50:7F 01", "W 50:80 1234" },
+            new[] { "W 50:7E 00", "W 50:7F 01", "W 50:80 1234" },
             bus.Operations);
     }
 
@@ -74,14 +104,16 @@ public sealed class MsaMemoryAccessorTests
             Offset,
             1).AsTask();
 
-        Assert.Equal(new[] { "W 50:7F 01" }, bus.Operations);
+        Assert.Equal(new[] { "W 50:7E 00" }, bus.Operations);
         bus.Resume();
         await Task.WhenAll(first, second);
         Assert.Equal(
             new[]
             {
+                "W 50:7E 00",
                 "W 50:7F 01",
                 "R 50:80 1",
+                "W 50:7E 00",
                 "W 50:7F 02",
                 "R 50:80 1"
             },

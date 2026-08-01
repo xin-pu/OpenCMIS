@@ -92,7 +92,20 @@ namespace OpenCMIS.Protocol.Core
         }
 
         /// <inheritdoc />
-        public async Task<byte[]> ReadBlockAsync(byte page, byte startAddress, int length)
+        public Task<byte[]> ReadBlockAsync(
+            byte page,
+            byte startAddress,
+            int length)
+        {
+            return ReadBlockAsync(0, page, startAddress, length);
+        }
+
+        /// <inheritdoc />
+        public async Task<byte[]> ReadBlockAsync(
+            byte bank,
+            byte page,
+            byte startAddress,
+            int length)
         {
             if (length <= 0) throw new CmisException(CmisErrorCode.InvalidParameterValue, nameof(length));
             
@@ -102,9 +115,15 @@ namespace OpenCMIS.Protocol.Core
             {
                 return await _msaMemory.ReadAsync(
                     _deviceAddress,
-                    new ModulePage(page),
+                    new ModulePage(bank, page),
                     new RegisterOffset(startAddress),
                     length);
+            }
+
+            if (bank != 0)
+            {
+                throw new NotSupportedException(
+                    "Legacy register access supports bank zero only.");
             }
 
             EnsureLegacyConnected();
@@ -113,7 +132,20 @@ namespace OpenCMIS.Protocol.Core
         }
 
         /// <inheritdoc />
-        public async Task WriteBlockAsync(byte page, byte startAddress, byte[] data)
+        public Task WriteBlockAsync(
+            byte page,
+            byte startAddress,
+            byte[] data)
+        {
+            return WriteBlockAsync(0, page, startAddress, data);
+        }
+
+        /// <inheritdoc />
+        public async Task WriteBlockAsync(
+            byte bank,
+            byte page,
+            byte startAddress,
+            byte[] data)
         {
             if (data == null || data.Length == 0) throw new CmisException(CmisErrorCode.InvalidParameterValue, nameof(data));
             
@@ -123,10 +155,16 @@ namespace OpenCMIS.Protocol.Core
             {
                 await _msaMemory.WriteAsync(
                     _deviceAddress,
-                    new ModulePage(page),
+                    new ModulePage(bank, page),
                     new RegisterOffset(startAddress),
                     data);
                 return;
+            }
+
+            if (bank != 0)
+            {
+                throw new NotSupportedException(
+                    "Legacy register access supports bank zero only.");
             }
 
             EnsureLegacyConnected();

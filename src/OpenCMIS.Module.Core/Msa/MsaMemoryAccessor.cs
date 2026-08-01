@@ -8,6 +8,7 @@ namespace OpenCMIS.Module.Core.Msa;
 public sealed class MsaMemoryAccessor(OpticalModuleSession session)
     : IMsaMemoryAccessor
 {
+    private static readonly RegisterOffset BankSelectRegister = new(0x7E);
     private static readonly RegisterOffset PageSelectRegister = new(0x7F);
 
     public ValueTask<byte[]> ReadAsync(
@@ -83,6 +84,12 @@ public sealed class MsaMemoryAccessor(OpticalModuleSession session)
     {
         try
         {
+            await bus.WriteAsync(
+                    device,
+                    BankSelectRegister,
+                    new byte[] { page.Bank },
+                    cancellationToken)
+                .ConfigureAwait(false);
             await bus.WriteAsync(
                     device,
                     PageSelectRegister,
