@@ -35,8 +35,14 @@ internal sealed class CmisLaneReader(IRegisterAccess registers)
                 TxPower = CmisMonitorReader.ParsePower(txPower),
                 RxPower = CmisMonitorReader.ParsePower(rxPower),
                 TxBias = CmisMonitorReader.ParseCurrent(bias),
-                IsEnabled = (flags & 0x01) != 0,
-                HasFault = (flags & 0x02) != 0
+                RawFlags = flags,
+                IsEnabled = (flags & 0x01) != 0,      // bit 0: DataPathEnabled
+                HasFault = (flags & 0x02) != 0,        // bit 1: TX Fault
+                TxLos = (flags & 0x04) != 0,           // bit 2: TX LOS
+                TxLol = (flags & 0x08) != 0,           // bit 3: TX LOL
+                RxLos = (flags & 0x10) != 0,           // bit 4: RX LOS
+                RxLol = (flags & 0x20) != 0,           // bit 5: RX LOL
+                ReservedBits = (byte)(flags & 0xC0)    // bits 6-7: reserved
             };
             status.StatusText = status.GetStateText();
             lanes.Add(status);

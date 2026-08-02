@@ -10,32 +10,44 @@ internal sealed class CmisStatusService(
 {
     public async Task<ModuleStatus> ReadAsync()
     {
-        var state = await registers.ReadByteAsync(
+        var stateByte = await registers.ReadByteAsync(
             0x00,
             CmisConstants.RegModuleState);
-        var status = await registers.ReadByteAsync(
+        var statusByte = await registers.ReadByteAsync(
             0x00,
             CmisConstants.RegStatus);
         var interruptBytes = await registers.ReadBlockAsync(
             0x00,
             CmisConstants.RegInterruptFlags,
             2);
-        var flags = (ushort)(interruptBytes[0] | interruptBytes[1] << 8);
+        var flagsWord = (ushort)(interruptBytes[0] | interruptBytes[1] << 8);
+
+        // Also read module flags (0x06-0x07) for capability display
+        var moduleFlagBytes = await registers.ReadBlockAsync(
+            0x00,
+            CmisConstants.RegModuleFlags,
+            2);
+
+        var interruptFlags = DecodeInterruptFlags(interruptBytes, flagsWord);
+        var moduleFlags = DecodeModuleFlags(moduleFlagBytes);
 
         return new ModuleStatus
         {
-            CurrentState = state switch
-            {
-                0 => ModuleState.Initialization,
-                1 => ModuleState.LowPwr,
-                2 => ModuleState.PwrUp,
-                3 => ModuleState.Ready,
-                4 => ModuleState.PwrDn,
-                _ => ModuleState.Fault
-            },
-            IsReady = (status & 0x01) != 0,
-            HasAlerts = flags != 0,
-            ActiveAlerts = ParseAlerts(flags)
+            CurrentState = DecodeState(stateByte),
+            IsReady = (statusByte & 0x01) != 0,
+            RawStatusByte = statusByte,
+            RawStateByte = stateByte,
+            // DataPathFirmwareFault bit not yet confirmed against CMIS 5.2 Status
+            // register (0x02) bit definitions. Preserving raw byte for debug.
+            DataPathFirmwareFault = false,
+            InterruptFlags = interruptFlags,
+            ModuleFlags = moduleFlags,
+            HasAlerts = flagsWord != 0,
+            ActiveAlerts = interruptFlags.GetActiveFlags().ToList(),
+            TempAlarm = interruptFlags.TempHighAlarm || interruptFlags.TempLowAlarm,
+            TempWarning = false,  // Latched interrupts only show alarm; warnings are not latched
+            VccAlarm = interruptFlags.VccHighAlarm || interruptFlags.VccLowAlarm,
+            VccWarning = false
         };
     }
 
@@ -66,6 +78,57 @@ internal sealed class CmisStatusService(
         }
 
         throw new CmisException(CmisErrorCode.ModuleStateMachineError, target);
+    }
+
+    private static ModuleState DecodeState(byte stateByte)
+    {
+        return stateByte switch
+        {
+            0 => ModuleState.Initialization,
+            1 => ModuleState.LowPwr,
+            2 => ModuleState.PwrUp,
+            3 => ModuleState.Ready,
+            4 => ModuleState.PwrDn,
+            _ => ModuleState.Fault
+        };
+    }
+
+    private static CmisInterruptFlags DecodeInterruptFlags(
+        byte[] rawBytes,
+        ushort flagsWord)
+    {
+        return new CmisInterruptFlags
+        {
+            RawBytes = [rawBytes[0], rawBytes[1]],
+            TempHighAlarm = (flagsWord & 0x0001) != 0,
+            TempLowAlarm = (flagsWord & 0x0002) != 0,
+            VccHighAlarm = (flagsWord & 0x0004) != 0,
+            VccLowAlarm = (flagsWord & 0x0008) != 0,
+            TxPowerHighAlarm = (flagsWord & 0x0010) != 0,
+            TxPowerLowAlarm = (flagsWord & 0x0020) != 0,
+            RxPowerHighAlarm = (flagsWord & 0x0040) != 0,
+            RxPowerLowAlarm = (flagsWord & 0x0080) != 0,
+            TxBiasHighAlarm = (flagsWord & 0x0100) != 0,
+            TxBiasLowAlarm = (flagsWord & 0x0200) != 0,
+            TxFault = (flagsWord & 0x0400) != 0,
+            RxLOS = (flagsWord & 0x0800) != 0,
+            Reserved = (byte)((flagsWord >> 12) & 0x0F)
+        };
+    }
+
+    private static CmisModuleFlags DecodeModuleFlags(byte[] rawBytes)
+    {
+        var byte0 = rawBytes.Length > 0 ? rawBytes[0] : (byte)0;
+        var byte1 = rawBytes.Length > 1 ? rawBytes[1] : (byte)0;
+        return new CmisModuleFlags
+        {
+            RawBytes = [byte0, byte1],
+            CdbSupported = (byte0 & 0x01) != 0,
+            DiagMonSupported = (byte0 & 0x02) != 0,
+            StateControlSupported = (byte0 & 0x04) != 0,
+            Byte0Reserved = (byte)(byte0 & 0xF8),
+            MaxDataRate = byte1
+        };
     }
 
     private static void ValidateTransition(
@@ -102,32 +165,6 @@ internal sealed class CmisStatusService(
                 CmisErrorCode.InvalidStateTransition,
                 current,
                 target);
-        }
-    }
-
-    private static List<string> ParseAlerts(ushort flags)
-    {
-        var alerts = new List<string>();
-        AddIf(0x0001, "Temperature high alarm");
-        AddIf(0x0002, "Temperature low alarm");
-        AddIf(0x0004, "VCC high alarm");
-        AddIf(0x0008, "VCC low alarm");
-        AddIf(0x0010, "TX power high alarm");
-        AddIf(0x0020, "TX power low alarm");
-        AddIf(0x0040, "RX power high alarm");
-        AddIf(0x0080, "RX power low alarm");
-        AddIf(0x0100, "TX bias high alarm");
-        AddIf(0x0200, "TX bias low alarm");
-        AddIf(0x0400, "TX fault");
-        AddIf(0x0800, "RX LOS");
-        return alerts;
-
-        void AddIf(ushort mask, string message)
-        {
-            if ((flags & mask) != 0)
-            {
-                alerts.Add(message);
-            }
         }
     }
 }

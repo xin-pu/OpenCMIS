@@ -47,11 +47,18 @@ public sealed class CmisDeviceCompatibilityTests
     public async Task ReadModuleMonitors_preserves_existing_scaling()
     {
         var msa = new StubMsaMemoryAccessor()
-            .Returns(0x00, CmisConstants.RegTemperatureMSB, [0x00, 0x01])
-            .Returns(0x00, CmisConstants.RegVccMSB, [0x10, 0x27])
-            .Returns(0x10, CmisConstants.RegLaneTxBiasMSB, [0xF4, 0x01])
-            .Returns(0x10, CmisConstants.RegLaneTxPowerMSB, [0x10, 0x27])
-            .Returns(0x10, CmisConstants.RegLaneRxPowerMSB, [0x20, 0x4E]);
+            .Returns(0x00, CmisConstants.RegTempHighAlarmMSB, [0x00, 0x80])
+            .Returns(0x00, CmisConstants.RegTempLowAlarmMSB, [0x00, 0x00])
+            .Returns(0x00, CmisConstants.RegTempHighWarnMSB, [0x00, 0x80])
+            .Returns(0x00, CmisConstants.RegTempLowWarnMSB, [0x00, 0x00])
+            .Returns(0x00, CmisConstants.RegVccHighAlarmMSB, [0xFF, 0xFF])
+            .Returns(0x00, CmisConstants.RegVccLowAlarmMSB, [0x00, 0x00])
+            .Returns(0x00, CmisConstants.RegVccHighWarnMSB, [0xFF, 0xFF])
+            .Returns(0x00, CmisConstants.RegTemperatureMSB, [0x01, 0x00])
+            .Returns(0x00, CmisConstants.RegVccMSB, [0x27, 0x10])
+            .Returns(0x10, CmisConstants.RegLaneTxBiasMSB, [0x01, 0xF4])
+            .Returns(0x10, CmisConstants.RegLaneTxPowerMSB, [0x27, 0x10])
+            .Returns(0x10, CmisConstants.RegLaneRxPowerMSB, [0x4E, 0x20]);
         var (device, session, _) = await CreateDeviceAsync(msa);
         await using var ownedSession = session;
 

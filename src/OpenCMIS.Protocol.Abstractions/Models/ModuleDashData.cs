@@ -9,6 +9,7 @@ namespace OpenCMIS.Protocol.Abstractions.Models
         public List<LaneStatus> Lanes { get; set; } = [];
         public ModuleState CurrentState { get; set; }
         public bool IsReady { get; set; }
+        public ModuleStatus Status { get; set; } = new();
         public DateTime StatusTimestamp { get; set; }
     }
 }

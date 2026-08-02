@@ -127,6 +127,7 @@ public sealed class CmisDevice : ICmisDevice
             Lanes = lanes,
             CurrentState = status.CurrentState,
             IsReady = status.IsReady,
+            Status = status,
             StatusTimestamp = DateTime.Now
         };
     }

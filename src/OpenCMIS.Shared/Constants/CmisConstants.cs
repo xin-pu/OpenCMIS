@@ -77,6 +77,31 @@ namespace OpenCMIS.Shared
         /// <summary>VCC monitor, lower page 0x00 (0x10-0x11, 2 bytes, unsigned int16, LSB=100µV).</summary>
         public const byte RegVccMSB = 0x10;
 
+        #region Alarm / Warning Thresholds (Lower Page 0x00)
+
+        /// <summary>Temperature High Alarm threshold (signed int16, /256).</summary>
+        public const byte RegTempHighAlarmMSB = 0x00;
+
+        /// <summary>Temperature Low Alarm threshold (signed int16, /256).</summary>
+        public const byte RegTempLowAlarmMSB = 0x02;
+
+        /// <summary>Temperature High Warning threshold (signed int16, /256).</summary>
+        public const byte RegTempHighWarnMSB = 0x04;
+
+        /// <summary>Temperature Low Warning threshold (signed int16, /256).</summary>
+        public const byte RegTempLowWarnMSB = 0x06;
+
+        /// <summary>VCC High Alarm threshold (unsigned int16, 100µV).</summary>
+        public const byte RegVccHighAlarmMSB = 0x08;
+
+        /// <summary>VCC Low Alarm threshold (unsigned int16, 100µV).</summary>
+        public const byte RegVccLowAlarmMSB = 0x0A;
+
+        /// <summary>VCC High Warning threshold (unsigned int16, 100µV).</summary>
+        public const byte RegVccHighWarnMSB = 0x0C;
+
+        #endregion
+
         /// <summary>Vendor name start, upper page 0x01 (0x81, 16 bytes).</summary>
         public const byte RegVendorNameStart = 0x81;
 
