@@ -69,6 +69,16 @@
                             <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
                             <Setter Property="Cursor" Value="Hand" />
                             <EventSetter Event="PreviewMouseLeftButtonDown" Handler="NavAccordionItem_Click" />
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource OpenCmisSelectedBrush}" />
+                                    <Setter Property="Foreground" Value="{StaticResource OpenCmisAccentBrush}" />
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource OpenCmisHoverBrush}" />
+                                    <Setter Property="Foreground" Value="{StaticResource OpenCmisTextBrush}" />
+                                </Trigger>
+                            </Style.Triggers>
                         </Style>
                     </dxa:AccordionControl.Resources>
 
