@@ -1,13 +1,9 @@
 <UserControl x:Class="OpenCMIS.UI.WPF.Views.ControlPanelView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:converters="clr-namespace:OpenCMIS.UI.WPF.Converters">
-    <UserControl.Resources>
-        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-    </UserControl.Resources>
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <StackPanel>
-        <TextBlock Text="Control Panel" FontSize="22" FontWeight="Bold" Margin="0,0,0,20" />
+        <TextBlock Text="Control Panel" Style="{StaticResource PageTitleStyle}" />
 
         <GroupBox Header="Module State Control" Padding="10" Margin="0,0,0,15">
             <StackPanel>

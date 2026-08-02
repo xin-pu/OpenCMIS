@@ -1,202 +1,32 @@
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:dx="http://schemas.devexpress.com/winfx/2008/xaml/core"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!-- Spacing tokens -->
-    <Thickness x:Key="OpenCmisSpacing4">4</Thickness>
-    <Thickness x:Key="OpenCmisSpacing6">6</Thickness>
-    <Thickness x:Key="OpenCmisSpacing8">8</Thickness>
+    <!--  Shared page / section / status styles for the deep-green developer theme  -->
 
-    <!-- Compact Button -->
-    <Style TargetType="Button">
-        <Setter Property="MinHeight" Value="30" />
-        <Setter Property="Height" Value="30" />
-        <Setter Property="Padding" Value="12,4" />
-        <Setter Property="Background" Value="{StaticResource OpenCmisSurfaceBrush}" />
-        <Setter Property="Foreground" Value="{StaticResource OpenCmisTextBrush}" />
-        <Setter Property="BorderBrush" Value="{StaticResource OpenCmisBorderBrush}" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="FontSize" Value="13" />
-        <Setter Property="FontWeight" Value="Normal" />
-        <Setter Property="Cursor" Value="Hand" />
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Button">
-                    <Border x:Name="Border"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="4"
-                            Padding="{TemplateBinding Padding}">
-                        <ContentPresenter HorizontalAlignment="Center"
-                                          VerticalAlignment="Center" />
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Border" Property="Background"
-                                    Value="{StaticResource OpenCmisSurfaceAltBrush}" />
-                            <Setter TargetName="Border" Property="BorderBrush"
-                                    Value="{StaticResource OpenCmisAccentMutedBrush}" />
-                        </Trigger>
-                        <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Border" Property="Background"
-                                    Value="{StaticResource OpenCmisAccentMutedBrush}" />
-                        </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Foreground"
-                                    Value="{StaticResource OpenCmisMutedTextBrush}" />
-                            <Setter TargetName="Border" Property="Opacity" Value="0.5" />
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <!-- Flat / inline button (for Fill, Refresh Identity etc.) -->
-    <Style x:Key="OpenCmisFlatButtonStyle" TargetType="Button">
-        <Setter Property="MinHeight" Value="26" />
-        <Setter Property="Height" Value="26" />
-        <Setter Property="Padding" Value="8,2" />
-        <Setter Property="Background" Value="Transparent" />
-        <Setter Property="Foreground" Value="{StaticResource OpenCmisAccentBrush}" />
-        <Setter Property="BorderBrush" Value="Transparent" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="FontSize" Value="12" />
-        <Setter Property="Cursor" Value="Hand" />
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Button">
-                    <Border x:Name="Border"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="4"
-                            Padding="{TemplateBinding Padding}">
-                        <ContentPresenter HorizontalAlignment="Center"
-                                          VerticalAlignment="Center" />
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Border" Property="Background"
-                                    Value="{StaticResource OpenCmisHoverBrush}" />
-                            <Setter TargetName="Border" Property="BorderBrush"
-                                    Value="{StaticResource OpenCmisAccentMutedBrush}" />
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <!-- Compact TextBox -->
-    <Style TargetType="TextBox">
-        <Setter Property="MinHeight" Value="28" />
-        <Setter Property="Height" Value="28" />
-        <Setter Property="Padding" Value="6,4" />
-        <Setter Property="Background" Value="{StaticResource OpenCmisInputBackgroundBrush}" />
-        <Setter Property="Foreground" Value="{StaticResource OpenCmisTextBrush}" />
-        <Setter Property="BorderBrush" Value="{StaticResource OpenCmisInputBorderBrush}" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="FontSize" Value="13" />
-        <Setter Property="CaretBrush" Value="{StaticResource OpenCmisAccentBrush}" />
-        <Setter Property="SelectionBrush" Value="{StaticResource OpenCmisAccentMutedBrush}" />
-        <Setter Property="VerticalContentAlignment" Value="Center" />
-    </Style>
-
-    <!-- Compact ComboBox -->
-    <Style TargetType="ComboBox">
-        <Setter Property="MinHeight" Value="28" />
-        <Setter Property="Height" Value="28" />
-        <Setter Property="Padding" Value="6,2" />
-        <Setter Property="Background" Value="{StaticResource OpenCmisInputBackgroundBrush}" />
-        <Setter Property="Foreground" Value="{StaticResource OpenCmisTextBrush}" />
-        <Setter Property="BorderBrush" Value="{StaticResource OpenCmisInputBorderBrush}" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="FontSize" Value="13" />
-        <Setter Property="VerticalContentAlignment" Value="Center" />
-    </Style>
-
-    <!-- ListBoxItem -->
-    <Style TargetType="ListBoxItem">
-        <Setter Property="Background" Value="Transparent" />
-        <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
-        <Setter Property="FontSize" Value="14" />
-        <Setter Property="Padding" Value="0" />
-        <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="Cursor" Value="Hand" />
-    </Style>
-
-    <!-- GroupBox -->
-    <Style TargetType="GroupBox">
-        <Setter Property="Background" Value="Transparent" />
-        <Setter Property="Foreground" Value="{StaticResource OpenCmisTextBrush}" />
-        <Setter Property="BorderBrush" Value="{StaticResource OpenCmisBorderBrush}" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="Padding" Value="8" />
-    </Style>
-
-    <!-- DataGrid -->
-    <Style TargetType="DataGrid">
-        <Setter Property="Background" Value="{StaticResource OpenCmisSurfaceBrush}" />
-        <Setter Property="Foreground" Value="{StaticResource OpenCmisTextBrush}" />
-        <Setter Property="BorderBrush" Value="{StaticResource OpenCmisBorderBrush}" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="RowBackground" Value="{StaticResource OpenCmisSurfaceBrush}" />
-        <Setter Property="AlternatingRowBackground" Value="{StaticResource OpenCmisSurfaceAltBrush}" />
-        <Setter Property="GridLinesVisibility" Value="Horizontal" />
-        <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource OpenCmisBorderBrush}" />
-        <Setter Property="HeadersVisibility" Value="Column" />
-    </Style>
-
-    <Style TargetType="DataGridColumnHeader">
-        <Setter Property="Background" Value="{StaticResource OpenCmisSidebarBrush}" />
-        <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
+    <Style x:Key="PageTitleStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="22" />
         <Setter Property="FontWeight" Value="Bold" />
-        <Setter Property="FontSize" Value="12" />
-        <Setter Property="Padding" Value="8,4" />
-        <Setter Property="BorderBrush" Value="{StaticResource OpenCmisBorderBrush}" />
-        <Setter Property="BorderThickness" Value="0,0,0,1" />
-    </Style>
-
-    <Style TargetType="DataGridCell">
-        <Setter Property="Background" Value="Transparent" />
         <Setter Property="Foreground" Value="{StaticResource OpenCmisTextBrush}" />
-        <Setter Property="FontSize" Value="13" />
-        <Setter Property="Padding" Value="8,4" />
-        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Margin" Value="0,0,0,20" />
     </Style>
 
-    <Style TargetType="DataGridRow">
-        <Setter Property="Background" Value="{StaticResource OpenCmisSurfaceBrush}" />
-    </Style>
-
-    <!-- StatusBar -->
-    <Style TargetType="StatusBar">
-        <Setter Property="Background" Value="{StaticResource OpenCmisSidebarBrush}" />
-        <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
-        <Setter Property="FontSize" Value="12" />
-        <Setter Property="Padding" Value="8,0" />
-        <Setter Property="MinHeight" Value="28" />
-    </Style>
-
-    <Style TargetType="StatusBarItem">
+    <Style x:Key="SectionLabelStyle" TargetType="TextBlock">
+        <Setter Property="FontWeight" Value="Bold" />
         <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
     </Style>
 
-    <!-- ScrollViewer -->
-    <Style TargetType="ScrollViewer">
-        <Setter Property="Background" Value="Transparent" />
+    <Style x:Key="StatusTextStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
+        <Setter Property="Margin" Value="0,10,0,0" />
     </Style>
 
-    <!-- Tooltip -->
-    <Style TargetType="ToolTip">
+    <Style x:Key="OpenCmisFlatButtonStyle" TargetType="{x:Type dx:SimpleButton}">
         <Setter Property="Background" Value="{StaticResource OpenCmisSurfaceAltBrush}" />
-        <Setter Property="Foreground" Value="{StaticResource OpenCmisTextBrush}" />
         <Setter Property="BorderBrush" Value="{StaticResource OpenCmisBorderBrush}" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="FontSize" Value="12" />
-        <Setter Property="Padding" Value="8,4" />
+        <Setter Property="Foreground" Value="{StaticResource OpenCmisTextBrush}" />
+        <Setter Property="Padding" Value="10,4" />
     </Style>
 
 </ResourceDictionary>

@@ -1,4 +1,5 @@
 using OpenCMIS.Transport.Abstractions;
+using OpenCMIS.Transport.Simulated;
 using OpenCMIS.UI.WPF.Services;
 using OpenCMIS.UI.WPF.Tests.Fakes;
 using OpenCMIS.UI.WPF.ViewModels;
@@ -46,6 +47,38 @@ public sealed class DeviceConnectionViewModelTests
         var selected = Assert.Single(viewModel.AvailableDevices);
         Assert.Same(hm, selected);
         Assert.Same(hm.Profile, selected.Profile);
+    }
+
+    [Fact]
+    public async Task Refresh_selects_first_device_so_simulated_modules_can_connect_immediately()
+    {
+        var sim800g = new DeviceInfo
+        {
+            Id = "sim-800g-qsfpdd",
+            Name = "Simulated 800G CMIS Module",
+            Profile = new SimulatedI2cConnectionProfile(
+                "sim",
+                new I2cDeviceAddress(0x50),
+                "800g-qsfpdd")
+        };
+        var sim1p6t = new DeviceInfo
+        {
+            Id = "sim-1p6t-osfp",
+            Name = "Simulated 1.6T CMIS Module",
+            Profile = new SimulatedI2cConnectionProfile(
+                "sim",
+                new I2cDeviceAddress(0x50),
+                "1p6t-osfp")
+        };
+        var manager = new FakeDeviceManager(sim800g, sim1p6t);
+        var viewModel = new DeviceConnectionViewModel(manager, new DeviceSession());
+
+        await viewModel.RefreshAsync();
+        await viewModel.ConnectAsync();
+
+        Assert.Same(sim800g, viewModel.SelectedDevice);
+        Assert.Equal("Simulated 800G CMIS Module", viewModel.SelectedPort);
+        Assert.Same(sim800g, manager.OpenedDeviceInfo);
     }
 
     [Fact]

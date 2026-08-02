@@ -13,6 +13,7 @@ public partial class DeviceConnectionViewModel
     private readonly IDeviceManager _deviceManager;
     private readonly DeviceSession _session;
     private IReadOnlyList<DeviceInfo> _discoveredDevices = [];
+    private bool _isSynchronizingSelection;
 
     [GenerateProperty(OnChangedMethod = nameof(OnSelectedAdapterChanged))]
     private AdapterChoice? _selectedAdapter;
@@ -91,7 +92,7 @@ public partial class DeviceConnectionViewModel
         }
     }
 
-    [GenerateCommand]
+    [GenerateCommand(Name = "ConnectCommand")]
     public async Task ConnectAsync()
     {
         if (SelectedDevice is null)
@@ -130,7 +131,7 @@ public partial class DeviceConnectionViewModel
         }
     }
 
-    [GenerateCommand]
+    [GenerateCommand(Name = "DisconnectCommand")]
     public async Task DisconnectAsync()
     {
         var device = _session.CurrentDevice;
@@ -162,7 +163,7 @@ public partial class DeviceConnectionViewModel
         }
     }
 
-    private void OnSelectedAdapterChanged(AdapterChoice? _) => ApplyAdapterFilter();
+    private void OnSelectedAdapterChanged() => ApplyAdapterFilter();
 
     private void ApplyAdapterFilter()
     {
@@ -183,24 +184,64 @@ public partial class DeviceConnectionViewModel
         {
             SelectedDevice = null;
         }
+
+        if (SelectedDevice is null)
+        {
+            SelectedDevice = AvailableDevices.FirstOrDefault();
+        }
     }
 
-    private void OnSelectedDeviceChanged(DeviceInfo? device)
+    private void OnSelectedDeviceChanged()
     {
-        var label = device is null ? string.Empty : GetDeviceLabel(device);
+        if (_isSynchronizingSelection)
+        {
+            return;
+        }
+
+        var label = SelectedDevice is null ? string.Empty : GetDeviceLabel(SelectedDevice);
         if (!string.Equals(SelectedPort, label, StringComparison.Ordinal))
         {
-            SelectedPort = label;
+            _isSynchronizingSelection = true;
+            try
+            {
+                SelectedPort = label;
+            }
+            finally
+            {
+                _isSynchronizingSelection = false;
+            }
         }
     }
 
     private void OnSelectedPortChanged(string? port)
     {
+        if (_isSynchronizingSelection)
+        {
+            return;
+        }
+
+        if (SelectedDevice is not null
+            && string.Equals(
+                GetDeviceLabel(SelectedDevice),
+                port,
+                StringComparison.Ordinal))
+        {
+            return;
+        }
+
         var device = AvailableDevices.FirstOrDefault(
             candidate => string.Equals(GetDeviceLabel(candidate), port, StringComparison.Ordinal));
         if (!ReferenceEquals(SelectedDevice, device))
         {
-            SelectedDevice = device;
+            _isSynchronizingSelection = true;
+            try
+            {
+                SelectedDevice = device;
+            }
+            finally
+            {
+                _isSynchronizingSelection = false;
+            }
         }
     }
 

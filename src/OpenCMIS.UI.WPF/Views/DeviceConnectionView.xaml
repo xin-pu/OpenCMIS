@@ -2,31 +2,22 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:dx="http://schemas.devexpress.com/winfx/2008/xaml/core"
-             xmlns:dxe="http://schemas.devexpress.com/winfx/2008/xaml/editors"
-             xmlns:converters="clr-namespace:OpenCMIS.UI.WPF.Converters">
-    <UserControl.Resources>
-        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-        <converters:BoolInvertConverter x:Key="BoolInvertConverter" />
-    </UserControl.Resources>
+             xmlns:dxe="http://schemas.devexpress.com/winfx/2008/xaml/editors">
 
     <StackPanel MaxWidth="500"
                 Background="Transparent">
-        <TextBlock Text="Device Connection" FontSize="22" FontWeight="Bold"
-                   Foreground="{StaticResource OpenCmisTextBrush}"
-                   Margin="0,0,0,20" />
+        <TextBlock Text="Device Connection" Style="{StaticResource PageTitleStyle}" />
 
         <GroupBox Header="Scan &amp; Connect" Padding="10" Margin="0,0,0,15">
             <StackPanel>
-                <TextBlock Text="Adapter:" FontWeight="Bold"
-                           Foreground="{StaticResource OpenCmisMutedTextBrush}"
+                <TextBlock Text="Adapter:" Style="{StaticResource SectionLabelStyle}"
                            Margin="0,0,0,4" />
                 <dxe:ComboBoxEdit ItemsSource="{Binding AvailableAdapters}"
                                    EditValue="{Binding SelectedAdapter}"
                                    IsEnabled="{Binding IsConnected, Converter={StaticResource BoolInvertConverter}}"
                                    Margin="0,0,0,10" />
 
-                <TextBlock Text="Port:" FontWeight="Bold"
-                           Foreground="{StaticResource OpenCmisMutedTextBrush}"
+                <TextBlock Text="Port:" Style="{StaticResource SectionLabelStyle}"
                            Margin="0,0,0,4" />
                 <dxe:ComboBoxEdit ItemsSource="{Binding AvailablePorts}"
                                    EditValue="{Binding SelectedPort}"
@@ -76,8 +67,6 @@
             </StackPanel>
         </GroupBox>
 
-        <TextBlock Text="{Binding StatusMessage}"
-                   Foreground="{StaticResource OpenCmisMutedTextBrush}"
-                   Margin="0,10,0,0" />
+        <TextBlock Text="{Binding StatusMessage}" Style="{StaticResource StatusTextStyle}" />
     </StackPanel>
 </UserControl>
