@@ -77,28 +77,31 @@ namespace OpenCMIS.Shared
         /// <summary>VCC monitor, lower page 0x00 (0x10-0x11, 2 bytes, unsigned int16, LSB=100µV).</summary>
         public const byte RegVccMSB = 0x10;
 
-        #region Alarm / Warning Thresholds (Lower Page 0x00)
+        #region Alarm / Warning Thresholds (Upper Page 0x02)
+
+        /// <summary>Upper page for module-level alarm/warning thresholds.</summary>
+        public const byte ThresholdPage = 0x02;
 
         /// <summary>Temperature High Alarm threshold (signed int16, /256).</summary>
-        public const byte RegTempHighAlarmMSB = 0x00;
+        public const byte RegTempHighAlarmMSB = 0x80;
 
         /// <summary>Temperature Low Alarm threshold (signed int16, /256).</summary>
-        public const byte RegTempLowAlarmMSB = 0x02;
+        public const byte RegTempLowAlarmMSB = 0x82;
 
         /// <summary>Temperature High Warning threshold (signed int16, /256).</summary>
-        public const byte RegTempHighWarnMSB = 0x04;
+        public const byte RegTempHighWarnMSB = 0x84;
 
         /// <summary>Temperature Low Warning threshold (signed int16, /256).</summary>
-        public const byte RegTempLowWarnMSB = 0x06;
+        public const byte RegTempLowWarnMSB = 0x86;
 
         /// <summary>VCC High Alarm threshold (unsigned int16, 100µV).</summary>
-        public const byte RegVccHighAlarmMSB = 0x08;
+        public const byte RegVccHighAlarmMSB = 0x88;
 
         /// <summary>VCC Low Alarm threshold (unsigned int16, 100µV).</summary>
-        public const byte RegVccLowAlarmMSB = 0x0A;
+        public const byte RegVccLowAlarmMSB = 0x8A;
 
         /// <summary>VCC High Warning threshold (unsigned int16, 100µV).</summary>
-        public const byte RegVccHighWarnMSB = 0x0C;
+        public const byte RegVccHighWarnMSB = 0x8C;
 
         #endregion
 
@@ -111,8 +114,11 @@ namespace OpenCMIS.Shared
         /// <summary>Part number start, upper page 0x01 (0x94, 16 bytes).</summary>
         public const byte RegPartNumberStart = 0x94;
 
-        /// <summary>Serial number start, upper page 0x01 (0xA0, 16 bytes).</summary>
-        public const byte RegSerialNumberStart = 0xA0;
+        /// <summary>Serial number start, upper page 0x01 (0xC6, 16 bytes).
+        /// NOTE: Moved from 0xA0 to 0xA8 (conflict with Vendor Part Number),
+        /// then to 0xC6 to avoid overlap with Hardware/Firmware Revision
+        /// (0xB0-0xB3), Date Code (0xB4-0xBB), and CLEI Code (0xBC-0xC5).</summary>
+        public const byte RegSerialNumberStart = 0xC6;
 
         /// <summary>Hardware revision, upper page 0x01 (0xB0, 2 bytes BCD).</summary>
         public const byte RegHardwareRevision = 0xB0;

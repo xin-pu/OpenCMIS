@@ -286,21 +286,29 @@ public sealed class SimulatedI2cRegisterBus : II2cRegisterBus
         SetTemperature(42.0);      // 42.0°C baseline
         SetVcc(3.300);             // 3.300V baseline
 
-        // NOTE: Alarm/warning thresholds live at addresses 0x00-0x0D which
-        // overlap with identity/status/common registers on lower page 0x00.
-        // They must be read from a different page (e.g. via page select).
-        // The simulator does not populate them on lower page 0x00 to avoid
-        // corrupting identity bytes.
+        // Alarm/warning thresholds on dedicated threshold page 0x02
+        SetTemperatureRaw(0, CmisConstants.ThresholdPage,
+            CmisConstants.RegTempHighAlarmMSB, 70.0);
+        SetTemperatureRaw(0, CmisConstants.ThresholdPage,
+            CmisConstants.RegTempLowAlarmMSB, -5.0);
+        SetTemperatureRaw(0, CmisConstants.ThresholdPage,
+            CmisConstants.RegTempHighWarnMSB, 65.0);
+        SetTemperatureRaw(0, CmisConstants.ThresholdPage,
+            CmisConstants.RegTempLowWarnMSB, 0.0);
+        SetVccRaw(0, CmisConstants.ThresholdPage,
+            CmisConstants.RegVccHighAlarmMSB, 3.500);
+        SetVccRaw(0, CmisConstants.ThresholdPage,
+            CmisConstants.RegVccLowAlarmMSB, 3.100);
+        SetVccRaw(0, CmisConstants.ThresholdPage,
+            CmisConstants.RegVccHighWarnMSB, 3.400);
 
         // Vendor page 0x01
         SetAscii(0, 0x01, CmisConstants.RegVendorNameStart, 16, "OpenCMIS-Sim");
         SetBytes(0, 0x01, CmisConstants.RegVendorOUI, [0x00, 0x11, 0x22]);
         SetAscii(0, 0x01, CmisConstants.RegPartNumberStart, 16,
             is1p6t ? "1.6T-OSFP-SIM   " : "800G-QSFPDD-SIM ");
-        // SKIP serial number: RegSerialNumberStart (0xA0) overlaps with
-        // last 4 bytes of part number (0x94-0xA3). Serial is placed on
-        // a separate page in real hardware; simulator skips it for now.
-        // SetAscii(0, 0x01, CmisConstants.RegSerialNumberStart, 16, ...)
+        SetAscii(0, 0x01, CmisConstants.RegSerialNumberStart, 16,
+            is1p6t ? "SIM-1P6T000001  " : "SIM-800G000001  ");
         SetBytes(0, 0x01, CmisConstants.RegHardwareRevision, [0x01, 0x00]);
         SetBytes(0, 0x01, CmisConstants.RegFirmwareRevision, [0x01, 0x00]);
         SetAscii(0, 0x01, CmisConstants.RegDateCode, 8, "20260802");

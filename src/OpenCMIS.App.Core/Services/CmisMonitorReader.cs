@@ -17,23 +17,23 @@ internal sealed class CmisMonitorReader(IRegisterAccess registers)
             CmisConstants.RegVccMSB,
             2);
 
-        // Read temperature alarm/warning thresholds (lower page 0x00)
+        // Read temperature alarm/warning thresholds (upper threshold page)
         var tempHighAlarmBytes = await registers.ReadBlockAsync(
-            0x00, CmisConstants.RegTempHighAlarmMSB, 2);
+            CmisConstants.ThresholdPage, CmisConstants.RegTempHighAlarmMSB, 2);
         var tempLowAlarmBytes = await registers.ReadBlockAsync(
-            0x00, CmisConstants.RegTempLowAlarmMSB, 2);
+            CmisConstants.ThresholdPage, CmisConstants.RegTempLowAlarmMSB, 2);
         var tempHighWarnBytes = await registers.ReadBlockAsync(
-            0x00, CmisConstants.RegTempHighWarnMSB, 2);
+            CmisConstants.ThresholdPage, CmisConstants.RegTempHighWarnMSB, 2);
         var tempLowWarnBytes = await registers.ReadBlockAsync(
-            0x00, CmisConstants.RegTempLowWarnMSB, 2);
+            CmisConstants.ThresholdPage, CmisConstants.RegTempLowWarnMSB, 2);
 
         // Read VCC alarm/warning thresholds
         var vccHighAlarmBytes = await registers.ReadBlockAsync(
-            0x00, CmisConstants.RegVccHighAlarmMSB, 2);
+            CmisConstants.ThresholdPage, CmisConstants.RegVccHighAlarmMSB, 2);
         var vccLowAlarmBytes = await registers.ReadBlockAsync(
-            0x00, CmisConstants.RegVccLowAlarmMSB, 2);
+            CmisConstants.ThresholdPage, CmisConstants.RegVccLowAlarmMSB, 2);
         var vccHighWarnBytes = await registers.ReadBlockAsync(
-            0x00, CmisConstants.RegVccHighWarnMSB, 2);
+            CmisConstants.ThresholdPage, CmisConstants.RegVccHighWarnMSB, 2);
         // VCC Low Warning threshold is not present in CMIS 5.2 lower page 0x00.
         // Passing lowWarnAvailable: false prevents zero-threshold misclassification.
         var vccLowWarnUnavailable = Array.Empty<byte>();

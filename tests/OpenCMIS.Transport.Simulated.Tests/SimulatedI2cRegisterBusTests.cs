@@ -143,26 +143,81 @@ public sealed class SimulatedI2cRegisterBusTests
         Assert.Equal(a[0], b[0]); // identity never changes
     }
 
-    // ---- threshold bytes (not populated on lower page 0x00 to avoid
-    //      conflict with identity registers) ----
+    // ---- threshold bytes (on dedicated page 0x02) ----
 
     [Fact]
-    public async Task Alarm_threshold_addresses_do_not_corrupt_identity()
+    public async Task Threshold_page_does_not_corrupt_lower_page_identity()
     {
         await using var bus = await OpenBusAsync(noiseEnabled: false);
 
-        // RegTempHighAlarmMSB (0x00) = RegIdentifier: must be 0x18 (QSFP-DD)
-        var data = new byte[1];
+        // Identity bytes on page 0x00 must remain intact
+        var identifier = new byte[1];
+        await bus.ReadAsync(Address, new RegisterOffset(0x00), identifier);
+        Assert.Equal(0x18, identifier[0]);
+
+        var status = new byte[1];
+        await bus.ReadAsync(Address, new RegisterOffset(0x02), status);
+        Assert.Equal(0x03, status[0]);
+    }
+
+    [Fact]
+    public async Task Read_temperature_thresholds_from_correct_page()
+    {
+        await using var bus = await OpenBusAsync(noiseEnabled: false);
+
+        // Select threshold page 0x02
+        await bus.WriteAsync(Address, new RegisterOffset(0x7F),
+            new byte[] { CmisConstants.ThresholdPage });
+
+        // Temp high alarm = 70°C = 17920 = [0x46, 0x00]
+        var data = new byte[2];
         await bus.ReadAsync(Address,
             new RegisterOffset(CmisConstants.RegTempHighAlarmMSB), data);
-        Assert.Equal(0x18, data[0]); // identity preserved
+        Assert.Equal(0x46, data[0]);
+        Assert.Equal(0x00, data[1]);
+    }
 
-        // RegVccHighAlarmMSB (0x08): not populated, returns 0x00
-        var vccData = new byte[2];
+    [Fact]
+    public async Task Read_vcc_thresholds_from_correct_page()
+    {
+        await using var bus = await OpenBusAsync(noiseEnabled: false);
+
+        // Select threshold page 0x02
+        await bus.WriteAsync(Address, new RegisterOffset(0x7F),
+            new byte[] { CmisConstants.ThresholdPage });
+
+        // VCC high alarm = 3.5V = 35000 = [0x88, 0xB8]
+        var data = new byte[2];
         await bus.ReadAsync(Address,
-            new RegisterOffset(CmisConstants.RegVccHighAlarmMSB), vccData);
-        Assert.Equal(0x00, vccData[0]);
-        Assert.Equal(0x00, vccData[1]);
+            new RegisterOffset(CmisConstants.RegVccHighAlarmMSB), data);
+        Assert.Equal(0x88, data[0]);
+        Assert.Equal(0xB8, data[1]);
+    }
+
+    // ---- serial number at corrected address ----
+
+    [Fact]
+    public async Task Read_serial_number_does_not_corrupt_part_number()
+    {
+        await using var bus = await OpenBusAsync();
+
+        // Select vendor page 0x01
+        await bus.WriteAsync(Address, new RegisterOffset(0x7F),
+            new byte[] { 0x01 });
+
+        // Part number at 0x94 must be intact
+        var part = new byte[16];
+        await bus.ReadAsync(Address,
+            new RegisterOffset(CmisConstants.RegPartNumberStart), part);
+        Assert.Equal("800G-QSFPDD-SIM",
+            Encoding.ASCII.GetString(part).TrimEnd());
+
+        // Serial number at 0xA8 must be populated (no overlap)
+        var serial = new byte[16];
+        await bus.ReadAsync(Address,
+            new RegisterOffset(CmisConstants.RegSerialNumberStart), serial);
+        Assert.Equal("SIM-800G000001",
+            Encoding.ASCII.GetString(serial).TrimEnd());
     }
 
     // ---- writes ----
