@@ -8,6 +8,7 @@
     <UserControl.Resources>
         <converters:ModuleStateToColorConverter x:Key="ModuleStateToColorConverter" />
         <converters:MonitorValueToColorConverter x:Key="MonitorValueToColorConverter" />
+        <converters:ThresholdWidthConverter x:Key="ThresholdWidthConverter" />
 
         <Style x:Key="GaugeCardBorderStyle" TargetType="Border">
             <Setter Property="Background" Value="{StaticResource OpenCmisSurfaceBrush}" />
@@ -15,7 +16,7 @@
             <Setter Property="Padding" Value="12" />
             <Setter Property="Margin" Value="4" />
             <Setter Property="Width" Value="200" />
-            <Setter Property="Height" Value="120" />
+            <Setter Property="Height" Value="180" />
         </Style>
 
         <Style x:Key="IdentityLabelStyle" TargetType="TextBlock">
@@ -132,6 +133,37 @@
                                        Foreground="{Binding DashData.Monitors.Temperature, Converter={StaticResource MonitorValueToColorConverter}}">
                                 <Run Text="{Binding DashData.Monitors.Temperature.GetStatusText}" />
                             </TextBlock>
+                            <!-- Threshold Range Bar -->
+                            <Grid Height="8" Margin="0,4,0,0">
+                                <Rectangle Fill="{StaticResource OpenCmisInputBackgroundBrush}" RadiusX="4" RadiusY="4" />
+                                <Rectangle HorizontalAlignment="Left" RadiusX="4" RadiusY="4"
+                                           Fill="{Binding DashData.Monitors.Temperature, Converter={StaticResource MonitorValueToColorConverter}}">
+                                    <Rectangle.Width>
+                                        <Binding Path="DashData.Monitors.Temperature"
+                                                 Converter="{StaticResource ThresholdWidthConverter}"
+                                                 ConverterParameter="176" />
+                                    </Rectangle.Width>
+                                </Rectangle>
+                            </Grid>
+                            <!-- Threshold Values -->
+                            <Grid Margin="0,3,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <TextBlock FontSize="9" Foreground="{StaticResource OpenCmisMutedTextBrush}">
+                                    <Run Text="ALM H:" />
+                                    <Run Text="{Binding DashData.Monitors.Temperature.AlarmHigh, StringFormat=F1}" Foreground="{StaticResource OpenCmisDangerBrush}" />
+                                    <Run Text="  WRN H:" />
+                                    <Run Text="{Binding DashData.Monitors.Temperature.WarnHigh, StringFormat=F1}" Foreground="{StaticResource OpenCmisWarningBrush}" />
+                                </TextBlock>
+                                <TextBlock Grid.Row="1" FontSize="9" Foreground="{StaticResource OpenCmisMutedTextBrush}">
+                                    <Run Text="WRN L:" />
+                                    <Run Text="{Binding DashData.Monitors.Temperature.WarnLow, StringFormat=F1}" Foreground="{StaticResource OpenCmisWarningBrush}" />
+                                    <Run Text="  ALM L:" />
+                                    <Run Text="{Binding DashData.Monitors.Temperature.AlarmLow, StringFormat=F1}" Foreground="{StaticResource OpenCmisDangerBrush}" />
+                                </TextBlock>
+                            </Grid>
                         </StackPanel>
                     </Border>
 
@@ -150,6 +182,36 @@
                                        Foreground="{Binding DashData.Monitors.VCC, Converter={StaticResource MonitorValueToColorConverter}}">
                                 <Run Text="{Binding DashData.Monitors.VCC.GetStatusText}" />
                             </TextBlock>
+                            <!-- Threshold Range Bar -->
+                            <Grid Height="8" Margin="0,4,0,0">
+                                <Rectangle Fill="{StaticResource OpenCmisInputBackgroundBrush}" RadiusX="4" RadiusY="4" />
+                                <Rectangle HorizontalAlignment="Left" RadiusX="4" RadiusY="4"
+                                           Fill="{Binding DashData.Monitors.VCC, Converter={StaticResource MonitorValueToColorConverter}}">
+                                    <Rectangle.Width>
+                                        <Binding Path="DashData.Monitors.VCC"
+                                                 Converter="{StaticResource ThresholdWidthConverter}"
+                                                 ConverterParameter="176" />
+                                    </Rectangle.Width>
+                                </Rectangle>
+                            </Grid>
+                            <!-- Threshold Values (no low warning per CMIS 5.2) -->
+                            <Grid Margin="0,3,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <TextBlock FontSize="9" Foreground="{StaticResource OpenCmisMutedTextBrush}">
+                                    <Run Text="ALM H:" />
+                                    <Run Text="{Binding DashData.Monitors.VCC.AlarmHigh, StringFormat=F3}" Foreground="{StaticResource OpenCmisDangerBrush}" />
+                                    <Run Text="  WRN H:" />
+                                    <Run Text="{Binding DashData.Monitors.VCC.WarnHigh, StringFormat=F3}" Foreground="{StaticResource OpenCmisWarningBrush}" />
+                                </TextBlock>
+                                <TextBlock Grid.Row="1" FontSize="9" Foreground="{StaticResource OpenCmisMutedTextBrush}">
+                                    <Run Text="ALM L:" />
+                                    <Run Text="{Binding DashData.Monitors.VCC.AlarmLow, StringFormat=F3}" Foreground="{StaticResource OpenCmisDangerBrush}" />
+                                    <Run Text="  (no low warn)" FontStyle="Italic" />
+                                </TextBlock>
+                            </Grid>
                         </StackPanel>
                     </Border>
 
@@ -204,7 +266,7 @@
                                            Margin="8,0,0,0" VerticalAlignment="Center" />
                             </StackPanel>
                             <TextBlock FontSize="11" Margin="0,4,0,0" Foreground="{StaticResource OpenCmisMutedTextBrush}">
-                                <Run Text="{Binding DashData.Lanes.Count, StringFormat={}{0} lanes}" />
+                                <Run Text="{Binding DashData.Lanes.Count, Mode=OneWay, StringFormat={}{0} lanes}" />
                             </TextBlock>
                         </StackPanel>
                     </Border>
@@ -240,7 +302,8 @@
                             </dxg:GridColumn.Binding>
                         </dxg:GridColumn>
                         <dxg:GridColumn Header="Enabled" FieldName="IsEnabled" Width="70" />
-                        <dxg:GridColumn Header="Status" FieldName="StatusText" Width="*">
+                        <dxg:GridColumn Header="Status" FieldName="StatusText" Width="*"
+                                        MaxWidth="80">
                             <dxg:GridColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Value}">
@@ -254,6 +317,111 @@
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding Row.IsEnabled}" Value="False">
                                                         <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </dxg:GridColumn.CellTemplate>
+                        </dxg:GridColumn>
+                        <dxg:GridColumn Header="TX LOS" FieldName="TxLos" Width="55">
+                            <dxg:GridColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock>
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="—" />
+                                                <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Value}" Value="True">
+                                                        <Setter Property="Text" Value="LOS" />
+                                                        <Setter Property="Foreground" Value="{StaticResource OpenCmisDangerBrush}" />
+                                                        <Setter Property="FontWeight" Value="Bold" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </dxg:GridColumn.CellTemplate>
+                        </dxg:GridColumn>
+                        <dxg:GridColumn Header="RX LOS" FieldName="RxLos" Width="55">
+                            <dxg:GridColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock>
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="—" />
+                                                <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Value}" Value="True">
+                                                        <Setter Property="Text" Value="LOS" />
+                                                        <Setter Property="Foreground" Value="{StaticResource OpenCmisDangerBrush}" />
+                                                        <Setter Property="FontWeight" Value="Bold" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </dxg:GridColumn.CellTemplate>
+                        </dxg:GridColumn>
+                        <dxg:GridColumn Header="TX LOL" FieldName="TxLol" Width="55">
+                            <dxg:GridColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock>
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="—" />
+                                                <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Value}" Value="True">
+                                                        <Setter Property="Text" Value="LOL" />
+                                                        <Setter Property="Foreground" Value="{StaticResource OpenCmisDangerBrush}" />
+                                                        <Setter Property="FontWeight" Value="Bold" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </dxg:GridColumn.CellTemplate>
+                        </dxg:GridColumn>
+                        <dxg:GridColumn Header="RX LOL" FieldName="RxLol" Width="55">
+                            <dxg:GridColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock>
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="—" />
+                                                <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Value}" Value="True">
+                                                        <Setter Property="Text" Value="LOL" />
+                                                        <Setter Property="Foreground" Value="{StaticResource OpenCmisDangerBrush}" />
+                                                        <Setter Property="FontWeight" Value="Bold" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </dxg:GridColumn.CellTemplate>
+                        </dxg:GridColumn>
+                        <dxg:GridColumn Header="Fault" FieldName="HasFault" Width="55">
+                            <dxg:GridColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock>
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="—" />
+                                                <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Value}" Value="True">
+                                                        <Setter Property="Text" Value="FAULT" />
+                                                        <Setter Property="Foreground" Value="{StaticResource OpenCmisDangerBrush}" />
+                                                        <Setter Property="FontWeight" Value="Bold" />
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>

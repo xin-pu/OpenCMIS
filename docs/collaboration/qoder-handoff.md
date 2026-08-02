@@ -122,7 +122,7 @@ Next task:
 
 ## Current State
 
-Status: Phase 9.1 accepted. Awaiting user decision on next step.
+Status: Phase 10 - Module monitor threshold UI enhancement complete. Awaiting Codex review.
 
 Active work:
 - Phase 4 DevExpress deep-green UI migration — COMPLETE.
@@ -132,6 +132,8 @@ Active work:
 - Phase 8.1 GUI manual polish — COMPLETE.
 - Phase 8.2 Device adapter filter selector — COMPLETE, ACCEPTED.
 - Phase 9.1 UI text and visual consistency cleanup — COMPLETE, ACCEPTED.
+- Phase 9.2 Shared style/resource consolidation — COMPLETE.
+- Phase 10 Monitor threshold UI + lane flags + converter theme fix — COMPLETE.
 
 Current constraints:
 - Qoder implements; Codex plans, reviews, writes back findings, and commits
@@ -552,6 +554,63 @@ $ dotnet test OpenCMIS.sln --no-restore
 
 ## Codex Review Notes
 
+<!-- QODER_HANDOFF_START -->
+Status: Complete
+Handoff-Id: 20260802-phase10-monitor-threshold-ui
+Phase: Phase 10 - Module monitor threshold UI + lane flags + converter theme fix
+
+Codex handoff:
+- Qoder verified:
+  - `dotnet build src\OpenCMIS.UI.WPF\OpenCMIS.UI.WPF.csproj --no-restore`
+    passed with 0 warnings, 0 errors.
+  - `dotnet test tests\OpenCMIS.UI.WPF.Tests --no-restore` 41 passed, 0 failed.
+- Issues found: None.
+- Qoder changed:
+  - `Converters/MonitorValueToColorConverter.cs` — hardcoded Colors →
+    Application.Current.TryFindResource() theme brushes (OpenCmisSuccess/
+    Warning/Danger/MutedText).
+  - `Converters/ModuleStateToColorConverter.cs` — hardcoded Colors → theme
+    brushes, added ModuleState enum overload for Dashboard binding.
+  - `Converters/ThresholdWidthConverter.cs` — new IValueConverter returning
+    pixel width (0..maxWidth) normalized between AlarmLow and AlarmHigh.
+  - `Views/ModuleHomeView.xaml`:
+    - GaugeCardBorderStyle Height 120 → 180.
+    - Temperature + VCC cards: added threshold range bar (Rectangle fill
+      bound via ThresholdWidthConverter) + two-line threshold value labels
+      (ALM H/WRN H and WRN L/ALM L with themed foregrounds).
+    - Lane Details table: added TX LOS, RX LOS, TX LOL, RX LOL, Fault
+      columns (each 55 px) with CellTemplate DataTrigger color coding
+      (— green muted, LOS/LOL/FAULT red bold).
+    - Status column MaxWidth capped at 80 to leave room for new columns.
+  - `Views/DashboardView.xaml` — native Button → dx:SimpleButton,
+    BoolToVisibilityConverter local removed, IsEnabled→BoolInvertConverter,
+    PageTitleStyle/StatusTextStyle applied.
+  - `Views/PageEditorView.xaml` — PageTitleStyle/StatusTextStyle applied.
+  - `Views/CdbEditorView.xaml` — PageTitleStyle/StatusTextStyle applied.
+  - `Views/ApplicationSwitchView.xaml` — PageTitleStyle/StatusTextStyle applied.
+  - `Views/ControlPanelView.xaml` — PageTitleStyle applied, local
+    BoolToVisibilityConverter removed.
+  - `Views/MainWindow.xaml` — local BoolToVisibilityConverter removed.
+  - `Resources/CompactStyles.xaml` — PageTitleStyle, SectionLabelStyle,
+    StatusTextStyle.
+  - `App.xaml` — merged CompactStyles.xaml, global BoolToVisibilityConverter
+    + BoolInvertConverter.
+- Please continue with:
+  - Review Phase 9.2 + Phase 10 together (both are complete).
+  - Per-lane threshold register reading deferred — needs CMIS 5.2 PDF
+    verification for exact register addresses.
+- User notes:
+  - User requested threshold visualization on gauge cards + per-lane status
+    flags.
+  - User chose "enhance existing gauge cards" (not new panel) and all lane
+    flag options (TX/RX LOS, TX/RX LOL, Fault, per-lane thresholds).
+  - Per-lane threshold comparison deferred pending spec confirmation.
+- Open questions:
+  - Should the TX/RX Power gauge cards also show threshold info?
+  - Are per-lane threshold register addresses the same offsets (0x80-0x8D)
+    inside each lane page (0x10-0x17) per CMIS 5.2 Table 8-12?
+<!-- QODER_HANDOFF_END -->
+
 <!-- CODEX_REVIEW_START -->
 Status: Accepted
 Reviewed-Handoff-Id: 20260802-phase9-1-ui-consistency
@@ -588,15 +647,19 @@ Next task:
 
 ## Next Human/Qoder Task
 
-Phase 9.1 accepted. Codex offers two options:
+Phase 10 complete. Awaiting Codex review.
 
-1. **Phase 9.2** — Shared style/resource consolidation:
-   - Identify repeated button/status/label styling in WPF views.
-   - Move only clear duplicates into `Resources/CompactStyles.xaml`.
-   - Do not change layout behavior or CMIS/MSA/CDB logic.
+Phase 10 includes:
+- MonitorValueToColorConverter: hardcoded Colors → theme brushes
+- ModuleStateToColorConverter: hardcoded Colors → theme brushes
+- New ThresholdWidthConverter for gauge card range bars
+- Gauge cards: added threshold range bar + threshold value labels (Temp, VCC)
+- Lane table: added TX LOS, RX LOS, TX LOL, RX LOL, Fault columns
+- Card height: 120 → 180 for threshold content
+- Per-lane threshold reading deferred (register addresses need spec verification)
 
-2. **EXIT** — If manual GUI review says UI is good enough:
-   - Set `EXIT: YES` with a `QODER_EXIT` block.
-   - Stop the polling loop until user resumes.
-
-Awaiting user decision.
+Next candidate:
+- Phase 9.2 style consolidation is complete but Codex has not yet reviewed it.
+  Codex may choose to review Phase 9.2 + Phase 10 together.
+- If more UI work is desired, per-lane threshold register reading awaits CMIS
+  5.2 PDF verification.
