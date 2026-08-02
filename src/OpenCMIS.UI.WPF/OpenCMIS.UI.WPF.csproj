@@ -23,6 +23,7 @@
     <PackageReference Include="DevExpress.Wpf.Controls" Version="25.2.4" />
     <PackageReference Include="DevExpress.Wpf.Core" Version="25.2.4" />
     <PackageReference Include="DevExpress.Wpf.Grid" Version="25.2.4" />
+    <PackageReference Include="DevExpress.Wpf.Themes.Win11Dark" Version="25.2.4" />
     <PackageReference Include="DevExpress.Wpf.Themes.Win11Light" Version="25.2.4" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
     <!-- Security pin: DevExpress 25.2.4 resolves vulnerable 8.0.2 transitively. -->

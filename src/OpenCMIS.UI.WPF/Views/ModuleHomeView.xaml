@@ -2,11 +2,14 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:converters="clr-namespace:OpenCMIS.UI.WPF.Converters"
-             xmlns:dxg="http://schemas.devexpress.com/winfx/2008/xaml/grid">
+             xmlns:dx="http://schemas.devexpress.com/winfx/2008/xaml/core"
+             xmlns:dxg="http://schemas.devexpress.com/winfx/2008/xaml/grid"
+             xmlns:dxe="http://schemas.devexpress.com/winfx/2008/xaml/editors">
     <UserControl.Resources>
         <converters:ModuleStateToColorConverter x:Key="ModuleStateToColorConverter" />
         <converters:MonitorValueToColorConverter x:Key="MonitorValueToColorConverter" />
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:BoolInvertConverter x:Key="BoolInvertConverter" />
 
         <Style x:Key="GaugeCardBorderStyle" TargetType="Border">
             <Setter Property="Background" Value="{StaticResource OpenCmisSurfaceBrush}" />
