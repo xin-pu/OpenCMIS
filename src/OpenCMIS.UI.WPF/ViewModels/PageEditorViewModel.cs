@@ -238,12 +238,6 @@ namespace OpenCMIS.UI.WPF.ViewModels
         [RelayCommand]
         private async Task ReadRangeAsync()
         {
-            if (_device == null)
-            {
-                StatusMessage = "No device connected.";
-                return;
-            }
-
             if (!ValidateHexInputs(out var bank, out var page,
                     out var start, out var length))
             {
@@ -262,9 +256,31 @@ namespace OpenCMIS.UI.WPF.ViewModels
                 return;
             }
 
+            if (_device == null)
+            {
+                StatusMessage = "No device connected.";
+                return;
+            }
+
+            // Range read overlays data onto the existing page buffer.
+            // Require a full page load first so unread addresses are not
+            // displayed as synthetic zeroes.
+            if (_pageBuffer == null)
+            {
+                StatusMessage = "Load a full page first (Read Page / Common).";
+                return;
+            }
+
             try
             {
+                // Preserve previously loaded bytes so unread addresses
+                // are not replaced with synthetic zeroes.
                 var fullPage = new byte[256];
+                if (_pageBuffer != null)
+                {
+                    for (var i = 0; i < 256; i++)
+                        fullPage[i] = _pageBuffer.GetByte(i);
+                }
 
                 var endAddr = start + length;
 

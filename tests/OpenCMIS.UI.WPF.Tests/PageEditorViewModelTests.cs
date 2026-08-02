@@ -132,6 +132,217 @@ public sealed class PageEditorViewModelTests
             w.Bank == 2 && w.Page == 0x11 && w.StartAddress == 0xA0);
     }
 
+    [Fact]
+    public void ReadRange_invalid_bank_shows_error()
+    {
+        var vm = new PageEditorViewModel();
+        SetProperty(vm, "BankNumber", "GG");
+        SetProperty(vm, "PageNumber", "00");
+        SetProperty(vm, "StartAddress", "80");
+        SetProperty(vm, "ReadLength", "10");
+
+        // Execute ReadRangeAsync via reflection (no device, so it will
+        // bail out at validation before touching _device).
+        InvokeReadRangeAsync(vm).GetAwaiter().GetResult();
+
+        Assert.Contains("Invalid bank number", GetStatusMessage(vm));
+    }
+
+    [Fact]
+    public void ReadRange_invalid_page_shows_error()
+    {
+        var vm = new PageEditorViewModel();
+        SetProperty(vm, "BankNumber", "00");
+        SetProperty(vm, "PageNumber", "ZZ");
+        SetProperty(vm, "StartAddress", "80");
+        SetProperty(vm, "ReadLength", "10");
+
+        InvokeReadRangeAsync(vm).GetAwaiter().GetResult();
+
+        Assert.Contains("Invalid page number", GetStatusMessage(vm));
+    }
+
+    [Fact]
+    public void ReadRange_invalid_start_address_shows_error()
+    {
+        var vm = new PageEditorViewModel();
+        SetProperty(vm, "BankNumber", "00");
+        SetProperty(vm, "PageNumber", "00");
+        SetProperty(vm, "StartAddress", "1G");
+        SetProperty(vm, "ReadLength", "10");
+
+        InvokeReadRangeAsync(vm).GetAwaiter().GetResult();
+
+        Assert.Contains("Invalid start address", GetStatusMessage(vm));
+    }
+
+    [Fact]
+    public void ReadRange_invalid_length_shows_error()
+    {
+        var vm = new PageEditorViewModel();
+        SetProperty(vm, "BankNumber", "00");
+        SetProperty(vm, "PageNumber", "00");
+        SetProperty(vm, "StartAddress", "80");
+        SetProperty(vm, "ReadLength", "XX");
+
+        InvokeReadRangeAsync(vm).GetAwaiter().GetResult();
+
+        Assert.Contains("Invalid read length", GetStatusMessage(vm));
+    }
+
+    [Fact]
+    public void ReadRange_zero_length_shows_error()
+    {
+        var vm = new PageEditorViewModel();
+        SetProperty(vm, "BankNumber", "00");
+        SetProperty(vm, "PageNumber", "00");
+        SetProperty(vm, "StartAddress", "80");
+        SetProperty(vm, "ReadLength", "00");
+
+        InvokeReadRangeAsync(vm).GetAwaiter().GetResult();
+
+        Assert.Contains("1–FF", GetStatusMessage(vm));
+    }
+
+    [Fact]
+    public void ReadRange_exceeds_page_boundary_shows_error()
+    {
+        var vm = new PageEditorViewModel();
+        SetProperty(vm, "BankNumber", "00");
+        SetProperty(vm, "PageNumber", "00");
+        SetProperty(vm, "StartAddress", "F0");
+        SetProperty(vm, "ReadLength", "20"); // 0xF0 + 0x20 = 0x110 > 256
+
+        InvokeReadRangeAsync(vm).GetAwaiter().GetResult();
+
+        Assert.Contains("exceeds page boundary", GetStatusMessage(vm));
+    }
+
+    [Fact]
+    public async Task ReadRange_lower_only_reads_from_common_page_zero()
+    {
+        var spy = new SpyRegisterAccess();
+        var device = new SpyCmisDevice(spy);
+        var vm = new PageEditorViewModel();
+        vm.SetDevice(device);
+        LoadPageBuffer(vm, CreateEmptyPage());
+        SetProperty(vm, "BankNumber", "02");
+        SetProperty(vm, "PageNumber", "11");
+        SetProperty(vm, "StartAddress", "10");
+        SetProperty(vm, "ReadLength", "08");
+
+        await InvokeReadRangeAsync(vm);
+
+        // Should have read from (0, 0, 0x10, 8), NOT from (2, 0x11)
+        Assert.Contains(spy.Reads, r =>
+            r.Bank == 0 && r.Page == 0 && r.StartAddress == 0x10 && r.Length == 8);
+        Assert.DoesNotContain(spy.Reads, r => r.Bank != 0);
+    }
+
+    [Fact]
+    public async Task ReadRange_upper_only_reads_from_selected_bank_page()
+    {
+        var spy = new SpyRegisterAccess();
+        var device = new SpyCmisDevice(spy);
+        var vm = new PageEditorViewModel();
+        vm.SetDevice(device);
+        LoadPageBuffer(vm, CreateEmptyPage());
+        SetProperty(vm, "BankNumber", "03");
+        SetProperty(vm, "PageNumber", "1F");
+        SetProperty(vm, "StartAddress", "A0");
+        SetProperty(vm, "ReadLength", "10");
+
+        await InvokeReadRangeAsync(vm);
+
+        Assert.Contains(spy.Reads, r =>
+            r.Bank == 3 && r.Page == 0x1F && r.StartAddress == 0xA0 && r.Length == 0x10);
+    }
+
+    [Fact]
+    public async Task ReadRange_crossing_boundary_reads_both_pages()
+    {
+        var spy = new SpyRegisterAccess();
+        var device = new SpyCmisDevice(spy);
+        var vm = new PageEditorViewModel();
+        vm.SetDevice(device);
+        LoadPageBuffer(vm, CreateEmptyPage());
+        SetProperty(vm, "BankNumber", "01");
+        SetProperty(vm, "PageNumber", "05");
+        SetProperty(vm, "StartAddress", "70");
+        SetProperty(vm, "ReadLength", "20"); // 0x70..0x8F, crosses 0x80
+
+        await InvokeReadRangeAsync(vm);
+
+        // Lower part from common page
+        Assert.Contains(spy.Reads, r =>
+            r.Bank == 0 && r.Page == 0 && r.StartAddress == 0x70 && r.Length == 0x10);
+        // Upper part from selected bank/page
+        Assert.Contains(spy.Reads, r =>
+            r.Bank == 1 && r.Page == 5 && r.StartAddress == 0x80 && r.Length == 0x10);
+    }
+
+    [Fact]
+    public async Task ReadRange_preserves_unread_bytes_from_previous_load()
+    {
+        // Load a full page with known values (all 0xAA)
+        var original = new byte[256];
+        Array.Fill(original, (byte)0xAA);
+
+        var spy = new SpyRegisterAccess();
+        var device = new SpyCmisDevice(spy);
+        var vm = new PageEditorViewModel();
+        vm.SetDevice(device);
+        LoadPageBuffer(vm, original);
+
+        // Range read only 0x80..0x87 (8 bytes). Spy returns zeroes.
+        SetProperty(vm, "BankNumber", "00");
+        SetProperty(vm, "PageNumber", "00");
+        SetProperty(vm, "StartAddress", "80");
+        SetProperty(vm, "ReadLength", "08");
+
+        await InvokeReadRangeAsync(vm);
+
+        // Outside the range: preserved from original load (0xAA, not 0x00)
+        Assert.Equal(0xAA, GetBufferByte(vm, 0x00));
+        Assert.Equal(0xAA, GetBufferByte(vm, 0x7F));
+        Assert.Equal(0xAA, GetBufferByte(vm, 0x88));
+        Assert.Equal(0xAA, GetBufferByte(vm, 0xFF));
+
+        // Inside the range: updated by the spy read (0x00)
+        Assert.Equal(0x00, GetBufferByte(vm, 0x80));
+        Assert.Equal(0x00, GetBufferByte(vm, 0x87));
+    }
+
+    [Fact]
+    public void ReadRange_without_prior_page_load_shows_error()
+    {
+        var spy = new SpyRegisterAccess();
+        var device = new SpyCmisDevice(spy);
+        var vm = new PageEditorViewModel();
+        vm.SetDevice(device);
+        // No LoadPageBuffer — simulate first use
+        SetProperty(vm, "BankNumber", "00");
+        SetProperty(vm, "PageNumber", "00");
+        SetProperty(vm, "StartAddress", "80");
+        SetProperty(vm, "ReadLength", "08");
+
+        InvokeReadRangeAsync(vm).GetAwaiter().GetResult();
+
+        Assert.Contains("Load a full page first", GetStatusMessage(vm));
+        // No reads should have been issued against hardware
+        Assert.Empty(spy.Reads);
+    }
+
+    private static byte GetBufferByte(PageEditorViewModel vm, int address)
+    {
+        var field = typeof(PageEditorViewModel)
+            .GetField("_pageBuffer",
+                System.Reflection.BindingFlags.NonPublic |
+                System.Reflection.BindingFlags.Instance)!;
+        var buffer = (MsaPageBuffer)field.GetValue(vm)!;
+        return buffer.GetByte(address);
+    }
+
     private static void LoadPageBuffer(PageEditorViewModel vm, byte[] data)
     {
         var buffer = new MsaPageBuffer();
@@ -176,6 +387,24 @@ public sealed class PageEditorViewModelTests
         return (Task)method.Invoke(vm, null)!;
     }
 
+    private static Task InvokeReadRangeAsync(PageEditorViewModel vm)
+    {
+        var method = typeof(PageEditorViewModel)
+            .GetMethod("ReadRangeAsync",
+                System.Reflection.BindingFlags.NonPublic |
+                System.Reflection.BindingFlags.Instance)!;
+        return (Task)method.Invoke(vm, null)!;
+    }
+
+    private static string GetStatusMessage(PageEditorViewModel vm)
+    {
+        return (string)typeof(PageEditorViewModel)
+            .GetProperty("StatusMessage",
+                System.Reflection.BindingFlags.Public |
+                System.Reflection.BindingFlags.Instance)!
+            .GetValue(vm)!;
+    }
+
     private static byte[] CreateEmptyPage()
     {
         var page = new byte[256];
@@ -186,6 +415,7 @@ public sealed class PageEditorViewModelTests
     private sealed class SpyRegisterAccess : IRegisterAccess
     {
         public List<(byte Bank, byte Page, byte StartAddress, byte[] Data)> Writes { get; } = [];
+        public List<(byte Bank, byte Page, byte StartAddress, int Length)> Reads { get; } = [];
 
         public Task<byte> ReadByteAsync(byte page, byte address) =>
             Task.FromResult((byte)0);
@@ -198,12 +428,13 @@ public sealed class PageEditorViewModelTests
 
         public Task<byte[]> ReadBlockAsync(byte page, byte startAddress, int length)
         {
-            // Return zeros matching length for read-back
+            Reads.Add((0, page, startAddress, length));
             return Task.FromResult(new byte[length]);
         }
 
         public Task<byte[]> ReadBlockAsync(byte bank, byte page, byte startAddress, int length)
         {
+            Reads.Add((bank, page, startAddress, length));
             return Task.FromResult(new byte[length]);
         }
 
