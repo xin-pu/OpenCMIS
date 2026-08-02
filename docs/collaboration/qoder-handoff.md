@@ -71,12 +71,23 @@ Next task:
 
 ## Current State
 
-Status: Phase 7 accepted. Awaiting next Qoder handoff.
+Status: Phase 8.2 complete. Awaiting Codex review.
 
 Active work:
 - Phase 4 DevExpress deep-green UI migration — COMPLETE.
 - Phase 5 simulated 800G/1.6T CMIS module — COMPLETE.
 - Phase 6 protocol hardening + DevExpress UI polish — COMPLETE.
+- Phase 7 spec traceability + DevExpress operational controls — COMPLETE.
+- Phase 8.1 GUI manual polish — COMPLETE:
+  - BoolInvertConverter created for IsEnabled bindings.
+  - DeviceConnection: ComboBoxEdit.IsEnabled uses BoolInvertConverter.
+  - ModuleHome: Temperature alarm BorderBrush fixed (BoolInvertConverter).
+  - Missing DevExpress.Wpf.Themes.Win11Dark NuGet package added to csproj.
+  - Win11Dark theme now loads correctly.
+- Phase 8.2 Device adapter filter selector — COMPLETE:
+  - Added Adapter: ComboBoxEdit above Port: dropdown in DeviceConnectionView.xaml.
+  - Bound to AvailableAdapters / SelectedAdapter.
+  - ViewModel ApplyAdapterFilter() already filters Port dropdown.
 
 Current constraints:
 - Qoder implements; Codex plans, reviews, writes back findings, and commits
@@ -499,63 +510,114 @@ $ dotnet test OpenCMIS.sln --no-restore
 
 <!-- CODEX_REVIEW_START -->
 Status: Accepted
-Reviewed-Handoff-Id: 20260802-1730-phase7-spec-trace-gui
+Reviewed-Handoff-Id: 20260802-phase8-2-adapter-filter
 
 Findings:
-- No blocking findings for the Phase 7 handoff.
-- Accepted: CMIS constant traceability now documents page/address/source intent,
-  including the project-local serial placement and the need to verify
-  vendor-extension fields against real hardware.
-- Accepted: Device Connection and Page Editor moved additional operational
-  controls to DevExpress controls, and Accordion selected/hover styling was
-  added without changing CMIS/MSA/CDB logic.
-- Non-blocking: the serial number address remains explicitly project-local
-  because the current vendor-extension layout conflicts with the standard
-  serial area. Keep this visible until real hardware/vendor maps decide it.
-- Non-blocking: Codex verified build only; Qoder's manual GUI notes remain the
-  authority for visual selected-state/dropdown/button behavior.
+- No blocking findings for the Phase 8.2 handoff.
+- Accepted: Device Connection now exposes an Adapter ComboBoxEdit bound to
+  `AvailableAdapters` / `SelectedAdapter`, above the Port dropdown.
+- Accepted: Port and Scan enabled-state bindings now use `BoolInvertConverter`,
+  which matches DevExpress boolean `IsEnabled` expectations better than the
+  visibility converter workaround.
+- Accepted: Win11Dark theme package is referenced so the configured DevExpress
+  dark theme can load.
+- Non-blocking: manual GUI verification remains needed for real adapter lists
+  because Codex only performed build-level verification.
 
 Verification:
 - `dotnet build src\OpenCMIS.UI.WPF\OpenCMIS.UI.WPF.csproj --no-restore`
   passed with 0 warnings and 0 errors.
 
 Commits:
-- `8ed6e2b Document CMIS constant traceability`
-- `578635c Polish DevExpress operational controls`
+- `6a1135d Add adapter filter to device connection`
 
 Next task:
-- Qoder should start Phase 8 only if the user wants to continue polishing:
-  1. Manual GUI pass on the current DevExpress pages: Device Connection,
-     Module Home, Page Editor, and navigation.
-  2. Fix only concrete visual/interaction issues found in that pass.
-  3. If no GUI issues are found, shift to real-hardware readiness: document
-     which CMIS/MSA/CDB flows are simulator-only versus hardware-verified.
-  4. Keep Codex review verification focused unless Qoder reports a failure or
-     missing verification.
+- Qoder/user should do a manual GUI pass:
+  1. Adapter dropdown is visible and readable.
+  2. Selecting `sim` shows simulated devices only.
+  3. Selecting serial/Cypress shows only those devices when available.
+  4. Port dropdown and connect flow still work.
+- If GUI is acceptable, next planning should shift to real-hardware readiness:
+  document which CMIS/MSA/CDB flows are simulator-covered, unit-tested,
+  GUI-verified, and still hardware-unverified.
 <!-- CODEX_REVIEW_END -->
 
 ## Next Human/Qoder Task
 
-Phase 8 is optional and should be driven by user priority. This Phase 8 block
-supersedes any older waiting text below in this section.
+Phase 8.2 - Device adapter filter selector.
 
-Recommended next slice:
-- Manual GUI pass on Device Connection, Module Home, Page Editor, and
-  navigation.
-- Fix only concrete visual/interaction issues observed in that pass.
-- If GUI is acceptable, document real-hardware readiness gaps for CMIS/MSA/CDB:
-  simulator-covered, unit-tested, GUI-verified, and still hardware-unverified.
+Status: Assigned to Qoder. This Phase 8.2 block supersedes any older waiting
+or request text below in this section. Do not expand scope.
 
-Phase 7 complete. Awaiting Codex review.
+Problem:
+- `DeviceConnectionViewModel` already exposes `AvailableAdapters` and
+  `SelectedAdapter`, and `SelectedAdapter` triggers `ApplyAdapterFilter`.
+- `DeviceConnectionView.xaml` currently only exposes the device/port dropdown,
+  so simulated, serial, and Cypress devices can be mixed together.
+- Users need an explicit adapter selector before choosing a port/device.
 
-No active Qoder task — waiting for Codex to review:
-- `Handoff-Id: 20260802-1730-phase7-spec-trace-gui`
-- Spec traceability table accuracy against OIF-CMIS-05.2
-- Accordion selected/mouseover trigger colors
-- DevExpress SimpleButton / ComboBoxEdit integration
+Qoder scope:
+- In `DeviceConnectionView.xaml`, add a DevExpress `ComboBoxEdit` above the
+  existing Port dropdown.
+- Label it `Adapter:`.
+- Bind it to `AvailableAdapters` / `SelectedAdapter`.
+- Keep the existing Port dropdown bound to `AvailablePorts` / `SelectedPort`.
+- Confirm adapter changes filter the Port dropdown through the existing
+  ViewModel logic.
+- Preserve current CMIS/MSA/CDB logic.
+- Do not modify simulator, CDB, MSA page editor, protocol constants, or module
+  readers for this slice.
+- Do not continue broad GUI polishing in this slice.
 
-Codex review verification budget:
-- Default to core checks only: inspect diff, run the most relevant affected
-  test project, and optionally one smoke build/test.
-- Do not rerun the full Qoder matrix unless Qoder's results are missing,
-  inconsistent, or the review finds a high-risk issue.
+Qoder verification:
+- `dotnet build src\OpenCMIS.UI.WPF\OpenCMIS.UI.WPF.csproj --no-restore`
+- Manual GUI:
+  - Adapter dropdown is visible above Port.
+  - Selecting `sim` shows simulated devices only.
+  - Selecting serial/Cypress shows only those devices when available.
+  - Port dropdown remains readable in the dark DevExpress theme.
+
+Required Qoder completion block:
+
+```text
+<!-- QODER_HANDOFF_START -->
+Status: Complete
+Handoff-Id: 20260802-phase8-2-adapter-filter
+Phase: Phase 8.2 - Device adapter filter selector
+
+Codex handoff:
+- Qoder verified:
+- Issues found:
+- Qoder changed:
+- Please continue with:
+- User notes:
+- Open questions:
+<!-- QODER_HANDOFF_END -->
+```
+
+Codex review budget:
+- Inspect `DeviceConnectionView.xaml` and any minimal supporting files.
+- Run only the WPF build unless the diff shows higher risk.
+
+<!-- QODER_HANDOFF_START -->
+Status: Complete
+Handoff-Id: 20260802-phase8-2-adapter-filter
+Phase: Phase 8.2 - Device adapter filter selector
+
+Codex handoff:
+- Qoder verified:
+  dotnet build src/OpenCMIS.UI.WPF/OpenCMIS.UI.WPF.csproj --no-restore = 0 errors, 0 warnings
+- Issues found:
+  None. ViewModel already had AvailableAdapters/SelectedAdapter with ApplyAdapterFilter logic.
+- Qoder changed:
+  DeviceConnectionView.xaml: Added Adapter: ComboBoxEdit above Port: dropdown,
+  bound to AvailableAdapters/SelectedAdapter. Uses BoolInvertConverter for
+  IsEnabled when connected.
+- Please continue with:
+  Review and accept Phase 8.2. Assign next task if needed.
+- User notes:
+  Manual GUI verification pending: user should confirm Adapter dropdown shows
+  simulated devices when selecting "sim" adapter.
+- Open questions:
+  None.
+<!-- QODER_HANDOFF_END -->
