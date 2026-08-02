@@ -250,17 +250,65 @@ Verification:
 
 ## Next Human/Qoder Task
 
-Qoder should fix Phase 3 before it is committed:
+Phase 3 blocking issue fixed. Codex should re-review.
 
-1. Make range-read safe with one of these approaches:
-   - Preserve the existing loaded page buffer and overlay only the requested
-     range, so unread bytes remain the previously loaded hardware values; or
-   - Track loaded address ranges in `MsaPageBuffer` and block editing/writing
+## Phase 3 Fix Handoff (Synthetic Zeroes)
+
+Qoder resolved the Codex Phase 3 blocking issue (synthetic zeroes):
+
+1. ✅ **Buffer preservation.** `ReadRangeAsync` now starts from the existing
+   `_pageBuffer` bytes (if any) rather than a fresh zero-filled array. Only
+   the requested range is overwritten with hardware-read data. Unread bytes
+   retain their previously-loaded values.
+2. ✅ **Test added.** `ReadRange_preserves_unread_bytes_from_previous_load`:
+   loads full page with `0xAA`, range-reads `0x80–0x87` (spy returns zeroes),
+   asserts bytes outside `[0x80,0x87]` remain `0xAA` while bytes inside are `0x00`.
+3. ✅ Existing validation and routing tests unchanged (35 total WPF tests).
+
+Files changed:
+- `PageEditorViewModel.cs`: `ReadRangeAsync` copies existing buffer before
+  overlaying range-read data
+- `PageEditorViewModelTests.cs`: +1 preservation test, +`GetBufferByte` helper
+
+Verification:
+- `dotnet test OpenCMIS.sln --no-restore`: 119 tests passed, 0 failed
+  (WPF: 35 (+1), App.Core: 14, Module.Core: 18, Serial: 25, Cypress: 13,
+   Transport.Abstractions: 14)
+
+## Codex Phase 3 Fix Review
+
+Status: Blocking issue remains. Do not commit this range-read slice yet.
+
+Findings:
+
+1. Blocking: the synthetic-zeroes issue is fixed only when a previous
+   `_pageBuffer` exists. If the user clicks `Read Range` before loading a full
+   page, `ReadRangeAsync` still starts from a new zero-filled 256-byte buffer,
+   overlays the requested range, then renders the whole page. Unread addresses
+   are still shown as writable `00` hardware values on that first range-read
+   path.
+2. The new preservation test covers the overlay-after-existing-buffer path and
+   is useful, but it does not cover first-use range read without a prior full
+   page load.
+3. Existing validation and lower/upper routing tests still pass.
+
+Verification:
+
+- `dotnet test tests\OpenCMIS.UI.WPF.Tests\OpenCMIS.UI.WPF.Tests.csproj --no-restore`
+- Result: passed, 35 tests, 0 failed.
+
+## Next Human/Qoder Task
+
+Qoder should close the remaining first-use range-read safety gap:
+
+1. Pick one explicit behavior for `Read Range` when no full page is loaded:
+   - Require a full page load first and show a clear status message; or
+   - Track loaded address ranges/cell validity and prevent editing/writing
      unread cells; or
-   - Make `Read Range` a view-only/inspection command that cannot feed the
-     normal write path until a full page is loaded.
-2. Add a test proving unread bytes are not synthesized as writable `00`
-   hardware values after a range read.
-3. Keep the existing validation and lower/upper routing tests.
+   - Render range-read as view-only data that cannot enter the normal write
+     path.
+2. Add a test for first-use `Read Range` with no prior `_pageBuffer`, proving
+   unread bytes are not displayed/writable as synthetic `00` values.
+3. Keep the existing overlay preservation test for the already-loaded path.
 4. Run `dotnet test tests\OpenCMIS.UI.WPF.Tests\OpenCMIS.UI.WPF.Tests.csproj --no-restore`
    and update this file with the result.
