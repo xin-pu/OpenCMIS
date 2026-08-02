@@ -3,6 +3,43 @@ namespace OpenCMIS.Shared
     /// <summary>
     ///     Defines constants used in CMIS protocol.
     /// </summary>
+    /// <remarks>
+    ///     Spec traceability (CMIS 5.2 / OIF-CMIS-05.2):
+    ///
+    ///     Page  | Address       | Field                        | Source
+    ///     ----- | ------------- | ---------------------------- | ------
+    ///     0x00  | 0x00          | Module Identifier            | Table 8-1
+    ///     0x00  | 0x01          | CMIS Revision                | Table 8-1
+    ///     0x00  | 0x02          | Module Status                | Table 8-2
+    ///     0x00  | 0x03          | Module State                 | Table 8-2
+    ///     0x00  | 0x04-0x05     | Interrupt Flags              | Table 8-3
+    ///     0x00  | 0x06-0x07     | Module Flags                 | Table 8-4
+    ///     0x00  | 0x0E-0x0F     | Module Temperature           | Table 8-6 (Monitors)
+    ///     0x00  | 0x10-0x11     | Module VCC                   | Table 8-6 (Monitors)
+    ///     0x00  | 0x7F          | Page Select Byte             | Table 8-7
+    ///     0x01  | 0x81-0x90     | Vendor Name                  | Table 8-8 (Identity)
+    ///     0x01  | 0x90-0x92     | Vendor OUI                   | Table 8-8 (Identity)
+    ///     0x01  | 0x94-0xA3     | Vendor Part Number           | Table 8-8 (Identity)
+    ///     0x01  | 0xB0-0xB1     | Hardware Revision (BCD)      | Vendor ext. (not in base 5.2)
+    ///     0x01  | 0xB2-0xB3     | Firmware Revision (BCD)      | Vendor ext.
+    ///     0x01  | 0xB4-0xBB     | Date Code (ASCII)            | Vendor ext.
+    ///     0x01  | 0xBC-0xC5     | CLEI Code (ASCII)            | Vendor ext.
+    ///     0x01  | 0xC6-0xD5     | Serial Number (ASCII)        | Project-local (avoids overlap)
+    ///     0x02  | 0x80-0x8D     | Alarm/Warning Thresholds     | Table 8-12 (Module Thresholds)
+    ///     0x10+ | 0xA0-0xA6     | Per-Lane Monitors            | Table 8-18 (Lane Monitors)
+    ///
+    ///     NOTE: CMIS 5.2 standard places Vendor Serial Number at upper page
+    ///     0x01, address 0xA8 (16 bytes). This project uses custom vendor
+    ///     extensions at 0xB0-0xC5 that would overlap the standard serial
+    ///     location, so the serial is placed at 0xC6 as a project-local
+    ///     accommodation. Threshold constants use page 0x02 at upper-page
+    ///     addresses 0x80-0x8C, consistent with CMIS 5.2 Table 8-12.
+    ///
+    ///     Vendor extensions (HW/FW rev, date code, CLEI) are carried at
+    ///     addresses that do not conflict with base CMIS identity fields.
+    ///     These should be verified against vendor-specific memory maps
+    ///     when real hardware is available.
+    /// </remarks>
     public static class CmisConstants
     {
         /// <summary>
