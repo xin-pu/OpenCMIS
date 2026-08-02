@@ -19,7 +19,7 @@ namespace OpenCMIS.UI.WPF
 
         static App()
         {
-            ApplicationThemeHelper.ApplicationThemeName = Theme.Win11LightName;
+            ApplicationThemeHelper.ApplicationThemeName = Theme.Win11DarkName;
             ApplicationThemeHelper.Preload(PreloadCategories.Core);
         }
 

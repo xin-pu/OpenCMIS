@@ -1,5 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
+using DevExpress.Xpf.Accordion;
 using OpenCMIS.UI.WPF.ViewModels;
 
 namespace OpenCMIS.UI.WPF.Views
@@ -23,9 +25,9 @@ namespace OpenCMIS.UI.WPF.Views
             };
         }
 
-        private void NavListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void NavAccordionItem_Click(object sender, MouseButtonEventArgs e)
         {
-            if (NavListBox.SelectedItem is ListBoxItem item && item.Tag is string viewName)
+            if (sender is AccordionItem item && item.Tag is string viewName)
             {
                 _viewModel.NavigateToCommand.Execute(viewName);
             }

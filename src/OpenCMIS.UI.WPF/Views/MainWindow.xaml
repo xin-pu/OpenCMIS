@@ -4,6 +4,7 @@
         xmlns:vm="clr-namespace:OpenCMIS.UI.WPF.ViewModels"
         xmlns:views="clr-namespace:OpenCMIS.UI.WPF.Views"
         xmlns:converters="clr-namespace:OpenCMIS.UI.WPF.Converters"
+        xmlns:dxa="http://schemas.devexpress.com/winfx/2008/xaml/accordion"
         Title="OpenCMIS Manager"
         Height="700" Width="1100"
         WindowStartupLocation="CenterScreen"
@@ -54,75 +55,31 @@
                            Foreground="{StaticResource OpenCmisAccentBrush}"
                            Margin="16,16,16,8" />
 
-                <ListBox x:Name="NavListBox"
-                         SelectedValue="{Binding SelectedViewName, Mode=TwoWay}"
-                         SelectionChanged="NavListBox_SelectionChanged"
-                         BorderThickness="0"
-                         Background="Transparent"
-                         Margin="4,4,4,0">
-                    <ListBox.ItemContainerStyle>
-                        <Style TargetType="ListBoxItem">
+                <dxa:AccordionControl x:Name="NavAccordion"
+                                       SelectionMode="Single"
+                                       BorderThickness="0"
+                                       Background="Transparent"
+                                       Margin="4,4,4,0">
+                    <dxa:AccordionControl.Resources>
+                        <Style TargetType="dxa:AccordionItem">
                             <Setter Property="Height" Value="40" />
                             <Setter Property="Padding" Value="12,0" />
                             <Setter Property="Margin" Value="0,1" />
                             <Setter Property="BorderThickness" Value="0" />
-                            <Setter Property="Background" Value="Transparent" />
                             <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
                             <Setter Property="Cursor" Value="Hand" />
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="ListBoxItem">
-                                        <Border x:Name="ItemBorder"
-                                                Background="{TemplateBinding Background}"
-                                                CornerRadius="6"
-                                                Padding="{TemplateBinding Padding}">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="3" />
-                                                    <ColumnDefinition Width="*" />
-                                                </Grid.ColumnDefinitions>
-                                                <!-- Accent left rail (visible when selected) -->
-                                                <Border x:Name="Rail"
-                                                        Background="Transparent"
-                                                        CornerRadius="2" />
-                                                <ContentPresenter Grid.Column="1"
-                                                                  HorizontalAlignment="Left"
-                                                                  VerticalAlignment="Center" />
-                                            </Grid>
-                                        </Border>
-                                        <ControlTemplate.Triggers>
-                                            <Trigger Property="IsSelected" Value="True">
-                                                <Setter TargetName="ItemBorder"
-                                                        Property="Background"
-                                                        Value="{StaticResource OpenCmisSelectedBrush}" />
-                                                <Setter Property="Foreground"
-                                                        Value="{StaticResource OpenCmisAccentBrush}" />
-                                                <Setter TargetName="Rail"
-                                                        Property="Background"
-                                                        Value="{StaticResource OpenCmisAccentBrush}" />
-                                            </Trigger>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter TargetName="ItemBorder"
-                                                        Property="Background"
-                                                        Value="{StaticResource OpenCmisHoverBrush}" />
-                                                <Setter Property="Foreground"
-                                                        Value="{StaticResource OpenCmisTextBrush}" />
-                                            </Trigger>
-                                        </ControlTemplate.Triggers>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
+                            <EventSetter Event="PreviewMouseLeftButtonDown" Handler="NavAccordionItem_Click" />
                         </Style>
-                    </ListBox.ItemContainerStyle>
+                    </dxa:AccordionControl.Resources>
 
-                    <ListBoxItem Tag="DeviceConnection">Device Connection</ListBoxItem>
-                    <ListBoxItem Tag="Dashboard">Dashboard</ListBoxItem>
-                    <ListBoxItem Tag="ControlPanel">Control Panel</ListBoxItem>
-                    <ListBoxItem Tag="CdbEditor">CDB Editor</ListBoxItem>
-                    <ListBoxItem Tag="ApplicationSwitch">Application Switch</ListBoxItem>
-                    <ListBoxItem Tag="PageEditor">Page Editor</ListBoxItem>
-                    <ListBoxItem Tag="ModuleHome">Module Home</ListBoxItem>
-                </ListBox>
+                    <dxa:AccordionItem Header="Device Connection" Tag="DeviceConnection" IsSelected="True" />
+                    <dxa:AccordionItem Header="Dashboard" Tag="Dashboard" />
+                    <dxa:AccordionItem Header="Control Panel" Tag="ControlPanel" />
+                    <dxa:AccordionItem Header="CDB Editor" Tag="CdbEditor" />
+                    <dxa:AccordionItem Header="Application Switch" Tag="ApplicationSwitch" />
+                    <dxa:AccordionItem Header="Page Editor" Tag="PageEditor" />
+                    <dxa:AccordionItem Header="Module Home" Tag="ModuleHome" />
+                </dxa:AccordionControl>
             </StackPanel>
         </Border>
 
