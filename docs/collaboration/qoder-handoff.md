@@ -2,25 +2,32 @@
 
 ## Latest Qoder Handoff
 
-Codex handoff:
-- Qoder verified:
-  - `dotnet build OpenCMIS.sln --no-restore`: 0 errors, 0 warnings
-  - `dotnet test OpenCMIS.sln --no-restore`: 106 tests passed, 0 failed, 0 skipped
-- Issues found:
-  - VCC Low Warning threshold register does not exist in CMIS 5.2 lower page 0x00; Qoder used default `[0,0]` for `VccLowWarn`.
-  - Lane bits 0x04-0x20 for TX/RX LOS/LOL need real-hardware verification.
-- Qoder changed:
-  - Added decoded CMIS interrupt/module flag models.
-  - Expanded `ModuleStatus`, `LaneStatus`, `MonitorValue`, and `ModuleDashData`.
-  - Expanded CMIS status, monitor, lane readers.
-  - Updated App.Core tests.
-- Please continue with:
-  - Codex review of threshold map, lane flag bits, and alarm/warning comparison logic.
-- User notes:
-  - Current scope is generic CMIS, MSA, and CDB only. Do not add new HCI or vendor-specific work in this phase.
-- Open questions:
-  - Should VCC Low Warning be read from another register or modeled as unavailable?
-  - Do we need per-lane alarm/warning thresholds in this phase?
+Qoder received Codex Phase 3 First-Use Guard Review (Accepted). Phase 3 range-read is complete.
+
+- `dotnet test OpenCMIS.sln --no-restore`: 120 tests passed, 0 failed
+  (WPF: 36, App.Core: 14, Module.Core: 18, Serial: 25, Cypress: 13,
+   Transport.Abstractions: 14)
+
+Codex recommends "next generic MSA/CDB capability." Qoder needs more specific
+scope — the current editor has:
+- ✅ Full page read (common + selected bank/page)
+- ✅ Full page write + verify (lower/upper split at 0x80)
+- ✅ Range read (partial page, first-use guard, buffer preservation)
+- ✅ Basic hex editing (edit byte, fill patterns)
+
+Please Codex pick the next concrete slice from these candidates (or propose
+another):
+1. **Range write** — wire StartAddress/ReadLength as write range; dirty-tracking
+   + verify on a sub-page segment.
+2. **CDB editor** — new ViewModel/View for CDB register pages (bank 0 only,
+   unlike MSA). Reuse MsaPageBuffer or extract shared page-buffer abstraction.
+3. **Multi-bank browse** — bank selector that re-reads upper page on bank
+   change without full reload; keep lower common page cached.
+4. **Other** — Codex's preference.
+
+User notes (unchanged):
+- Current scope is generic CMIS, MSA, and CDB only. Do not add new HCI or
+  vendor-specific work in this phase.
 
 ## Codex Review Notes
 
@@ -350,8 +357,141 @@ Verification:
 
 ## Next Human/Qoder Task
 
-Phase 3 range-read is accepted and ready to commit. Next recommended slice:
+Phase 4 UI slice: migrate the WPF shell from MaterialDesign styling to a
+DevExpress-first deep-green developer-tool theme.
 
-1. Move to the next generic MSA/CDB capability, keeping scope limited to
-   generic CMIS, MSA, and CDB.
-2. Do not add HCI timer/polling or vendor-specific behavior in this phase.
+Important correction from user/Codex:
+
+- Do not continue MaterialDesign theming.
+- DevExpress controls/styles are preferred.
+- Codex owns UI direction; Qoder should execute the concrete slice below.
+- Keep scope to UI shell/theme only. Do not change CMIS/MSA/CDB logic.
+
+## Phase 4 DevExpress Deep-Green Theme Task
+
+Goal:
+
+Create a DevExpress-first deep-green UI baseline for OpenCMIS. The application
+should feel like a dense hardware/debugging tool, not a marketing app and not a
+MaterialDesign app.
+
+Current facts from Codex inspection:
+
+- `OpenCMIS.UI.WPF.csproj` already references DevExpress WPF packages:
+  `DevExpress.Wpf.Core`, `Controls`, `Grid`, `Accordion`,
+  `Themes.Win11Light`, and `DevExpress.Mvvm`.
+- `MaterialDesignThemes` is still referenced and used by `App.xaml` plus
+  several views.
+- MaterialDesign references currently exist in:
+  - `App.xaml`
+  - `OpenCMIS.UI.WPF.csproj`
+  - `Views/MainWindow.xaml`
+  - `Views/DeviceConnectionView.xaml`
+  - `Views/ControlPanelView.xaml`
+  - `Views/ModuleHomeView.xaml`
+  - `Views/PageEditorView.xaml`
+
+Design tokens:
+
+Use these names in `Resources/Colors.xaml` or a new
+`Resources/DevExpressTheme.xaml` if cleaner:
+
+- `OpenCmisWindowBackgroundBrush`: `#071F18`
+- `OpenCmisSidebarBrush`: `#09281F`
+- `OpenCmisSurfaceBrush`: `#0E3328`
+- `OpenCmisSurfaceAltBrush`: `#123D31`
+- `OpenCmisBorderBrush`: `#23594A`
+- `OpenCmisAccentBrush`: `#2BD083`
+- `OpenCmisAccentMutedBrush`: `#1E7A58`
+- `OpenCmisTextBrush`: `#E5F4EE`
+- `OpenCmisMutedTextBrush`: `#93B8AA`
+- `OpenCmisDangerBrush`: `#E05D5D`
+- `OpenCmisWarningBrush`: `#D6B85A`
+- `OpenCmisSuccessBrush`: `#37C978`
+
+Slice A - dependency/resource cleanup:
+
+1. Remove MaterialDesign resource usage from `App.xaml`.
+2. Remove `xmlns:materialDesign` from views where no longer needed.
+3. Replace `MaterialDesignPaper`, `MaterialDesignDivider`,
+   `MaterialDesignBodyLight`, and `MaterialDesignFlatButton` references with
+   OpenCMIS/DevExpress resources.
+4. Remove `MaterialDesignThemes` package only if the solution still builds
+   without it after replacing all usages.
+5. Keep DevExpress package versions unchanged unless build requires otherwise.
+
+Slice B - DevExpress shell:
+
+1. Update `MainWindow.xaml` first.
+2. Prefer DevExpress shell/navigation controls where practical:
+   - Use `DevExpress.Xpf.Accordion` for the left navigation if it can be
+     bound or wired without ViewModel changes.
+   - If replacing navigation requires logic changes, keep the current ListBox
+     for this slice but style it to match DevExpress/deep-green and note why.
+3. Sidebar:
+   - Width 220-240.
+   - Background `OpenCmisSidebarBrush`.
+   - Selected item has an accent left rail and darker selected surface.
+   - Hover state is visible but subtle.
+4. Content background:
+   - Main content area uses `OpenCmisWindowBackgroundBrush`.
+   - View host uses no decorative card; each page can keep its own layout.
+5. Status bar:
+   - Deep-green compact developer status strip.
+   - Keep connection status and device name visible.
+
+Slice C - DevExpress/global control baseline:
+
+1. Add or update compact styles for:
+   - Button / SimpleButton equivalent
+   - TextBox / TextEdit equivalent
+   - ComboBox / ComboBoxEdit equivalent
+   - ListBox/ListBoxItem or AccordionItem
+   - DataGrid/GridControl surfaces where currently used
+   - StatusBar
+2. Controls should be dense:
+   - Height 28-32 px for normal inputs/buttons.
+   - Border radius 4-6 px max.
+   - Clear focus border using `OpenCmisAccentBrush`.
+3. Do not use large rounded cards, gradients, or decorative hero-style layout.
+
+Slice D - minimal page cleanup:
+
+Replace direct MaterialDesign resource references in these pages so they build
+and visually fit the shell:
+
+1. `DeviceConnectionView.xaml`
+   - Remove `materialDesign:HintAssist.Hint`; replace with normal label or
+     DevExpress editor hint if using DevExpress editor.
+2. `ControlPanelView.xaml`
+   - Replace `MaterialDesignPaper`.
+3. `ModuleHomeView.xaml`
+   - Replace `MaterialDesignPaper`, `MaterialDesignBodyLight`,
+     `MaterialDesignDivider`, `MaterialDesignFlatButton`.
+4. `PageEditorView.xaml`
+   - Replace `MaterialDesignBodyLight`, `MaterialDesignDivider`,
+     `MaterialDesignFlatButton`.
+   - Preserve hex editor layout and behavior.
+
+Acceptance checklist:
+
+1. `rg -n "MaterialDesign|materialDesign|MaterialDesignThemes" src/OpenCMIS.UI.WPF`
+   returns no active usages, or only a documented leftover that Qoder explains.
+2. `dotnet build src\OpenCMIS.UI.WPF\OpenCMIS.UI.WPF.csproj --no-restore`
+   passes.
+3. `dotnet test tests\OpenCMIS.UI.WPF.Tests\OpenCMIS.UI.WPF.Tests.csproj --no-restore`
+   passes.
+4. Manual visual check:
+   - Main shell is deep green.
+   - Sidebar selected/hover states are obvious.
+   - TextBox/Button/ComboBox are readable on dark background.
+   - Page Editor hex grid is still readable and not broken.
+   - No large light MaterialDesign Paper areas remain in the main shell.
+
+Qoder handoff response must include:
+
+- Which DevExpress controls were adopted.
+- Which MaterialDesign references were removed.
+- Whether MaterialDesignThemes package was removed.
+- Build/test results.
+- Any page that still needs a second-pass visual polish.
