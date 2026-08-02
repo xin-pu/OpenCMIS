@@ -192,15 +192,75 @@ Verification:
 
 ## Next Human/Qoder Task
 
-Proceed to the next generic MSA/CDB slice. Keep scope limited to generic CMIS,
-MSA, and CDB; do not add HCI timer/polling or vendor-specific behavior.
+Qoder completed the range-read slice. Codex should review.
 
-Recommended next slice for Qoder:
+## Phase 3 Range-Read Handoff
 
-1. Wire `StartAddress` and `ReadLength` into the MSA editor as an explicit
-   range-read command, or remove/hide the fields until range read is supported.
-2. Add validation tests for invalid hex bank/page/start/length and range
-   bounds.
-3. Keep existing full-page read/write+verify behavior unchanged.
+Qoder implemented the Codex-recommended MSA editor range-read slice:
+
+1. ✅ **`ReadRangeCommand` added.** Reads a partial page from the selected
+   bank/page, constrained to `StartAddress` + `ReadLength`. Same lower/upper
+   routing as writes: `0x00–0x7F` from common page (0,0), `0x80–0xFF` from
+   selected bank/page. Boundary-crossing ranges are split automatically.
+2. ✅ **`ValidateHexInputs` helper.** Shared validation for all four hex fields
+   (Bank, Page, StartAddress, ReadLength). Validation runs before device check
+   so users get meaningful errors even without a connected device.
+3. ✅ **XAML updated.** Added Start/Len TextBoxes, Read Range button.
+   Layout changed from 4-column + right-fill to 8-column + second-row fill.
+   "Read Common Page" button shortened to "Common".
+4. ✅ **9 new tests** (WPF: 34 total):
+   - 6 input-validation tests: invalid bank/page/start/length hex, zero
+     length, range exceeds page boundary
+   - 3 routing tests: lower-only → (0,0), upper-only → selected bank/page,
+     crossing-boundary → both reads
+5. ✅ Existing full-page read/write+verify behavior unchanged.
+
+Files changed:
+- `PageEditorViewModel.cs`: +`ReadRangeAsync`, +`ValidateHexInputs`
+- `PageEditorView.xaml`: Start/Len inputs, Read Range button, 8-col layout
+- `PageEditorViewModelTests.cs`: +9 tests (6 validation + 3 routing),
+  +`SpyRegisterAccess.Reads` tracking
+
+Verification:
+- `dotnet test OpenCMIS.sln --no-restore`: 118 tests passed, 0 failed
+  (WPF: 34 (+9), App.Core: 14, Module.Core: 18, Serial: 25, Cypress: 13,
+   Transport.Abstractions: 14)
+
+## Codex Phase 3 Range-Read Review
+
+Status: Blocking issue found. Do not commit this range-read slice yet.
+
+Findings:
+
+1. Blocking: `ReadRangeAsync` builds a new 256-byte buffer initialized with
+   zeroes, then copies only the requested range into it and renders the whole
+   page. Bytes outside the requested range are displayed as real `00` values
+   even though they were not read from hardware. Because the editor still
+   allows normal full-grid editing/fill/write after a range read, the user can
+   accidentally dirty and write unknown/unread addresses based on synthetic
+   zeroes.
+2. Validation order is now correct: invalid hex, zero length, and range
+   boundary errors are reported before the no-device check.
+3. Routing tests cover lower-only, upper-only, and boundary-crossing reads.
+
+Verification:
+
+- `dotnet test tests\OpenCMIS.UI.WPF.Tests\OpenCMIS.UI.WPF.Tests.csproj --no-restore`
+- Result: passed, 34 tests, 0 failed.
+
+## Next Human/Qoder Task
+
+Qoder should fix Phase 3 before it is committed:
+
+1. Make range-read safe with one of these approaches:
+   - Preserve the existing loaded page buffer and overlay only the requested
+     range, so unread bytes remain the previously loaded hardware values; or
+   - Track loaded address ranges in `MsaPageBuffer` and block editing/writing
+     unread cells; or
+   - Make `Read Range` a view-only/inspection command that cannot feed the
+     normal write path until a full page is loaded.
+2. Add a test proving unread bytes are not synthesized as writable `00`
+   hardware values after a range read.
+3. Keep the existing validation and lower/upper routing tests.
 4. Run `dotnet test tests\OpenCMIS.UI.WPF.Tests\OpenCMIS.UI.WPF.Tests.csproj --no-restore`
    and update this file with the result.
