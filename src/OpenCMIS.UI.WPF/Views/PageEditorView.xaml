@@ -213,7 +213,7 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <TextBlock Text="{Binding StatusMessage}" Foreground="Gray" Margin="0,12,0,0" />
+            <TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource OpenCmisMutedTextBrush}" Margin="0,12,0,0" />
         </StackPanel>
     </ScrollViewer>
 </UserControl>
