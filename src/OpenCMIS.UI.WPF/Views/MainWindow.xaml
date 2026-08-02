@@ -6,7 +6,8 @@
         xmlns:converters="clr-namespace:OpenCMIS.UI.WPF.Converters"
         Title="OpenCMIS Manager"
         Height="700" Width="1100"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource OpenCmisWindowBackgroundBrush}">
 
     <Window.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
@@ -38,18 +39,19 @@
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="220" />
+            <ColumnDefinition Width="230" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
         <!-- Sidebar -->
         <Border Grid.Column="0"
-                Background="{DynamicResource MaterialDesignPaper}"
-                BorderBrush="{DynamicResource MaterialDesignDivider}"
+                Background="{StaticResource OpenCmisSidebarBrush}"
+                BorderBrush="{StaticResource OpenCmisBorderBrush}"
                 BorderThickness="0,0,1,0">
             <StackPanel>
                 <TextBlock Text="OpenCMIS"
                            FontSize="20" FontWeight="Bold"
+                           Foreground="{StaticResource OpenCmisAccentBrush}"
                            Margin="16,16,16,8" />
 
                 <ListBox x:Name="NavListBox"
@@ -65,6 +67,7 @@
                             <Setter Property="Margin" Value="0,1" />
                             <Setter Property="BorderThickness" Value="0" />
                             <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
                             <Setter Property="Cursor" Value="Hand" />
                             <Setter Property="Template">
                                 <Setter.Value>
@@ -73,16 +76,37 @@
                                                 Background="{TemplateBinding Background}"
                                                 CornerRadius="6"
                                                 Padding="{TemplateBinding Padding}">
-                                            <ContentPresenter HorizontalAlignment="Left"
-                                                              VerticalAlignment="Center" />
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="3" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <!-- Accent left rail (visible when selected) -->
+                                                <Border x:Name="Rail"
+                                                        Background="Transparent"
+                                                        CornerRadius="2" />
+                                                <ContentPresenter Grid.Column="1"
+                                                                  HorizontalAlignment="Left"
+                                                                  VerticalAlignment="Center" />
+                                            </Grid>
                                         </Border>
                                         <ControlTemplate.Triggers>
                                             <Trigger Property="IsSelected" Value="True">
-                                                <Setter TargetName="ItemBorder" Property="Background" Value="#1A1976D2" />
-                                                <Setter Property="Foreground" Value="#1565C0" />
+                                                <Setter TargetName="ItemBorder"
+                                                        Property="Background"
+                                                        Value="{StaticResource OpenCmisSelectedBrush}" />
+                                                <Setter Property="Foreground"
+                                                        Value="{StaticResource OpenCmisAccentBrush}" />
+                                                <Setter TargetName="Rail"
+                                                        Property="Background"
+                                                        Value="{StaticResource OpenCmisAccentBrush}" />
                                             </Trigger>
                                             <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter TargetName="ItemBorder" Property="Background" Value="#0D000000" />
+                                                <Setter TargetName="ItemBorder"
+                                                        Property="Background"
+                                                        Value="{StaticResource OpenCmisHoverBrush}" />
+                                                <Setter Property="Foreground"
+                                                        Value="{StaticResource OpenCmisTextBrush}" />
                                             </Trigger>
                                         </ControlTemplate.Triggers>
                                     </ControlTemplate>
@@ -106,14 +130,15 @@
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
-                <RowDefinition Height="30" />
+                <RowDefinition Height="28" />
             </Grid.RowDefinitions>
 
             <ContentControl Content="{Binding ActiveView}"
-                            Margin="12" />
+                            Margin="12"
+                            Foreground="{StaticResource OpenCmisTextBrush}" />
 
             <StatusBar Grid.Row="1"
-                       Background="{DynamicResource MaterialDesignPaper}">
+                       Background="{StaticResource OpenCmisSidebarBrush}">
                 <StatusBar.ItemsPanel>
                     <ItemsPanelTemplate>
                         <Grid>

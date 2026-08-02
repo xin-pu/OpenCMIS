@@ -70,7 +70,7 @@
                 </StackPanel>
 
                 <TextBox Text="{Binding RegReadResult}" IsReadOnly="True" Margin="0,10,0,0"
-                         MinHeight="24" Background="{DynamicResource MaterialDesignPaper}" />
+                         MinHeight="24" Background="{StaticResource OpenCmisInputBackgroundBrush}" />
             </StackPanel>
         </GroupBox>
     </StackPanel>

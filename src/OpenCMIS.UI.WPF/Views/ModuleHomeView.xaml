@@ -8,7 +8,7 @@
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 
         <Style x:Key="GaugeCardBorderStyle" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource MaterialDesignPaper}" />
+            <Setter Property="Background" Value="{StaticResource OpenCmisSurfaceBrush}" />
             <Setter Property="CornerRadius" Value="8" />
             <Setter Property="Padding" Value="12" />
             <Setter Property="Margin" Value="4" />
@@ -18,7 +18,7 @@
 
         <Style x:Key="IdentityLabelStyle" TargetType="TextBlock">
             <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBodyLight}" />
+            <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
             <Setter Property="Margin" Value="0,3" />
         </Style>
 
@@ -152,7 +152,7 @@
 
                     <!-- TX Power Total -->
                     <Border Style="{StaticResource GaugeCardBorderStyle}" BorderThickness="1"
-                            BorderBrush="{DynamicResource MaterialDesignDivider}">
+                            BorderBrush="{StaticResource OpenCmisBorderBrush}">
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="TX POWER TOTAL" FontSize="10" Foreground="Gray" />
                             <TextBlock FontSize="24" FontWeight="Bold" Margin="0,4,0,0">
@@ -165,7 +165,7 @@
 
                     <!-- RX Power Total -->
                     <Border Style="{StaticResource GaugeCardBorderStyle}" BorderThickness="1"
-                            BorderBrush="{DynamicResource MaterialDesignDivider}">
+                            BorderBrush="{StaticResource OpenCmisBorderBrush}">
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="RX POWER TOTAL" FontSize="10" Foreground="Gray" />
                             <TextBlock FontSize="24" FontWeight="Bold" Margin="0,4,0,0">
@@ -178,7 +178,7 @@
 
                     <!-- TX Bias Max -->
                     <Border Style="{StaticResource GaugeCardBorderStyle}" BorderThickness="1"
-                            BorderBrush="{DynamicResource MaterialDesignDivider}">
+                            BorderBrush="{StaticResource OpenCmisBorderBrush}">
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="TX BIAS MAX" FontSize="10" Foreground="Gray" />
                             <TextBlock FontSize="24" FontWeight="Bold" Margin="0,4,0,0">
@@ -191,7 +191,7 @@
 
                     <!-- Summary -->
                     <Border Style="{StaticResource GaugeCardBorderStyle}" BorderThickness="1"
-                            BorderBrush="{DynamicResource MaterialDesignDivider}">
+                            BorderBrush="{StaticResource OpenCmisBorderBrush}">
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="STATUS" FontSize="10" Foreground="Gray" />
                             <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
@@ -260,7 +260,7 @@
                 <Button Content="Refresh Identity"
                         Command="{Binding RefreshIdentityCommand}"
                         Margin="16,0,0,0"
-                        Style="{DynamicResource MaterialDesignFlatButton}" />
+                        Style="{StaticResource OpenCmisFlatButtonStyle}" />
             </StackPanel>
 
             <!-- Status -->

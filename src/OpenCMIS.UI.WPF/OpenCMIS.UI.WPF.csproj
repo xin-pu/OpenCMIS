@@ -14,7 +14,6 @@
     <InternalsVisibleTo Include="OpenCMIS.UI.WPF.Tests" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MaterialDesignThemes" Version="5.2.0" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="DevExpress.Mvvm" Version="25.2.4" />
     <PackageReference Include="DevExpress.Mvvm.CodeGenerators" Version="22.1.1">
@@ -38,5 +37,6 @@
     <ProjectReference Include="..\OpenCMIS.App.Core\OpenCMIS.App.Core.csproj" />
     <ProjectReference Include="..\OpenCMIS.Transport.I2C.Cypress\OpenCMIS.Transport.I2C.Cypress.csproj" />
     <ProjectReference Include="..\OpenCMIS.Transport.I2C.Serial\OpenCMIS.Transport.I2C.Serial.csproj" />
+    <ProjectReference Include="..\OpenCMIS.Transport.Simulated\OpenCMIS.Transport.Simulated.csproj" />
   </ItemGroup>
 </Project>

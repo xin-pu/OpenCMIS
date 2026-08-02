@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using OpenCMIS.App.Core;
 using OpenCMIS.Transport.I2C.Cypress;
 using OpenCMIS.Transport.I2C.Serial;
+using OpenCMIS.Transport.Simulated;
 using OpenCMIS.UI.WPF.ViewModels;
 using OpenCMIS.UI.WPF.Views;
 using OpenCMIS.UI.WPF.Services;
@@ -36,6 +37,7 @@ namespace OpenCMIS.UI.WPF
                     services.AddOpenCmisCore();
                     services.AddOpenCmisSerialAdapters();
                     services.AddOpenCmisCypressAdapters();
+                    services.AddOpenCmisSimulatedAdapters();
 
                     // ViewModels
                     services.AddSingleton<DeviceSession>();

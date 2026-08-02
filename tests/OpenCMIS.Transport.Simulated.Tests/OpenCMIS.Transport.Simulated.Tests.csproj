@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\OpenCMIS.Shared\OpenCMIS.Shared.csproj" />
+    <ProjectReference Include="..\..\src\OpenCMIS.Transport.Abstractions\OpenCMIS.Transport.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\OpenCMIS.Transport.Simulated\OpenCMIS.Transport.Simulated.csproj" />
+    <ProjectReference Include="..\..\src\OpenCMIS.App.Core\OpenCMIS.App.Core.csproj" />
+    <ProjectReference Include="..\..\src\OpenCMIS.Protocol.Core\OpenCMIS.Protocol.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+</Project>
