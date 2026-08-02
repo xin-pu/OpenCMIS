@@ -71,11 +71,12 @@ Next task:
 
 ## Current State
 
-Status: Phase 5 complete. Awaiting Codex review.
+Status: Phase 6 accepted. Awaiting next Qoder handoff.
 
 Active work:
 - Phase 4 DevExpress deep-green UI migration — COMPLETE.
 - Phase 5 simulated 800G/1.6T CMIS module — COMPLETE.
+- Phase 6 protocol hardening + DevExpress UI polish — COMPLETE.
 
 Current constraints:
 - Qoder implements; Codex plans, reviews, writes back findings, and commits
@@ -276,23 +277,32 @@ Status: In Progress
 
 <!-- QODER_HANDOFF_START -->
 Status: Complete
-Handoff-Id: 20260802-1550-phase5-simulated-module
-Phase: Phase 5 - simulated 800G/1.6T CMIS module
+Handoff-Id: 20260802-1715-phase6-protocol-ui
+Phase: Phase 6 - protocol hardening + DevExpress UI polish
 
 Codex handoff:
 - Qoder verified:
-  dotnet test OpenCMIS.sln --no-restore = 146 passed
-  GUI verified: simulated 800G/1.6T visible, Dashboard reads, MSA read/write roundtrip
+  dotnet test OpenCMIS.sln --no-restore = 149 passed (14+18+25+14+29+13+36)
+  dotnet build --no-restore = 0 errors, 0 warnings (WPF: 7 pre-existing xUnit1031)
 - Issues found:
-  CmisConstants offset conflicts: threshold constants overlap identity lower page; serial overlaps part number
+  RegSerialNumberStart @ 0xA8 overlapped RegHardwareRevision (0xB0),
+  RegFirmwareRevision (0xB2), RegDateCode (0xB4); moved to 0xC6 after CLEI.
+  RegTemp/Vcc threshold reads in CmisDeviceCompatibilityTests used page 0x00
+  instead of ThresholdPage; fixed.
 - Qoder changed:
-  DevExpress deep-green UI migration; simulated transport project and tests; WPF DI registration
+  Phase 6.1: CmisConstants thresholds → page 0x02 (0x80-0x8C); serial → 0xC6;
+  CmisMonitorReader uses ThresholdPage; simulator thresholds/serial corrected;
+  CmisDeviceCompatibilityTests stub updated; 3 defensive regression tests added.
+  Phase 6.2: Theme switched Win11Light→Win11Dark; sidebar ListBox→dxa:AccordionControl;
+  ModuleHome DataGrid→dxg:GridControl (TableView, CellTemplate triggers).
 - Please continue with:
-  Codex review Phase 4/5 diffs, verify CMIS constants risk, run focused tests, commit accepted batches
+  Codex review Phase 6 diffs, verify corrected CmisConstants offsets,
+  run focused WPF + simulator tests, commit accepted batches.
 - User notes:
-  Basic GUI functionality manually accepted
+  None yet for Phase 6.
 - Open questions:
-  Should threshold/serial constants be corrected now or tracked as next protocol-hardening task?
+  Are the corrected offsets (threshold page 0x02, serial 0xC6) consistent with
+  real CMIS 5.2 hardware, or do they need further spec alignment?
 <!-- QODER_HANDOFF_END -->
 
 ### Phase 4 Recap (Deep-Green Theme)
@@ -414,71 +424,130 @@ $ dotnet test OpenCMIS.sln --no-restore
 - User verified basic functionality; deeper interaction limited by
   lack of physical I2C hardware.
 
+### Phase 6 — Protocol Hardening + DevExpress UI Polish
+
+#### Phase 6.1: Protocol Hardening
+
+**CmisConstants fixes:**
+
+| Constant | Old | New | Reason |
+|---|---|---|---|
+| `ThresholdPage` | (none) | 0x02 | New constant for alarm/warning threshold page |
+| `RegTempHighAlarmMSB` | 0x00 | 0x80 | Moved to upper page 0x02; was colliding with `RegIdentifier` (0x00) |
+| `RegTempLowAlarmMSB` | 0x02 | 0x82 | Same — all thresholds moved to page 0x02 |
+| `RegTempHighWarnMSB` | 0x04 | 0x84 | |
+| `RegTempLowWarnMSB` | 0x06 | 0x86 | |
+| `RegVccHighAlarmMSB` | 0x08 | 0x88 | |
+| `RegVccLowAlarmMSB` | 0x0A | 0x8A | |
+| `RegVccHighWarnMSB` | 0x0C | 0x8C | |
+| `RegSerialNumberStart` | 0xA0→0xA8→0xC6 | 0xC6 | Moved from 0xA0 (collision w/ part number), then 0xA8 (collision w/ HW/FW rev + date code), to 0xC6 (after CLEI code 0xBC-0xC5) |
+
+**Files changed:**
+- `src/OpenCMIS.Shared/Constants/CmisConstants.cs` — threshold + serial constants
+- `src/OpenCMIS.App.Core/Services/CmisMonitorReader.cs` — uses `ThresholdPage`
+- `src/OpenCMIS.Transport.Simulated/SimulatedI2cRegisterBus.cs` — thresholds on page 0x02, serial at 0xC6
+- `tests/OpenCMIS.App.Core.Tests/CmisDeviceCompatibilityTests.cs` — stub uses `ThresholdPage`
+- `tests/OpenCMIS.Transport.Simulated.Tests/SimulatedI2cRegisterBusTests.cs` — 3 new defensive tests
+
+#### Phase 6.2: DevExpress UI Polish
+
+**Theme:** Switched from `Theme.Win11LightName` → `Theme.Win11DarkName` in `App.xaml.cs`
+
+**Sidebar navigation** (`MainWindow.xaml`):
+- Replaced native WPF `ListBox` (with custom ControlTemplate, 3px accent rail) with `dxa:AccordionControl`
+- Navigation via `PreviewMouseLeftButtonDown` event handler on `AccordionItem`
+- Maintains same 7-item flat navigation with Tag-based routing
+
+**Lane Details table** (`ModuleHomeView.xaml`):
+- Replaced native WPF `DataGrid` with `dxg:GridControl` + `dxg:TableView`
+- Numeric columns use explicit `Binding` with `StringFormat` (F3/F4)
+- Status column uses `CellTemplate` with `DataTrigger` on `Row.HasFault` / `Row.IsEnabled`
+- `AllowEditing="False"` on TableView for read-only behavior
+
+**Pages NOT modified:** DeviceConnection, PageEditor, Dashboard, ControlPanel, CDB Editor, ApplicationSwitch — retain native WPF controls styled with existing CompactStyles.
+
+#### Build & Test Results
+
+```
+$ dotnet build OpenCMIS.sln --no-restore
+0 Warning(s), 0 Error(s) (WPF: 7 pre-existing xUnit1031)
+
+$ dotnet test OpenCMIS.sln --no-restore
+149 passed, 0 failed, 0 skipped
+  Transport.Abstractions:    14 passed
+  Module.Core:               18 passed
+  I2C.Serial:                25 passed
+  App.Core:                  14 passed
+  Transport.Simulated:       29 passed  (+3 defensive tests)
+  I2C.Cypress:               13 passed
+  UI.WPF:                    36 passed
+```
+
 ## Codex Review Notes
 
 <!-- CODEX_REVIEW_START -->
 Status: Accepted
-Reviewed-Handoff-Id: 20260802-1550-phase5-simulated-module
+Reviewed-Handoff-Id: 20260802-1715-phase6-protocol-ui
 
 Findings:
-- No blocking findings for the current Phase 4/5 handoff.
-- Non-blocking: the UI migration removed MaterialDesign and applied the
-  requested deep-green developer-tool style, but it is still mostly WPF styles
-  rather than a full DevExpress control migration. Treat this as the next UI
-  polish slice, not a blocker for the CMIS/MSA/simulator baseline.
-- Non-blocking: Qoder correctly identified existing `CmisConstants` offset
-  conflicts around threshold and serial/part-number fields. The simulator avoids
-  corrupting identity data, so the current baseline is acceptable; protocol
-  hardening should verify and correct those constants next.
+- No blocking findings for the Phase 6 handoff.
+- Accepted: threshold reads now use an explicit `ThresholdPage`, simulator
+  thresholds no longer collide with lower-page identity/status bytes, and serial
+  population no longer overlaps the simulated part number.
+- Accepted: WPF shell uses the DevExpress dark theme, DevExpress Accordion for
+  navigation, and DevExpress GridControl for lane details while preserving
+  existing CMIS/MSA/CDB business logic.
+- Non-blocking: exact CMIS 5.2 offsets still need formal table-by-table
+  confirmation against the specification before treating the constants as final
+  hardware truth. Local project consistency and simulator behavior are good.
+- Non-blocking: Qoder should manually verify Accordion selected-state behavior
+  and GridControl readability in the GUI because Codex only performed build and
+  focused automated checks.
 
 Verification:
-- `rg -n "MaterialDesign|materialDesign|MaterialDesignThemes" src/OpenCMIS.UI.WPF`
-  returned no matches.
 - `dotnet test tests\OpenCMIS.Transport.Simulated.Tests\OpenCMIS.Transport.Simulated.Tests.csproj --no-restore`
-  passed: 26/26.
-- `dotnet test tests\OpenCMIS.UI.WPF.Tests\OpenCMIS.UI.WPF.Tests.csproj --no-restore`
-  passed: 36/36.
-- `dotnet test OpenCMIS.sln --no-restore` passed, including simulated
-  transport tests.
+  passed: 29/29.
+- `dotnet test tests\OpenCMIS.App.Core.Tests\OpenCMIS.App.Core.Tests.csproj --no-restore`
+  passed: 14/14.
+- `dotnet build src\OpenCMIS.UI.WPF\OpenCMIS.UI.WPF.csproj --no-restore`
+  passed with 0 warnings and 0 errors.
+- `git diff --check` passed, aside from the expected CRLF warning for this
+  handoff file.
 
 Commits:
-- `82df6d2 Add simulated CMIS modules and deep-green UI`
+- `8f486e4 Harden CMIS threshold and identity offsets`
+- `ae11171 Polish WPF shell with DevExpress controls`
 
 Next task:
-- Qoder should start Phase 6: protocol hardening and UI polish, split into two
-  small slices:
-  1. Verify CMIS 5.2 offsets for thresholds, serial number, part number, page
-     selection, and lane monitor registers; update constants/tests only after
-     confirming the intended pages.
-  2. Continue DevExpress-first UI polish on the existing deep-green theme:
-     prioritize Device Connection, Module Home, and Page Editor; use DevExpress
-     controls where already referenced and useful, but do not touch CMIS/MSA/CDB
-     business logic.
-- Testing split for Phase 6: Qoder should run the detailed test matrix and
-  manual GUI checks. Codex will only rerun focused core checks during review
-  unless a risk or failure requires broader verification.
+- Qoder should start Phase 7: spec traceability + GUI manual polish.
+  1. Add a small spec-trace note or comments mapping each corrected CMIS
+     constant to page/address/table source, especially thresholds and serial.
+  2. Manually verify DevExpress Accordion navigation selected-state behavior and
+     Module Home GridControl readability.
+  3. If GUI behavior is good, continue DevExpress polish on Device Connection
+     and Page Editor only; do not change CMIS/MSA/CDB logic.
+  4. Qoder runs detailed tests/manual checks; Codex will rerun only focused core
+     checks during review unless risk requires more.
 <!-- CODEX_REVIEW_END -->
 
 ## Next Human/Qoder Task
 
-Phase 6 has two ordered slices:
+Phase 7 has two ordered slices:
 
-1. Protocol hardening:
-   - Verify CMIS 5.2 pages/offsets for threshold, serial, part number, page
-     selection, and lane monitor constants.
-   - Add focused tests that prevent identity/status bytes from being reused as
-     thresholds unless that page context is explicit.
-   - Keep simulator behavior aligned with the corrected constants.
-   - Qoder verification expected: affected protocol/simulator tests plus any
-     manual read/write checks needed to prove corrected offsets.
+1. Spec traceability:
+   - Add a concise mapping for CMIS constants touched in Phase 6:
+     page, address, field name, and source table/section where available.
+   - Focus on thresholds, serial number, part number, page selection, and lane
+     monitor constants.
+   - Do not make broad protocol rewrites unless the trace proves a concrete
+     current offset is wrong.
 
-2. DevExpress UI polish:
-   - Keep the deep-green theme.
-   - Prefer DevExpress controls/resources for the main operational pages where
-     the project already references DevExpress.
+2. GUI manual polish:
+   - Verify Accordion navigation selected-state behavior.
+   - Verify Module Home GridControl readability and row status styling.
+   - If those are acceptable, continue DevExpress polish on Device Connection
+     and Page Editor only.
    - Preserve current CMIS/MSA/CDB logic.
-   - Qoder verification expected: WPF tests and manual GUI notes for readability
-     and control behavior.
 
 Codex review verification budget:
 - Default to core checks only: inspect diff, run the most relevant affected
