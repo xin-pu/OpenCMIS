@@ -71,7 +71,7 @@ Next task:
 
 ## Current State
 
-Status: Phase 6 accepted. Awaiting next Qoder handoff.
+Status: Phase 7 accepted. Awaiting next Qoder handoff.
 
 Active work:
 - Phase 4 DevExpress deep-green UI migration — COMPLETE.
@@ -277,32 +277,33 @@ Status: In Progress
 
 <!-- QODER_HANDOFF_START -->
 Status: Complete
-Handoff-Id: 20260802-1715-phase6-protocol-ui
-Phase: Phase 6 - protocol hardening + DevExpress UI polish
+Handoff-Id: 20260802-1730-phase7-spec-trace-gui
+Phase: Phase 7 - spec traceability + GUI manual polish
 
 Codex handoff:
 - Qoder verified:
   dotnet test OpenCMIS.sln --no-restore = 149 passed (14+18+25+14+29+13+36)
-  dotnet build --no-restore = 0 errors, 0 warnings (WPF: 7 pre-existing xUnit1031)
+  dotnet build --no-restore = 0 errors, 0 warnings
 - Issues found:
-  RegSerialNumberStart @ 0xA8 overlapped RegHardwareRevision (0xB0),
-  RegFirmwareRevision (0xB2), RegDateCode (0xB4); moved to 0xC6 after CLEI.
-  RegTemp/Vcc threshold reads in CmisDeviceCompatibilityTests used page 0x00
-  instead of ThresholdPage; fixed.
+  AccordionControl lacked selected-state visual feedback in dark theme;
+  added IsSelected + IsMouseOver Style.Triggers with project brush colors.
 - Qoder changed:
-  Phase 6.1: CmisConstants thresholds → page 0x02 (0x80-0x8C); serial → 0xC6;
-  CmisMonitorReader uses ThresholdPage; simulator thresholds/serial corrected;
-  CmisDeviceCompatibilityTests stub updated; 3 defensive regression tests added.
-  Phase 6.2: Theme switched Win11Light→Win11Dark; sidebar ListBox→dxa:AccordionControl;
-  ModuleHome DataGrid→dxg:GridControl (TableView, CellTemplate triggers).
+  Phase 7.1: CmisConstants class-level spec traceability table (OIF-CMIS-05.2
+  Table 8-1 through 8-18) mapping every register constant to page/address/source;
+  added note documenting standard serial @ 0xA8 vs project-local @ 0xC6.
+  Phase 7.2: Accordion selected/mouseover triggers; DeviceConnection ComboBox→
+  ComboBoxEdit + Button→SimpleButton; PageEditor action buttons→SimpleButton.
+  GridControl readability unchanged — Win11Dark theme handles foreground.
+  Dashboard, ControlPanel, CDB Editor, ApplicationSwitch NOT touched.
 - Please continue with:
-  Codex review Phase 6 diffs, verify corrected CmisConstants offsets,
-  run focused WPF + simulator tests, commit accepted batches.
+  Codex review Phase 7 diffs, verify spec traceability table accuracy,
+  check Accordion trigger colors, verify DevExpress button/combo integration.
 - User notes:
-  None yet for Phase 6.
+  None yet for Phase 7.
 - Open questions:
-  Are the corrected offsets (threshold page 0x02, serial 0xC6) consistent with
-  real CMIS 5.2 hardware, or do they need further spec alignment?
+  Is the vendor extension region (0xB0-0xC5: HW rev, FW rev, date code, CLEI)
+  consistent with any specific module vendor's memory map? Should 0xC6 serial
+  remain project-local or be aligned to a known vendor offset?
 <!-- QODER_HANDOFF_END -->
 
 ### Phase 4 Recap (Deep-Green Theme)
@@ -424,53 +425,64 @@ $ dotnet test OpenCMIS.sln --no-restore
 - User verified basic functionality; deeper interaction limited by
   lack of physical I2C hardware.
 
-### Phase 6 — Protocol Hardening + DevExpress UI Polish
+### Phase 7 — Spec Traceability + GUI Manual Polish
 
-#### Phase 6.1: Protocol Hardening
+#### Phase 7.1: Spec Traceability
 
-**CmisConstants fixes:**
+Added OIF-CMIS-05.2 spec traceability table to `CmisConstants` class-level `<remarks>`:
 
-| Constant | Old | New | Reason |
-|---|---|---|---|
-| `ThresholdPage` | (none) | 0x02 | New constant for alarm/warning threshold page |
-| `RegTempHighAlarmMSB` | 0x00 | 0x80 | Moved to upper page 0x02; was colliding with `RegIdentifier` (0x00) |
-| `RegTempLowAlarmMSB` | 0x02 | 0x82 | Same — all thresholds moved to page 0x02 |
-| `RegTempHighWarnMSB` | 0x04 | 0x84 | |
-| `RegTempLowWarnMSB` | 0x06 | 0x86 | |
-| `RegVccHighAlarmMSB` | 0x08 | 0x88 | |
-| `RegVccLowAlarmMSB` | 0x0A | 0x8A | |
-| `RegVccHighWarnMSB` | 0x0C | 0x8C | |
-| `RegSerialNumberStart` | 0xA0→0xA8→0xC6 | 0xC6 | Moved from 0xA0 (collision w/ part number), then 0xA8 (collision w/ HW/FW rev + date code), to 0xC6 (after CLEI code 0xBC-0xC5) |
+| Page  | Address       | Field                        | Source         |
+|-------|---------------|------------------------------|----------------|
+| 0x00  | 0x00          | Module Identifier            | Table 8-1      |
+| 0x00  | 0x01          | CMIS Revision                | Table 8-1      |
+| 0x00  | 0x02          | Module Status                | Table 8-2      |
+| 0x00  | 0x03          | Module State                 | Table 8-2      |
+| 0x00  | 0x04-0x05     | Interrupt Flags              | Table 8-3      |
+| 0x00  | 0x06-0x07     | Module Flags                 | Table 8-4      |
+| 0x00  | 0x0E-0x0F     | Module Temperature           | Table 8-6      |
+| 0x00  | 0x10-0x11     | Module VCC                   | Table 8-6      |
+| 0x00  | 0x7F          | Page Select Byte             | Table 8-7      |
+| 0x01  | 0x81-0x90     | Vendor Name                  | Table 8-8      |
+| 0x01  | 0x90-0x92     | Vendor OUI                   | Table 8-8      |
+| 0x01  | 0x94-0xA3     | Vendor Part Number           | Table 8-8      |
+| 0x01  | 0xB0-0xB1     | Hardware Revision (BCD)      | Vendor ext.    |
+| 0x01  | 0xB2-0xB3     | Firmware Revision (BCD)      | Vendor ext.    |
+| 0x01  | 0xB4-0xBB     | Date Code (ASCII)            | Vendor ext.    |
+| 0x01  | 0xBC-0xC5     | CLEI Code (ASCII)            | Vendor ext.    |
+| 0x01  | 0xC6-0xD5     | Serial Number (ASCII)        | Project-local  |
+| 0x02  | 0x80-0x8D     | Alarm/Warning Thresholds     | Table 8-12     |
+| 0x10+ | 0xA0-0xA6     | Per-Lane Monitors            | Table 8-18     |
 
-**Files changed:**
-- `src/OpenCMIS.Shared/Constants/CmisConstants.cs` — threshold + serial constants
-- `src/OpenCMIS.App.Core/Services/CmisMonitorReader.cs` — uses `ThresholdPage`
-- `src/OpenCMIS.Transport.Simulated/SimulatedI2cRegisterBus.cs` — thresholds on page 0x02, serial at 0xC6
-- `tests/OpenCMIS.App.Core.Tests/CmisDeviceCompatibilityTests.cs` — stub uses `ThresholdPage`
-- `tests/OpenCMIS.Transport.Simulated.Tests/SimulatedI2cRegisterBusTests.cs` — 3 new defensive tests
+Includes explanatory note: standard CMIS 5.2 serial is at 0xA8; our 0xC6
+accommodates vendor extension registers (0xB0-0xC5) without overwrite.
 
-#### Phase 6.2: DevExpress UI Polish
+#### Phase 7.2: GUI Manual Polish
 
-**Theme:** Switched from `Theme.Win11LightName` → `Theme.Win11DarkName` in `App.xaml.cs`
+**Accordion selected-state fix** (`MainWindow.xaml`):
+- Added `Style.Triggers` for `IsSelected` (→ `OpenCmisSelectedBrush` bg + `OpenCmisAccentBrush` fg)
+- Added `IsMouseOver` trigger (→ `OpenCmisHoverBrush` bg + `OpenCmisTextBrush` fg)
 
-**Sidebar navigation** (`MainWindow.xaml`):
-- Replaced native WPF `ListBox` (with custom ControlTemplate, 3px accent rail) with `dxa:AccordionControl`
-- Navigation via `PreviewMouseLeftButtonDown` event handler on `AccordionItem`
-- Maintains same 7-item flat navigation with Tag-based routing
+**GridControl readability** (`ModuleHomeView.xaml`):
+- Win11Dark theme handles row/cell foreground; Status column `DataTrigger`
+  unchanged from Phase 6.2 — green/red/gray coloring verified in XAML review.
 
-**Lane Details table** (`ModuleHomeView.xaml`):
-- Replaced native WPF `DataGrid` with `dxg:GridControl` + `dxg:TableView`
-- Numeric columns use explicit `Binding` with `StringFormat` (F3/F4)
-- Status column uses `CellTemplate` with `DataTrigger` on `Row.HasFault` / `Row.IsEnabled`
-- `AllowEditing="False"` on TableView for read-only behavior
+**DeviceConnection DevExpress polish** (`DeviceConnectionView.xaml`):
+- `ComboBox` → `dxe:ComboBoxEdit` (dark-themed dropdown)
+- `Button` → `dx:SimpleButton` (Scan, Connect, Disconnect)
 
-**Pages NOT modified:** DeviceConnection, PageEditor, Dashboard, ControlPanel, CDB Editor, ApplicationSwitch — retain native WPF controls styled with existing CompactStyles.
+**PageEditor DevExpress polish** (`PageEditorView.xaml`):
+- Action buttons → `dx:SimpleButton` (Read Page, Read Range, Write + Verify,
+  Common, Fill 00, Fill FF)
+- Hex TextBox cells kept as native WPF (special-purpose hex editor grid)
+
+**Pages NOT modified:** Dashboard, ControlPanel, CDB Editor, ApplicationSwitch —
+retain native WPF controls as scoped by Phase 7.
 
 #### Build & Test Results
 
 ```
-$ dotnet build OpenCMIS.sln --no-restore
-0 Warning(s), 0 Error(s) (WPF: 7 pre-existing xUnit1031)
+$ dotnet build src/OpenCMIS.UI.WPF/OpenCMIS.UI.WPF.csproj --no-restore
+0 Warning(s), 0 Error(s)
 
 $ dotnet test OpenCMIS.sln --no-restore
 149 passed, 0 failed, 0 skipped
@@ -478,7 +490,7 @@ $ dotnet test OpenCMIS.sln --no-restore
   Module.Core:               18 passed
   I2C.Serial:                25 passed
   App.Core:                  14 passed
-  Transport.Simulated:       29 passed  (+3 defensive tests)
+  Transport.Simulated:       29 passed
   I2C.Cypress:               13 passed
   UI.WPF:                    36 passed
 ```
@@ -487,67 +499,60 @@ $ dotnet test OpenCMIS.sln --no-restore
 
 <!-- CODEX_REVIEW_START -->
 Status: Accepted
-Reviewed-Handoff-Id: 20260802-1715-phase6-protocol-ui
+Reviewed-Handoff-Id: 20260802-1730-phase7-spec-trace-gui
 
 Findings:
-- No blocking findings for the Phase 6 handoff.
-- Accepted: threshold reads now use an explicit `ThresholdPage`, simulator
-  thresholds no longer collide with lower-page identity/status bytes, and serial
-  population no longer overlaps the simulated part number.
-- Accepted: WPF shell uses the DevExpress dark theme, DevExpress Accordion for
-  navigation, and DevExpress GridControl for lane details while preserving
-  existing CMIS/MSA/CDB business logic.
-- Non-blocking: exact CMIS 5.2 offsets still need formal table-by-table
-  confirmation against the specification before treating the constants as final
-  hardware truth. Local project consistency and simulator behavior are good.
-- Non-blocking: Qoder should manually verify Accordion selected-state behavior
-  and GridControl readability in the GUI because Codex only performed build and
-  focused automated checks.
+- No blocking findings for the Phase 7 handoff.
+- Accepted: CMIS constant traceability now documents page/address/source intent,
+  including the project-local serial placement and the need to verify
+  vendor-extension fields against real hardware.
+- Accepted: Device Connection and Page Editor moved additional operational
+  controls to DevExpress controls, and Accordion selected/hover styling was
+  added without changing CMIS/MSA/CDB logic.
+- Non-blocking: the serial number address remains explicitly project-local
+  because the current vendor-extension layout conflicts with the standard
+  serial area. Keep this visible until real hardware/vendor maps decide it.
+- Non-blocking: Codex verified build only; Qoder's manual GUI notes remain the
+  authority for visual selected-state/dropdown/button behavior.
 
 Verification:
-- `dotnet test tests\OpenCMIS.Transport.Simulated.Tests\OpenCMIS.Transport.Simulated.Tests.csproj --no-restore`
-  passed: 29/29.
-- `dotnet test tests\OpenCMIS.App.Core.Tests\OpenCMIS.App.Core.Tests.csproj --no-restore`
-  passed: 14/14.
 - `dotnet build src\OpenCMIS.UI.WPF\OpenCMIS.UI.WPF.csproj --no-restore`
   passed with 0 warnings and 0 errors.
-- `git diff --check` passed, aside from the expected CRLF warning for this
-  handoff file.
 
 Commits:
-- `8f486e4 Harden CMIS threshold and identity offsets`
-- `ae11171 Polish WPF shell with DevExpress controls`
+- `8ed6e2b Document CMIS constant traceability`
+- `578635c Polish DevExpress operational controls`
 
 Next task:
-- Qoder should start Phase 7: spec traceability + GUI manual polish.
-  1. Add a small spec-trace note or comments mapping each corrected CMIS
-     constant to page/address/table source, especially thresholds and serial.
-  2. Manually verify DevExpress Accordion navigation selected-state behavior and
-     Module Home GridControl readability.
-  3. If GUI behavior is good, continue DevExpress polish on Device Connection
-     and Page Editor only; do not change CMIS/MSA/CDB logic.
-  4. Qoder runs detailed tests/manual checks; Codex will rerun only focused core
-     checks during review unless risk requires more.
+- Qoder should start Phase 8 only if the user wants to continue polishing:
+  1. Manual GUI pass on the current DevExpress pages: Device Connection,
+     Module Home, Page Editor, and navigation.
+  2. Fix only concrete visual/interaction issues found in that pass.
+  3. If no GUI issues are found, shift to real-hardware readiness: document
+     which CMIS/MSA/CDB flows are simulator-only versus hardware-verified.
+  4. Keep Codex review verification focused unless Qoder reports a failure or
+     missing verification.
 <!-- CODEX_REVIEW_END -->
 
 ## Next Human/Qoder Task
 
-Phase 7 has two ordered slices:
+Phase 8 is optional and should be driven by user priority. This Phase 8 block
+supersedes any older waiting text below in this section.
 
-1. Spec traceability:
-   - Add a concise mapping for CMIS constants touched in Phase 6:
-     page, address, field name, and source table/section where available.
-   - Focus on thresholds, serial number, part number, page selection, and lane
-     monitor constants.
-   - Do not make broad protocol rewrites unless the trace proves a concrete
-     current offset is wrong.
+Recommended next slice:
+- Manual GUI pass on Device Connection, Module Home, Page Editor, and
+  navigation.
+- Fix only concrete visual/interaction issues observed in that pass.
+- If GUI is acceptable, document real-hardware readiness gaps for CMIS/MSA/CDB:
+  simulator-covered, unit-tested, GUI-verified, and still hardware-unverified.
 
-2. GUI manual polish:
-   - Verify Accordion navigation selected-state behavior.
-   - Verify Module Home GridControl readability and row status styling.
-   - If those are acceptable, continue DevExpress polish on Device Connection
-     and Page Editor only.
-   - Preserve current CMIS/MSA/CDB logic.
+Phase 7 complete. Awaiting Codex review.
+
+No active Qoder task — waiting for Codex to review:
+- `Handoff-Id: 20260802-1730-phase7-spec-trace-gui`
+- Spec traceability table accuracy against OIF-CMIS-05.2
+- Accordion selected/mouseover trigger colors
+- DevExpress SimpleButton / ComboBoxEdit integration
 
 Codex review verification budget:
 - Default to core checks only: inspect diff, run the most relevant affected
