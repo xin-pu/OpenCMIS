@@ -51,25 +51,51 @@
 
             <!-- Page Selection -->
             <Grid Margin="0,0,0,15">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="100" />
+                    <ColumnDefinition Width="44" />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="44" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="44" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="44" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Text="Page (hex):" VerticalAlignment="Center" Margin="0,0,8,0"
+                <TextBlock Text="Bank:" VerticalAlignment="Center" Margin="0,0,4,0"
                            FontWeight="Bold" />
-                <TextBox Grid.Column="1" Text="{Binding PageNumber, UpdateSourceTrigger=PropertyChanged}"
+                <TextBox Grid.Column="1" Text="{Binding BankNumber, UpdateSourceTrigger=PropertyChanged}"
                          FontFamily="Consolas" FontSize="13" TextAlignment="Center"
                          MaxLength="2" />
-                <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="16,0,0,0">
-                    <Button Content="Read Page" Command="{Binding ReadPageCommand}" Margin="0,0,8,0" />
-                    <Button Content="Write Page" Command="{Binding WritePageCommand}" Margin="0,0,8,0" />
-                    <Button Content="Read Common Page" Command="{Binding ReadCommonPageCommand}" />
+                <TextBlock Grid.Column="2" Text="Page:" VerticalAlignment="Center" Margin="8,0,4,0"
+                           FontWeight="Bold" />
+                <TextBox Grid.Column="3" Text="{Binding PageNumber, UpdateSourceTrigger=PropertyChanged}"
+                         FontFamily="Consolas" FontSize="13" TextAlignment="Center"
+                         MaxLength="2" />
+                <TextBlock Grid.Column="4" Text="Start:" VerticalAlignment="Center" Margin="8,0,4,0"
+                           FontWeight="Bold" />
+                <TextBox Grid.Column="5" Text="{Binding StartAddress, UpdateSourceTrigger=PropertyChanged}"
+                         FontFamily="Consolas" FontSize="13" TextAlignment="Center"
+                         MaxLength="2" />
+                <TextBlock Grid.Column="6" Text="Len:" VerticalAlignment="Center" Margin="8,0,4,0"
+                           FontWeight="Bold" />
+                <TextBox Grid.Column="7" Text="{Binding ReadLength, UpdateSourceTrigger=PropertyChanged}"
+                         FontFamily="Consolas" FontSize="13" TextAlignment="Center"
+                         MaxLength="2" />
+                <StackPanel Grid.Column="8" Orientation="Horizontal" Margin="16,0,0,0">
+                    <Button Content="Read Page" Command="{Binding ReadPageCommand}" Margin="0,0,6,0" />
+                    <Button Content="Read Range" Command="{Binding ReadRangeCommand}" Margin="0,0,6,0" />
+                    <Button Content="Write + Verify" Command="{Binding WritePageCommand}" Margin="0,0,6,0" />
+                    <Button Content="Common" Command="{Binding ReadCommonPageCommand}" />
                 </StackPanel>
 
-                <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right">
+                <StackPanel Grid.Row="1" Grid.Column="8" Orientation="Horizontal"
+                            HorizontalAlignment="Right" Margin="16,4,0,0">
                     <Button Content="Fill 00" Command="{Binding FillAllCommand}"
                             Style="{DynamicResource MaterialDesignFlatButton}"
                             FontSize="11" Padding="8,4" />

@@ -11,6 +11,9 @@
     <NoWarn>$(NoWarn);NU1510</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="OpenCMIS.UI.WPF.Tests" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="MaterialDesignThemes" Version="5.2.0" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="DevExpress.Mvvm" Version="25.2.4" />
