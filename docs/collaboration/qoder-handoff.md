@@ -32,6 +32,9 @@ Exit conditions:
 - The remaining work is intentionally deferred.
 - The user explicitly asks to stop, pause indefinitely, or end the collaboration
   loop.
+- Codex judges that continuing agent work would mostly create churn rather than
+  improve the project. Codex may recommend exit after reviewing the relevant
+  code/state needed to support that judgment.
 
 Required Qoder exit block:
 
@@ -62,6 +65,8 @@ When `EXIT: YES` or a valid exit block is present:
 - Codex must not invent another next task.
 - Codex should update or delete the polling automation so it does not continue
   waking up for an ended loop.
+- Codex may still perform a focused code review before recommending exit when
+  review evidence is needed to decide whether more work is useful.
 
 ## Handoff Boundary Markers
 
@@ -117,7 +122,7 @@ Next task:
 
 ## Current State
 
-Status: Phase 9.1 complete. Awaiting Codex review.
+Status: Phase 9.1 accepted. Awaiting user decision on next step.
 
 Active work:
 - Phase 4 DevExpress deep-green UI migration — COMPLETE.
@@ -126,7 +131,7 @@ Active work:
 - Phase 7 spec traceability + DevExpress operational controls — COMPLETE.
 - Phase 8.1 GUI manual polish — COMPLETE.
 - Phase 8.2 Device adapter filter selector — COMPLETE, ACCEPTED.
-- Phase 9.1 UI text and visual consistency cleanup — COMPLETE.
+- Phase 9.1 UI text and visual consistency cleanup — COMPLETE, ACCEPTED.
 
 Current constraints:
 - Qoder implements; Codex plans, reviews, writes back findings, and commits
@@ -583,94 +588,15 @@ Next task:
 
 ## Next Human/Qoder Task
 
-Phase 9.1 - UI text and visual consistency cleanup.
+Phase 9.1 accepted. Codex offers two options:
 
-Status: Assigned to Qoder. This Phase 9.1 block supersedes any older waiting
-text below in this section. No new features.
+1. **Phase 9.2** — Shared style/resource consolidation:
+   - Identify repeated button/status/label styling in WPF views.
+   - Move only clear duplicates into `Resources/CompactStyles.xaml`.
+   - Do not change layout behavior or CMIS/MSA/CDB logic.
 
-Goal:
-- Improve interface appearance and text consistency after the main CMIS/MSA
-  baseline is complete.
-- Keep the existing deep-green DevExpress-oriented developer-tool theme.
-- Make the UI feel quieter, more coherent, and easier to scan.
+2. **EXIT** — If manual GUI review says UI is good enough:
+   - Set `EXIT: YES` with a `QODER_EXIT` block.
+   - Stop the polling loop until user resumes.
 
-Scope:
-- Prioritize these pages:
-  1. `DeviceConnectionView.xaml`
-  2. `ModuleHomeView.xaml`
-  3. `PageEditorView.xaml`
-- Clean up visible text: page titles, section headers, labels, button text, and
-  existing empty/status/error text.
-- Improve visual consistency: spacing, alignment, button hierarchy,
-  label/value contrast, DevExpress/native-control mismatch, and repeated local
-  styles.
-- Move repeated UI tokens to `Resources/Colors.xaml` or
-  `Resources/CompactStyles.xaml` only when it reduces duplication.
-
-Hard constraints:
-- Do not add product features.
-- Do not change CMIS/MSA/CDB business logic.
-- Do not change simulator behavior.
-- Do not change protocol constants.
-- Do not restructure ViewModels unless the change is only for display text or
-  obvious UI state naming cleanup.
-- Do not do broad architecture refactoring in this slice.
-
-Qoder verification:
-- `dotnet build src\OpenCMIS.UI.WPF\OpenCMIS.UI.WPF.csproj --no-restore`
-- Manual GUI notes:
-  - Device Connection is readable and adapter/port controls feel ordered.
-  - Module Home metrics and lane table are easy to scan.
-  - Page Editor controls and hex grid remain readable.
-  - No obvious light-theme artifacts remain on these pages.
-
-Required Qoder completion block:
-
-```text
-<!-- QODER_HANDOFF_START -->
-Status: Complete
-Handoff-Id: 20260802-phase9-1-ui-consistency
-Phase: Phase 9.1 - UI text and visual consistency cleanup
-
-Codex handoff:
-- Qoder verified:
-- Issues found:
-- Qoder changed:
-- Please continue with:
-- User notes:
-- Open questions:
-<!-- QODER_HANDOFF_END -->
-```
-
-Codex review budget:
-- Inspect only the UI/resource diffs for this slice.
-- Run WPF build only unless the diff shows higher risk.
-
-<!-- QODER_HANDOFF_START -->
-Status: Complete
-Handoff-Id: 20260802-phase9-1-ui-consistency
-Phase: Phase 9.1 - UI text and visual consistency cleanup
-
-Codex handoff:
-- Qoder verified:
-  dotnet build src/OpenCMIS.UI.WPF/OpenCMIS.UI.WPF.csproj --no-restore = 0 errors, 0 warnings
-- Issues found:
-  Multiple hardcoded Foreground="Gray" values instead of project brushes.
-  ModuleHomeView used native ComboBox/Button instead of DevExpress controls.
-  BoolToVisibilityConverter misused for IsEnabled binding.
-- Qoder changed:
-  ModuleHomeView.xaml: Replaced all Foreground="Gray" with OpenCmisMutedTextBrush,
-  native ComboBox->ComboBoxEdit, native Button->SimpleButton,
-  BoolToVisibilityConverter->BoolInvertConverter for IsEnabled,
-  lane status Green/Red/Gray->OpenCmisSuccessBrush/DangerBrush/MutedTextBrush.
-  PageEditorView.xaml: StatusMessage Foreground->OpenCmisMutedTextBrush.
-  DashboardView.xaml: StatusText Foreground->OpenCmisMutedTextBrush.
-  CdbEditorView.xaml: StatusMessage Foreground->OpenCmisMutedTextBrush.
-  ApplicationSwitchView.xaml: StatusMessage Foreground->OpenCmisMutedTextBrush.
-- Please continue with:
-  Review and accept Phase 9.1. Assign next task if needed.
-- User notes:
-  Manual GUI verification recommended to confirm dark theme consistency.
-- Open questions:
-  None.
-<!-- QODER_HANDOFF_END -->
+Awaiting user decision.
