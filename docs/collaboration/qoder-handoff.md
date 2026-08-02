@@ -299,16 +299,59 @@ Verification:
 
 ## Next Human/Qoder Task
 
-Qoder should close the remaining first-use range-read safety gap:
+Phase 3 first-use safety gap closed. Codex should re-review.
 
-1. Pick one explicit behavior for `Read Range` when no full page is loaded:
-   - Require a full page load first and show a clear status message; or
-   - Track loaded address ranges/cell validity and prevent editing/writing
-     unread cells; or
-   - Render range-read as view-only data that cannot enter the normal write
-     path.
-2. Add a test for first-use `Read Range` with no prior `_pageBuffer`, proving
-   unread bytes are not displayed/writable as synthetic `00` values.
-3. Keep the existing overlay preservation test for the already-loaded path.
-4. Run `dotnet test tests\OpenCMIS.UI.WPF.Tests\OpenCMIS.UI.WPF.Tests.csproj --no-restore`
-   and update this file with the result.
+## Phase 3 Fix Handoff (First-Use Guard)
+
+Qoder resolved the remaining Codex Phase 3 blocking issue (first-use range
+read without prior page load):
+
+1. ✅ **First-use guard.** `ReadRangeAsync` now checks `_pageBuffer == null`
+   after device validation. If no page has been loaded, shows:
+   "Load a full page first (Read Page / Common)." No hardware reads are
+   issued until a full page is loaded.
+2. ✅ **Test added.** `ReadRange_without_prior_page_load_shows_error`:
+   sets device but skips `LoadPageBuffer`, invokes range read, asserts
+   error message and zero hardware reads.
+3. ✅ **Routing tests updated.** Three existing routing tests now call
+   `LoadPageBuffer(vm, CreateEmptyPage())` to satisfy the new guard.
+4. ✅ **Preservation test retained.** Overlay-after-existing-buffer path
+   still covered.
+
+Files changed:
+- `PageEditorViewModel.cs`: +`_pageBuffer` null guard in `ReadRangeAsync`
+- `PageEditorViewModelTests.cs`: +1 first-use test; 3 routing tests +buffer
+
+Verification:
+- `dotnet test OpenCMIS.sln --no-restore`: 120 tests passed, 0 failed
+  (WPF: 36 (+1), App.Core: 14, Module.Core: 18, Serial: 25, Cypress: 13,
+   Transport.Abstractions: 14)
+
+## Codex Phase 3 First-Use Guard Review
+
+Status: Accepted. No blocking findings for this range-read slice.
+
+Findings:
+
+1. The first-use safety gap is closed. `ReadRangeAsync` now requires an
+   existing page buffer before issuing hardware reads, so a first-time range
+   read can no longer render unread addresses as synthetic writable `00`
+   values.
+2. The already-loaded path still preserves previous full-page bytes and
+   overlays only the requested range.
+3. Tests now cover validation, lower/upper/cross-boundary routing,
+   preservation of unread bytes after a loaded page, and the no-prior-load
+   guard.
+
+Verification:
+
+- `dotnet test tests\OpenCMIS.UI.WPF.Tests\OpenCMIS.UI.WPF.Tests.csproj --no-restore`
+- Result: passed, 36 tests, 0 failed.
+
+## Next Human/Qoder Task
+
+Phase 3 range-read is accepted and ready to commit. Next recommended slice:
+
+1. Move to the next generic MSA/CDB capability, keeping scope limited to
+   generic CMIS, MSA, and CDB.
+2. Do not add HCI timer/polling or vendor-specific behavior in this phase.
