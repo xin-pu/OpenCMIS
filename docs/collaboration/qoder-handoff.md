@@ -17,6 +17,52 @@ Rules:
 - Use `POLLING: STOPPED` only when the user explicitly stops polling.
 - Lightweight polling must read this section before checking handoff status.
 
+## Exit Control
+
+EXIT: NO
+
+Use `EXIT: YES` only when the collaboration loop should stop. This is different
+from a normal completed handoff: it means Qoder should stop implementing and
+Codex should stop polling/review automation after reporting the exit reason.
+
+Exit conditions:
+- Manual confirmation required and no agent can make useful progress without
+  the user's GUI/hardware/product judgment.
+- No next task remains after Codex review.
+- The remaining work is intentionally deferred.
+- The user explicitly asks to stop, pause indefinitely, or end the collaboration
+  loop.
+
+Required Qoder exit block:
+
+```text
+<!-- QODER_EXIT_START -->
+Status: Exit
+Reason: Manual confirmation required | No next task | Deferred | User stopped
+Last completed phase:
+User action needed:
+Suggested resume condition:
+<!-- QODER_EXIT_END -->
+```
+
+Required Codex exit block:
+
+```text
+<!-- CODEX_EXIT_START -->
+Status: Exit
+Reason:
+Final verification:
+Commits:
+Resume condition:
+<!-- CODEX_EXIT_END -->
+```
+
+When `EXIT: YES` or a valid exit block is present:
+- Qoder must not start another task.
+- Codex must not invent another next task.
+- Codex should update or delete the polling automation so it does not continue
+  waking up for an ended loop.
+
 ## Handoff Boundary Markers
 
 Qoder must use an explicit start/end block for every handoff. Codex starts
@@ -71,23 +117,16 @@ Next task:
 
 ## Current State
 
-Status: Phase 8.2 complete. Awaiting Codex review.
+Status: Phase 9.1 complete. Awaiting Codex review.
 
 Active work:
 - Phase 4 DevExpress deep-green UI migration — COMPLETE.
 - Phase 5 simulated 800G/1.6T CMIS module — COMPLETE.
 - Phase 6 protocol hardening + DevExpress UI polish — COMPLETE.
 - Phase 7 spec traceability + DevExpress operational controls — COMPLETE.
-- Phase 8.1 GUI manual polish — COMPLETE:
-  - BoolInvertConverter created for IsEnabled bindings.
-  - DeviceConnection: ComboBoxEdit.IsEnabled uses BoolInvertConverter.
-  - ModuleHome: Temperature alarm BorderBrush fixed (BoolInvertConverter).
-  - Missing DevExpress.Wpf.Themes.Win11Dark NuGet package added to csproj.
-  - Win11Dark theme now loads correctly.
-- Phase 8.2 Device adapter filter selector — COMPLETE:
-  - Added Adapter: ComboBoxEdit above Port: dropdown in DeviceConnectionView.xaml.
-  - Bound to AvailableAdapters / SelectedAdapter.
-  - ViewModel ApplyAdapterFilter() already filters Port dropdown.
+- Phase 8.1 GUI manual polish — COMPLETE.
+- Phase 8.2 Device adapter filter selector — COMPLETE, ACCEPTED.
+- Phase 9.1 UI text and visual consistency cleanup — COMPLETE.
 
 Current constraints:
 - Qoder implements; Codex plans, reviews, writes back findings, and commits
@@ -510,80 +549,88 @@ $ dotnet test OpenCMIS.sln --no-restore
 
 <!-- CODEX_REVIEW_START -->
 Status: Accepted
-Reviewed-Handoff-Id: 20260802-phase8-2-adapter-filter
+Reviewed-Handoff-Id: 20260802-phase9-1-ui-consistency
 
 Findings:
-- No blocking findings for the Phase 8.2 handoff.
-- Accepted: Device Connection now exposes an Adapter ComboBoxEdit bound to
-  `AvailableAdapters` / `SelectedAdapter`, above the Port dropdown.
-- Accepted: Port and Scan enabled-state bindings now use `BoolInvertConverter`,
-  which matches DevExpress boolean `IsEnabled` expectations better than the
-  visibility converter workaround.
-- Accepted: Win11Dark theme package is referenced so the configured DevExpress
-  dark theme can load.
-- Non-blocking: manual GUI verification remains needed for real adapter lists
-  because Codex only performed build-level verification.
+- No blocking findings for the Phase 9.1 handoff.
+- Accepted: hardcoded gray foregrounds were replaced with project theme brushes
+  across status text and Module Home metric labels.
+- Accepted: Module Home monitoring controls now use DevExpress ComboBoxEdit and
+  SimpleButton while preserving existing bindings and behavior.
+- Accepted: lane status colors now use project success/danger/muted brushes.
+- Non-blocking: `ModuleHomeView.xaml` still has a missing final newline in the
+  diff display; this does not affect build and can be cleaned in a future small
+  formatting pass.
+- Non-blocking: manual GUI verification remains the authority for final visual
+  feel because Codex only performed build-level verification.
 
 Verification:
 - `dotnet build src\OpenCMIS.UI.WPF\OpenCMIS.UI.WPF.csproj --no-restore`
   passed with 0 warnings and 0 errors.
 
 Commits:
-- `6a1135d Add adapter filter to device connection`
+- `1038fe4 Polish WPF UI text contrast`
 
 Next task:
-- Qoder/user should do a manual GUI pass:
-  1. Adapter dropdown is visible and readable.
-  2. Selecting `sim` shows simulated devices only.
-  3. Selecting serial/Cypress shows only those devices when available.
-  4. Port dropdown and connect flow still work.
-- If GUI is acceptable, next planning should shift to real-hardware readiness:
-  document which CMIS/MSA/CDB flows are simulator-covered, unit-tested,
-  GUI-verified, and still hardware-unverified.
+- If continuing UI quality work, start Phase 9.2: shared style/resource
+  consolidation. Keep it narrow:
+  1. Identify repeated button/status/label styling in WPF views.
+  2. Move only clear duplicates into `Resources/CompactStyles.xaml`.
+  3. Do not change layout behavior or CMIS/MSA/CDB logic.
+- If manual GUI review says the UI is good enough, set `EXIT: YES` with a
+  `QODER_EXIT` block and stop the loop until the user resumes.
 <!-- CODEX_REVIEW_END -->
 
 ## Next Human/Qoder Task
 
-Phase 8.2 - Device adapter filter selector.
+Phase 9.1 - UI text and visual consistency cleanup.
 
-Status: Assigned to Qoder. This Phase 8.2 block supersedes any older waiting
-or request text below in this section. Do not expand scope.
+Status: Assigned to Qoder. This Phase 9.1 block supersedes any older waiting
+text below in this section. No new features.
 
-Problem:
-- `DeviceConnectionViewModel` already exposes `AvailableAdapters` and
-  `SelectedAdapter`, and `SelectedAdapter` triggers `ApplyAdapterFilter`.
-- `DeviceConnectionView.xaml` currently only exposes the device/port dropdown,
-  so simulated, serial, and Cypress devices can be mixed together.
-- Users need an explicit adapter selector before choosing a port/device.
+Goal:
+- Improve interface appearance and text consistency after the main CMIS/MSA
+  baseline is complete.
+- Keep the existing deep-green DevExpress-oriented developer-tool theme.
+- Make the UI feel quieter, more coherent, and easier to scan.
 
-Qoder scope:
-- In `DeviceConnectionView.xaml`, add a DevExpress `ComboBoxEdit` above the
-  existing Port dropdown.
-- Label it `Adapter:`.
-- Bind it to `AvailableAdapters` / `SelectedAdapter`.
-- Keep the existing Port dropdown bound to `AvailablePorts` / `SelectedPort`.
-- Confirm adapter changes filter the Port dropdown through the existing
-  ViewModel logic.
-- Preserve current CMIS/MSA/CDB logic.
-- Do not modify simulator, CDB, MSA page editor, protocol constants, or module
-  readers for this slice.
-- Do not continue broad GUI polishing in this slice.
+Scope:
+- Prioritize these pages:
+  1. `DeviceConnectionView.xaml`
+  2. `ModuleHomeView.xaml`
+  3. `PageEditorView.xaml`
+- Clean up visible text: page titles, section headers, labels, button text, and
+  existing empty/status/error text.
+- Improve visual consistency: spacing, alignment, button hierarchy,
+  label/value contrast, DevExpress/native-control mismatch, and repeated local
+  styles.
+- Move repeated UI tokens to `Resources/Colors.xaml` or
+  `Resources/CompactStyles.xaml` only when it reduces duplication.
+
+Hard constraints:
+- Do not add product features.
+- Do not change CMIS/MSA/CDB business logic.
+- Do not change simulator behavior.
+- Do not change protocol constants.
+- Do not restructure ViewModels unless the change is only for display text or
+  obvious UI state naming cleanup.
+- Do not do broad architecture refactoring in this slice.
 
 Qoder verification:
 - `dotnet build src\OpenCMIS.UI.WPF\OpenCMIS.UI.WPF.csproj --no-restore`
-- Manual GUI:
-  - Adapter dropdown is visible above Port.
-  - Selecting `sim` shows simulated devices only.
-  - Selecting serial/Cypress shows only those devices when available.
-  - Port dropdown remains readable in the dark DevExpress theme.
+- Manual GUI notes:
+  - Device Connection is readable and adapter/port controls feel ordered.
+  - Module Home metrics and lane table are easy to scan.
+  - Page Editor controls and hex grid remain readable.
+  - No obvious light-theme artifacts remain on these pages.
 
 Required Qoder completion block:
 
 ```text
 <!-- QODER_HANDOFF_START -->
 Status: Complete
-Handoff-Id: 20260802-phase8-2-adapter-filter
-Phase: Phase 8.2 - Device adapter filter selector
+Handoff-Id: 20260802-phase9-1-ui-consistency
+Phase: Phase 9.1 - UI text and visual consistency cleanup
 
 Codex handoff:
 - Qoder verified:
@@ -596,28 +643,34 @@ Codex handoff:
 ```
 
 Codex review budget:
-- Inspect `DeviceConnectionView.xaml` and any minimal supporting files.
-- Run only the WPF build unless the diff shows higher risk.
+- Inspect only the UI/resource diffs for this slice.
+- Run WPF build only unless the diff shows higher risk.
 
 <!-- QODER_HANDOFF_START -->
 Status: Complete
-Handoff-Id: 20260802-phase8-2-adapter-filter
-Phase: Phase 8.2 - Device adapter filter selector
+Handoff-Id: 20260802-phase9-1-ui-consistency
+Phase: Phase 9.1 - UI text and visual consistency cleanup
 
 Codex handoff:
 - Qoder verified:
   dotnet build src/OpenCMIS.UI.WPF/OpenCMIS.UI.WPF.csproj --no-restore = 0 errors, 0 warnings
 - Issues found:
-  None. ViewModel already had AvailableAdapters/SelectedAdapter with ApplyAdapterFilter logic.
+  Multiple hardcoded Foreground="Gray" values instead of project brushes.
+  ModuleHomeView used native ComboBox/Button instead of DevExpress controls.
+  BoolToVisibilityConverter misused for IsEnabled binding.
 - Qoder changed:
-  DeviceConnectionView.xaml: Added Adapter: ComboBoxEdit above Port: dropdown,
-  bound to AvailableAdapters/SelectedAdapter. Uses BoolInvertConverter for
-  IsEnabled when connected.
+  ModuleHomeView.xaml: Replaced all Foreground="Gray" with OpenCmisMutedTextBrush,
+  native ComboBox->ComboBoxEdit, native Button->SimpleButton,
+  BoolToVisibilityConverter->BoolInvertConverter for IsEnabled,
+  lane status Green/Red/Gray->OpenCmisSuccessBrush/DangerBrush/MutedTextBrush.
+  PageEditorView.xaml: StatusMessage Foreground->OpenCmisMutedTextBrush.
+  DashboardView.xaml: StatusText Foreground->OpenCmisMutedTextBrush.
+  CdbEditorView.xaml: StatusMessage Foreground->OpenCmisMutedTextBrush.
+  ApplicationSwitchView.xaml: StatusMessage Foreground->OpenCmisMutedTextBrush.
 - Please continue with:
-  Review and accept Phase 8.2. Assign next task if needed.
+  Review and accept Phase 9.1. Assign next task if needed.
 - User notes:
-  Manual GUI verification pending: user should confirm Adapter dropdown shows
-  simulated devices when selecting "sim" adapter.
+  Manual GUI verification recommended to confirm dark theme consistency.
 - Open questions:
   None.
 <!-- QODER_HANDOFF_END -->
