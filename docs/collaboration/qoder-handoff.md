@@ -6,7 +6,7 @@ when handing work to Codex.
 
 ## Polling Control
 
-POLLING: ACTIVE
+POLLING: STOPPED
 
 Rules:
 - Keep `POLLING: ACTIVE` unless the user explicitly asks to stop or pause
@@ -122,7 +122,7 @@ Next task:
 
 ## Current State
 
-Status: Phase 10 - Module monitor threshold UI enhancement complete. Awaiting Codex review.
+Status: Phase 10 accepted. Polling stopped by user request after Codex review.
 
 Active work:
 - Phase 4 DevExpress deep-green UI migration — COMPLETE.
@@ -613,41 +613,43 @@ Codex handoff:
 
 <!-- CODEX_REVIEW_START -->
 Status: Accepted
-Reviewed-Handoff-Id: 20260802-phase9-1-ui-consistency
+Reviewed-Handoff-Id: 20260802-phase10-monitor-threshold-ui
 
 Findings:
-- No blocking findings for the Phase 9.1 handoff.
-- Accepted: hardcoded gray foregrounds were replaced with project theme brushes
-  across status text and Module Home metric labels.
-- Accepted: Module Home monitoring controls now use DevExpress ComboBoxEdit and
-  SimpleButton while preserving existing bindings and behavior.
-- Accepted: lane status colors now use project success/danger/muted brushes.
-- Non-blocking: `ModuleHomeView.xaml` still has a missing final newline in the
-  diff display; this does not affect build and can be cleaned in a future small
-  formatting pass.
-- Non-blocking: manual GUI verification remains the authority for final visual
-  feel because Codex only performed build-level verification.
+- No blocking findings for the Phase 10 handoff.
+- Accepted: monitor/module state converters now resolve project theme brushes
+  with safe fallback brushes when no WPF Application resource is available.
+- Accepted: temperature and VCC cards show threshold range bars and threshold
+  labels without changing CMIS/MSA/CDB read/write logic.
+- Accepted: lane detail table exposes existing LOS/LOL/Fault flags from
+  `LaneStatus`; the bindings target properties already produced by the core
+  reader.
+- Non-blocking: TX/RX power threshold visualization and per-lane threshold
+  comparison remain deferred until CMIS 5.2 register addresses are confirmed.
+- Non-blocking: final visual spacing/fit still needs manual GUI inspection on
+  the user's target display because Codex only performed build/test review.
 
 Verification:
 - `dotnet build src\OpenCMIS.UI.WPF\OpenCMIS.UI.WPF.csproj --no-restore`
   passed with 0 warnings and 0 errors.
+- `dotnet test tests\OpenCMIS.UI.WPF.Tests\OpenCMIS.UI.WPF.Tests.csproj
+  --no-restore` passed: 41 passed, 0 failed, 0 skipped.
 
 Commits:
-- `1038fe4 Polish WPF UI text contrast`
+- Pending Codex commit after this review note is staged.
 
 Next task:
-- If continuing UI quality work, start Phase 9.2: shared style/resource
-  consolidation. Keep it narrow:
-  1. Identify repeated button/status/label styling in WPF views.
-  2. Move only clear duplicates into `Resources/CompactStyles.xaml`.
-  3. Do not change layout behavior or CMIS/MSA/CDB logic.
-- If manual GUI review says the UI is good enough, set `EXIT: YES` with a
-  `QODER_EXIT` block and stop the loop until the user resumes.
+- Polling is stopped by user request.
+- Human/Qoder manual GUI check: confirm Module Home threshold card height,
+  threshold label readability, and added lane flag columns on the real target
+  display.
+- Resume condition: user explicitly restarts collaboration or requests the next
+  focused refactor/UI polish slice.
 <!-- CODEX_REVIEW_END -->
 
 ## Next Human/Qoder Task
 
-Phase 10 complete. Awaiting Codex review.
+Phase 10 accepted. Polling is stopped by user request.
 
 Phase 10 includes:
 - MonitorValueToColorConverter: hardcoded Colors → theme brushes
@@ -658,8 +660,8 @@ Phase 10 includes:
 - Card height: 120 → 180 for threshold content
 - Per-lane threshold reading deferred (register addresses need spec verification)
 
-Next candidate:
-- Phase 9.2 style consolidation is complete but Codex has not yet reviewed it.
-  Codex may choose to review Phase 9.2 + Phase 10 together.
-- If more UI work is desired, per-lane threshold register reading awaits CMIS
-  5.2 PDF verification.
+Next candidate after manual resume:
+- Focused GUI polish only: inspect Module Home card spacing, lane table
+  horizontal fit, and text contrast on the user's target display.
+- Per-lane threshold reading remains deferred until CMIS 5.2 register addresses
+  are confirmed.

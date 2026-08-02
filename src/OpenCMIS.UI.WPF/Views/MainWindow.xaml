@@ -81,13 +81,75 @@
                         </Style>
                     </dxa:AccordionControl.Resources>
 
-                    <dxa:AccordionItem Header="Device Connection" Tag="DeviceConnection" IsSelected="True" />
-                    <dxa:AccordionItem Header="Dashboard" Tag="Dashboard" />
-                    <dxa:AccordionItem Header="Control Panel" Tag="ControlPanel" />
-                    <dxa:AccordionItem Header="CDB Editor" Tag="CdbEditor" />
-                    <dxa:AccordionItem Header="Application Switch" Tag="ApplicationSwitch" />
-                    <dxa:AccordionItem Header="Page Editor" Tag="PageEditor" />
-                    <dxa:AccordionItem Header="Module Home" Tag="ModuleHome" />
+                    <dxa:AccordionItem Tag="DeviceConnection" IsSelected="True">
+                        <dxa:AccordionItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                           Text="&#xE80F;" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                <TextBlock Text="Device Connection" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </dxa:AccordionItem.Header>
+                    </dxa:AccordionItem>
+
+                    <dxa:AccordionItem Tag="ModuleHome">
+                        <dxa:AccordionItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                           Text="&#xE9D2;" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                <TextBlock Text="Module Home" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </dxa:AccordionItem.Header>
+                    </dxa:AccordionItem>
+
+                    <dxa:AccordionItem Tag="Dashboard">
+                        <dxa:AccordionItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                           Text="&#xE9F5;" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                <TextBlock Text="Dashboard" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </dxa:AccordionItem.Header>
+                    </dxa:AccordionItem>
+
+                    <dxa:AccordionItem Tag="PageEditor">
+                        <dxa:AccordionItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                           Text="&#xE70F;" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                <TextBlock Text="Page Editor" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </dxa:AccordionItem.Header>
+                    </dxa:AccordionItem>
+
+                    <dxa:AccordionItem Tag="ControlPanel">
+                        <dxa:AccordionItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                           Text="&#xE713;" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                <TextBlock Text="Control Panel" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </dxa:AccordionItem.Header>
+                    </dxa:AccordionItem>
+
+                    <dxa:AccordionItem Tag="CdbEditor">
+                        <dxa:AccordionItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                           Text="&#xEADE;" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                <TextBlock Text="CDB Editor" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </dxa:AccordionItem.Header>
+                    </dxa:AccordionItem>
+
+                    <dxa:AccordionItem Tag="ApplicationSwitch">
+                        <dxa:AccordionItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                           Text="&#xE8AB;" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                <TextBlock Text="Application Switch" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </dxa:AccordionItem.Header>
+                    </dxa:AccordionItem>
                 </dxa:AccordionControl>
             </StackPanel>
         </Border>
