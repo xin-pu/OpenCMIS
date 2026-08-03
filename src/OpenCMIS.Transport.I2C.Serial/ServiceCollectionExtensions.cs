@@ -4,20 +4,20 @@ using OpenCMIS.Transport.Abstractions;
 using OpenCMIS.Transport.I2C.Serial.Providers;
 using OpenCMIS.Transport.I2C.Serial.Serial;
 
-namespace OpenCMIS.Transport.I2C.Serial;
-
-public static class ServiceCollectionExtensions
+namespace OpenCMIS.Transport.I2C.Serial
 {
-    public static IServiceCollection AddOpenCmisSerialAdapters(
-        this IServiceCollection services)
+    public static class ServiceCollectionExtensions
     {
-        services.TryAddSingleton(TimeProvider.System);
-        services.TryAddSingleton(I2cRetryOptions.Default);
-        services.TryAddSingleton<ISerialSessionFactory, SerialPortSessionFactory>();
-        services.TryAddSingleton<ISerialPortCatalog, SystemSerialPortCatalog>();
-        services.AddSingleton<II2cAdapterProvider, LinktelSerialAdapterProvider>();
-        services.AddSingleton<II2cAdapterProvider, HmSerialAdapterProvider>();
-        services.AddSingleton<II2cAdapterProvider, HmMultiChannelAdapterProvider>();
-        return services;
+        public static IServiceCollection AddOpenCmisSerialAdapters(this IServiceCollection services)
+        {
+            services.TryAddSingleton(TimeProvider.System);
+            services.TryAddSingleton(I2cRetryOptions.Default);
+            services.TryAddSingleton<ISerialSessionFactory, SerialPortSessionFactory>();
+            services.TryAddSingleton<ISerialPortCatalog, SystemSerialPortCatalog>();
+            services.AddSingleton<II2cAdapterProvider, LinktelSerialAdapterProvider>();
+            services.AddSingleton<II2cAdapterProvider, HmSerialAdapterProvider>();
+            services.AddSingleton<II2cAdapterProvider, HmMultiChannelAdapterProvider>();
+            return services;
+        }
     }
 }

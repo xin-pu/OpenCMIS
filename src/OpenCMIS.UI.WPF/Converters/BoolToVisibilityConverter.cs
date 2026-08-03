@@ -9,7 +9,7 @@ namespace OpenCMIS.UI.WPF.Converters
         public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             var boolValue = value is true;
-            var invert = parameter is string s && s.Equals("Invert", StringComparison.OrdinalIgnoreCase);
+            var invert    = parameter is string s && s.Equals("Invert", StringComparison.OrdinalIgnoreCase);
 
             if (invert)
                 boolValue = !boolValue;

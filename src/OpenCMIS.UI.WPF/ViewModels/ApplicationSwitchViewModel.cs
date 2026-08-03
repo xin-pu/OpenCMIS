@@ -6,9 +6,9 @@ using OpenCMIS.Protocol.Core;
 
 namespace OpenCMIS.UI.WPF.ViewModels
 {
-    public partial class ApplicationSwitchViewModel : ObservableObject
+    public class ApplicationSwitchViewModel : ObservableObject
     {
-        private ICmisDevice? _device;
+        private ICmisDevice?            _device;
         private CmisApplicationFactory? _factory;
 
         [ObservableProperty]
@@ -25,15 +25,16 @@ namespace OpenCMIS.UI.WPF.ViewModels
             _device = device;
             if (device != null)
             {
-                _factory = new CmisApplicationFactory(device.RegisterAccess);
-                _ = RefreshApplicationsAsync();
+                _factory = new (device.RegisterAccess);
+                _        = RefreshApplicationsAsync();
             }
         }
 
         [RelayCommand]
         private async Task RefreshApplicationsAsync()
         {
-            if (_device == null || _factory == null) return;
+            if (_device == null || _factory == null)
+                return;
 
             try
             {
@@ -54,13 +55,14 @@ namespace OpenCMIS.UI.WPF.ViewModels
         [RelayCommand]
         private async Task SwitchApplicationAsync(byte appCode)
         {
-            if (_factory == null) return;
+            if (_factory == null)
+                return;
 
             try
             {
                 await _factory.SwitchApplicationAsync(appCode);
                 CurrentApplication = $"[0x{appCode:X2}]";
-                StatusMessage = $"Switched to application 0x{appCode:X2}.";
+                StatusMessage      = $"Switched to application 0x{appCode:X2}.";
             }
             catch (Exception ex)
             {

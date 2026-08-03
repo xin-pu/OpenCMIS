@@ -49,16 +49,14 @@ namespace OpenCMIS.Cypress
     }
 
     #region Unused Struct SP_DEVICE_INTERFACE_DETAIL_DATA
-
-#if (FALSE)
+    #if FALSE
 		[StructLayout(LayoutKind.Sequential,Pack = 1)]
 		public unsafe struct SP_DEVICE_INTERFACE_DETAIL_DATA
 		{
 			public int  cbSize;
 			public byte[] DevicePath;
 		}
-#endif
-
+    #endif
     #endregion
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -109,7 +107,6 @@ namespace OpenCMIS.Cypress
         public IntPtr hEvent;
     }
 
-
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct USB_DEVICE_DESCRIPTOR
     {
@@ -128,7 +125,6 @@ namespace OpenCMIS.Cypress
         public byte   iSerialNumber;
         public byte   bNumConfigurations;
     }
-
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     internal struct USB_ENDPOINT_DESCRIPTOR
@@ -150,7 +146,6 @@ namespace OpenCMIS.Cypress
         public byte   bmAttributes;
         public ushort bBytesPerInterval;
     }
-
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct USB_CONFIGURATION_DESCRIPTOR
@@ -223,7 +218,6 @@ namespace OpenCMIS.Cypress
         public byte iInterface;
     }
 
-
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     internal struct USB_STRING_DESCRIPTOR
     {
@@ -232,7 +226,6 @@ namespace OpenCMIS.Cypress
         public ushort bString; // This will be a wide char
     }
 
-
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     internal struct USB_COMMON_DESCRIPTOR
     {
@@ -240,14 +233,12 @@ namespace OpenCMIS.Cypress
         public byte bDescriptorType;
     }
 
-
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct ISO_PKT_INFO
     {
         public uint Status;
         public uint Length;
     }
-
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     internal struct SETUP_PACKET
@@ -259,7 +250,6 @@ namespace OpenCMIS.Cypress
         public ushort wLength;
         public uint   dwTimeOut;
     }
-
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     internal struct SINGLE_TRANSFER
@@ -276,14 +266,12 @@ namespace OpenCMIS.Cypress
         public uint BufferLength;
     }
 
-
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     internal struct SET_TRANSFER_SIZE_INFO
     {
         public byte EndpointAddress;
         public int  TransferSize;
     }
-
 
     // HID Structs
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -294,7 +282,6 @@ namespace OpenCMIS.Cypress
         public ushort ProductID;
         public ushort VersionNumber;
     }
-
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct HIDP_CAPS
@@ -323,8 +310,7 @@ namespace OpenCMIS.Cypress
     }
 
     #region Unused struct HIDP_BUTTON_CAPS
-
-#if (FALSE)
+    #if FALSE
 	[StructLayout(LayoutKind.Sequential,Pack = 1)]
 	public struct HIDP_BUTTON_CAPS
 	{
@@ -351,10 +337,8 @@ namespace OpenCMIS.Cypress
 		public ushort	DataIndex,			DataIndexMax;
 	}
 
-#endif
-
+    #endif
     #endregion
-
 
     // This struct holds HIDP_BUTTON or HIDP_VALUE CAPS - They're both the same size
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -464,7 +448,6 @@ namespace OpenCMIS.Cypress
         public byte                senseInfoBuffer; // 18 bytes
     }
 
-
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     internal struct CDB10
     {
@@ -475,7 +458,6 @@ namespace OpenCMIS.Cypress
         public ushort Blocks;
         public byte   Control;
     }
-
 
     public enum HIDP_REPORT_TYPE
     {
@@ -564,7 +546,6 @@ namespace OpenCMIS.Cypress
         internal const byte USB_BOS_CAPABILITY_TYPE_CONTAINER_ID      = 0x04;
         internal const byte USB_BOS_CAPABILITY_TYPE_CONTAINER_ID_SIZE = 0x10;
 
-
         internal const byte USB_REQUEST_GET_DESCRIPTOR = 0x06;
 
         internal const uint IOCTL_ADAPT_GET_DRIVER_VERSION        = 0x00220000 + 0  * 4;
@@ -587,7 +568,6 @@ namespace OpenCMIS.Cypress
         internal const uint IOCTL_ADAPT_ABORT_PIPE                = 0x00220000 + 17 * 4;
         internal const uint IOCTL_ADAPT_SEND_NON_EP0_DIRECT       = 0x00220003 + 18 * 4;
         internal const uint IOCTL_ADAPT_GET_DEVICE_SPEED          = 0x00220000 + 19 * 4;
-
 
         internal const uint IOCTL_SCSI_PASS_THROUGH = 0x0004d004;
 

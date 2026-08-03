@@ -5,7 +5,6 @@ namespace OpenCMIS.Shared
     /// </summary>
     /// <remarks>
     ///     Spec traceability (CMIS 5.2 / OIF-CMIS-05.2):
-    ///
     ///     Page  | Address       | Field                        | Source
     ///     ----- | ------------- | ---------------------------- | ------
     ///     0x00  | 0x00          | Module Identifier            | Table 8-1
@@ -27,14 +26,12 @@ namespace OpenCMIS.Shared
     ///     0x01  | 0xC6-0xD5     | Serial Number (ASCII)        | Project-local (avoids overlap)
     ///     0x02  | 0x80-0x8D     | Alarm/Warning Thresholds     | Table 8-12 (Module Thresholds)
     ///     0x10+ | 0xA0-0xA6     | Per-Lane Monitors            | Table 8-18 (Lane Monitors)
-    ///
     ///     NOTE: CMIS 5.2 standard places Vendor Serial Number at upper page
     ///     0x01, address 0xA8 (16 bytes). This project uses custom vendor
     ///     extensions at 0xB0-0xC5 that would overlap the standard serial
     ///     location, so the serial is placed at 0xC6 as a project-local
     ///     accommodation. Threshold constants use page 0x02 at upper-page
     ///     addresses 0x80-0x8C, consistent with CMIS 5.2 Table 8-12.
-    ///
     ///     Vendor extensions (HW/FW rev, date code, CLEI) are carried at
     ///     addresses that do not conflict with base CMIS identity fields.
     ///     These should be verified against vendor-specific memory maps
@@ -72,8 +69,17 @@ namespace OpenCMIS.Shared
         /// </summary>
         public const byte PageSelectRegister = 0x7F;
 
-        #region Common Register Addresses (Lower Page)
+        /// <summary>
+        ///     Default I2C address for CMIS modules.
+        /// </summary>
+        public const byte DefaultI2cAddress = 0x50;
 
+        /// <summary>
+        ///     Default timeout for device operations in milliseconds.
+        /// </summary>
+        public const int DefaultTimeoutMs = 1000;
+
+        #region Common Register Addresses (Lower Page)
         /// <summary>
         ///     Identifier register (0x00).
         /// </summary>
@@ -103,11 +109,9 @@ namespace OpenCMIS.Shared
         ///     Module flags (0x06-0x07).
         /// </summary>
         public const byte RegModuleFlags = 0x06;
-
         #endregion
 
         #region Monitor and Identity Registers
-
         /// <summary>Temperature monitor, lower page 0x00 (0x0E-0x0F, 2 bytes, signed int16, LSB=1/256°C).</summary>
         public const byte RegTemperatureMSB = 0x0E;
 
@@ -115,7 +119,6 @@ namespace OpenCMIS.Shared
         public const byte RegVccMSB = 0x10;
 
         #region Alarm / Warning Thresholds (Upper Page 0x02)
-
         /// <summary>Upper page for module-level alarm/warning thresholds.</summary>
         public const byte ThresholdPage = 0x02;
 
@@ -139,7 +142,6 @@ namespace OpenCMIS.Shared
 
         /// <summary>VCC High Warning threshold (unsigned int16, 100µV).</summary>
         public const byte RegVccHighWarnMSB = 0x8C;
-
         #endregion
 
         /// <summary>Vendor name start, upper page 0x01 (0x81, 16 bytes).</summary>
@@ -151,10 +153,12 @@ namespace OpenCMIS.Shared
         /// <summary>Part number start, upper page 0x01 (0x94, 16 bytes).</summary>
         public const byte RegPartNumberStart = 0x94;
 
-        /// <summary>Serial number start, upper page 0x01 (0xC6, 16 bytes).
-        /// NOTE: Moved from 0xA0 to 0xA8 (conflict with Vendor Part Number),
-        /// then to 0xC6 to avoid overlap with Hardware/Firmware Revision
-        /// (0xB0-0xB3), Date Code (0xB4-0xBB), and CLEI Code (0xBC-0xC5).</summary>
+        /// <summary>
+        ///     Serial number start, upper page 0x01 (0xC6, 16 bytes).
+        ///     NOTE: Moved from 0xA0 to 0xA8 (conflict with Vendor Part Number),
+        ///     then to 0xC6 to avoid overlap with Hardware/Firmware Revision
+        ///     (0xB0-0xB3), Date Code (0xB4-0xBB), and CLEI Code (0xBC-0xC5).
+        /// </summary>
         public const byte RegSerialNumberStart = 0xC6;
 
         /// <summary>Hardware revision, upper page 0x01 (0xB0, 2 bytes BCD).</summary>
@@ -186,17 +190,6 @@ namespace OpenCMIS.Shared
 
         /// <summary>Per-lane status flags (1 byte, bit0=enabled, bit1=fault).</summary>
         public const byte RegLaneStatusFlags = 0xA6;
-
         #endregion
-
-        /// <summary>
-        ///     Default I2C address for CMIS modules.
-        /// </summary>
-        public const byte DefaultI2cAddress = 0x50;
-
-        /// <summary>
-        ///     Default timeout for device operations in milliseconds.
-        /// </summary>
-        public const int DefaultTimeoutMs = 1000;
     }
 }

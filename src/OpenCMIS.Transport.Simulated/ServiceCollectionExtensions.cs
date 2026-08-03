@@ -1,14 +1,14 @@
 using Microsoft.Extensions.DependencyInjection;
 using OpenCMIS.Transport.Abstractions;
 
-namespace OpenCMIS.Transport.Simulated;
-
-public static class ServiceCollectionExtensions
+namespace OpenCMIS.Transport.Simulated
 {
-    public static IServiceCollection AddOpenCmisSimulatedAdapters(
-        this IServiceCollection services)
+    public static class ServiceCollectionExtensions
     {
-        services.AddSingleton<II2cAdapterProvider, SimulatedI2cAdapterProvider>();
-        return services;
+        public static IServiceCollection AddOpenCmisSimulatedAdapters(this IServiceCollection services)
+        {
+            services.AddSingleton<II2cAdapterProvider, SimulatedI2cAdapterProvider>();
+            return services;
+        }
     }
 }

@@ -43,14 +43,14 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                var itmp = "Interface " + bInterfaceNumber;
+                var itmp    = "Interface " + bInterfaceNumber;
                 var altTree = new TreeNode[AltInterfacesCount];
                 for (var i = 0; i < AltInterfacesCount; i++)
                     altTree[i] = Interfaces[i].Tree;
                 var iNode = new TreeNode(itmp, altTree)
-                {
-                        Tag = this
-                };
+                            {
+                                Tag = this
+                            };
 
                 return iNode;
             }
@@ -111,21 +111,13 @@ namespace OpenCMIS.Cypress
                 {
                     switch (endPtDesc->bmAttributes)
                     {
-                        case 0:
-                            EndPoints[i] = ctlEndPt;
-                            break;
+                        case 0: EndPoints[i] = ctlEndPt; break;
 
-                        case 1:
-                            EndPoints[i] = new CyIsocEndPoint(handle, endPtDesc);
-                            break;
+                        case 1: EndPoints[i] = new CyIsocEndPoint(handle, endPtDesc); break;
 
-                        case 2:
-                            EndPoints[i] = new CyBulkEndPoint(handle, endPtDesc);
-                            break;
+                        case 2: EndPoints[i] = new CyBulkEndPoint(handle, endPtDesc); break;
 
-                        case 3:
-                            EndPoints[i] = new CyInterruptEndPoint(handle, endPtDesc);
-                            break;
+                        case 3: EndPoints[i] = new CyInterruptEndPoint(handle, endPtDesc); break;
                     }
 
                     desc += endPtDesc->bLength;
@@ -173,7 +165,7 @@ namespace OpenCMIS.Cypress
 
             for (i = 1; i <= bNumEndpoints; i++)
             {
-                var bSSDec = false;
+                var bSSDec    = false;
                 var endPtDesc = (USB_ENDPOINT_DESCRIPTOR *) desc;
                 desc += endPtDesc->bLength;
                 var ssendPtDesc = (USB_SUPERSPEED_ENDPOINT_COMPANION_DESCRIPTOR *) desc;
@@ -186,45 +178,31 @@ namespace OpenCMIS.Cypress
                 {
                     switch (endPtDesc->bmAttributes)
                     {
-                        case 0:
-                            EndPoints[i] = ctlEndPt;
-                            break;
+                        case 0: EndPoints[i] = ctlEndPt; break;
 
-                        case 1:
-                            EndPoints[i] = new CyIsocEndPoint(handle, endPtDesc, ssendPtDesc);
-                            break;
+                        case 1: EndPoints[i] = new CyIsocEndPoint(handle, endPtDesc, ssendPtDesc); break;
 
-                        case 2:
-                            EndPoints[i] = new CyBulkEndPoint(handle, endPtDesc, ssendPtDesc);
-                            break;
+                        case 2: EndPoints[i] = new CyBulkEndPoint(handle, endPtDesc, ssendPtDesc); break;
 
-                        case 3:
-                            EndPoints[i] = new CyInterruptEndPoint(handle, endPtDesc, ssendPtDesc);
-                            break;
+                        case 3: EndPoints[i] = new CyInterruptEndPoint(handle, endPtDesc, ssendPtDesc); break;
                     }
 
                     wTotalLength += ssendPtDesc->bLength;
                     desc         += ssendPtDesc->bLength;
                 }
                 else if (endPtDesc->bDescriptorType == CyConst.USB_ENDPOINT_DESCRIPTOR_TYPE)
+                {
                     switch (endPtDesc->bmAttributes)
                     {
-                        case 0:
-                            EndPoints[i] = ctlEndPt;
-                            break;
+                        case 0: EndPoints[i] = ctlEndPt; break;
 
-                        case 1:
-                            EndPoints[i] = new CyIsocEndPoint(handle, endPtDesc);
-                            break;
+                        case 1: EndPoints[i] = new CyIsocEndPoint(handle, endPtDesc); break;
 
-                        case 2:
-                            EndPoints[i] = new CyBulkEndPoint(handle, endPtDesc);
-                            break;
+                        case 2: EndPoints[i] = new CyBulkEndPoint(handle, endPtDesc); break;
 
-                        case 3:
-                            EndPoints[i] = new CyInterruptEndPoint(handle, endPtDesc);
-                            break;
+                        case 3: EndPoints[i] = new CyInterruptEndPoint(handle, endPtDesc); break;
                     }
+                }
                 else
                 {
                     unexpected++;
@@ -275,9 +253,9 @@ namespace OpenCMIS.Cypress
                     eTree[i] = EndPoints[i + 1].Tree;
 
                 var t = new TreeNode(tmp, eTree)
-                {
-                        Tag = this
-                };
+                        {
+                            Tag = this
+                        };
 
                 return t;
             }

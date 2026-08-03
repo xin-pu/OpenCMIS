@@ -1,13 +1,13 @@
 namespace OpenCMIS.Protocol.Abstractions.Models
 {
     /// <summary>
-    /// Decoded CMIS module flags (registers 0x06-0x07, 2 bytes).
-    /// These indicate module capabilities and current configuration.
+    ///     Decoded CMIS module flags (registers 0x06-0x07, 2 bytes).
+    ///     These indicate module capabilities and current configuration.
     /// </summary>
     public sealed class CmisModuleFlags
     {
         /// <summary>
-        /// Raw module flag bytes from registers 0x06-0x07 (MSB order).
+        ///     Raw module flag bytes from registers 0x06-0x07 (MSB order).
         /// </summary>
         public byte[] RawBytes { get; init; } = [];
 
@@ -31,14 +31,17 @@ namespace OpenCMIS.Protocol.Abstractions.Models
         public byte MaxDataRate { get; init; }
 
         /// <summary>
-        /// Returns human-readable capability names that are active.
+        ///     Returns human-readable capability names that are active.
         /// </summary>
         public IReadOnlyList<string> GetActiveCapabilities()
         {
             var caps = new List<string>();
-            if (CdbSupported) caps.Add("CDB");
-            if (DiagMonSupported) caps.Add("Diagnostic Monitoring");
-            if (StateControlSupported) caps.Add("State Control");
+            if (CdbSupported)
+                caps.Add("CDB");
+            if (DiagMonSupported)
+                caps.Add("Diagnostic Monitoring");
+            if (StateControlSupported)
+                caps.Add("State Control");
             return caps;
         }
     }

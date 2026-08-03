@@ -1,12 +1,13 @@
-namespace OpenCMIS.Transport.Abstractions;
-
-/// <summary>
-/// Represents an eight-bit register offset.
-/// </summary>
-public readonly record struct RegisterOffset(byte Value)
+namespace OpenCMIS.Transport.Abstractions
 {
-    public override string ToString()
+    /// <summary>
+    ///     Represents an eight-bit register offset.
+    /// </summary>
+    public readonly record struct RegisterOffset(byte Value)
     {
-        return $"0x{Value:X2}";
+        public override string ToString()
+        {
+            return $"0x{Value:X2}";
+        }
     }
 }

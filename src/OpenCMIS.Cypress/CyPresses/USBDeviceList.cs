@@ -81,7 +81,7 @@ namespace OpenCMIS.Cypress
             FillDriverGuids(DeviceMask);
 
             USBDevice tmpDev, tmp;
-            var devs = 0;
+            var       devs = 0;
 
             foreach (Guid guid in USBDriverGuids)
             {
@@ -143,15 +143,20 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
 
-                if (Items.Count == 0) return null;
+                if (Items.Count == 0)
+                    return null;
+
                 return (USBDevice) Items[index];
             }
 
             set
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 Items[index] = value;
             }
         }
@@ -160,7 +165,8 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
 
                 foreach (USBDevice tmp in Items)
                     if (infName.Equals(tmp.FriendlyName))
@@ -174,7 +180,8 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
 
                 foreach (USBDevice tmp in Items)
                     if (VID == tmp.VendorID && PID == tmp.ProductID)
@@ -188,7 +195,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return Items.Count;
             }
         }
@@ -197,13 +206,15 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
 
                 foreach (USBDevice dev in Items)
                 {
                     var tmp = dev as CyHidDevice;
                     if (tmp     != null          && VID   == tmp.VendorID && PID == tmp.ProductID &&
-                        UsagePg == tmp.UsagePage && Usage == tmp.Usage) return tmp;
+                        UsagePg == tmp.UsagePage && Usage == tmp.Usage)
+                        return tmp;
                 }
 
                 return null;
@@ -214,12 +225,14 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
 
                 foreach (USBDevice dev in Items)
                 {
                     var tmp = dev as CyHidDevice;
-                    if (tmp != null && sMfg.Equals(tmp.Manufacturer) && sProd.Equals(tmp.Product)) return tmp;
+                    if (tmp != null && sMfg.Equals(tmp.Manufacturer) && sProd.Equals(tmp.Product))
+                        return tmp;
                 }
 
                 return null;
@@ -230,13 +243,15 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
 
                 foreach (USBDevice dev in Items)
                 {
                     var tmp = dev as CyHidDevice;
                     if (tmp     != null          && sMfg.Equals(tmp.Manufacturer) && sProd.Equals(tmp.Product) &&
-                        UsagePg == tmp.UsagePage && Usage == tmp.Usage) return tmp;
+                        UsagePg == tmp.UsagePage && Usage == tmp.Usage)
+                        return tmp;
                 }
 
                 return null;
@@ -264,7 +279,8 @@ namespace OpenCMIS.Cypress
 
         public void Remove(IntPtr hDev)
         {
-            if (_alreadyDisposed) throw new ObjectDisposedException("");
+            if (_alreadyDisposed)
+                throw new ObjectDisposedException("");
 
             // Can't use foreach here, as we're modifying Items within the loop
             for (byte i = 0; i < Count; i++)
@@ -280,7 +296,8 @@ namespace OpenCMIS.Cypress
 
         public void Remove(IntPtr hDev, USBEventArgs e)
         {
-            if (_alreadyDisposed) throw new ObjectDisposedException("");
+            if (_alreadyDisposed)
+                throw new ObjectDisposedException("");
 
             // Can't use foreach here, as we're modifying Items within the loop
             for (byte i = 0; i < Count; i++)
@@ -320,7 +337,8 @@ namespace OpenCMIS.Cypress
 
         public USBDevice Add()
         {
-            if (_alreadyDisposed) throw new ObjectDisposedException("");
+            if (_alreadyDisposed)
+                throw new ObjectDisposedException("");
 
             USBDevice tmp, tmpDev;
 
@@ -348,6 +366,7 @@ namespace OpenCMIS.Cypress
 
                 // If greater, add
                 if (connectedDevs > listedDevs)
+                {
                     for (byte d = 0; d < connectedDevs; d++)
                     {
                         // Create the new USBDevice object of the correct type, based on guid
@@ -378,9 +397,11 @@ namespace OpenCMIS.Cypress
                         {
                             Items.Add(tmp);
                             tmp.RegisterForPnPEvents(MsgWin.Handle);
-                            if (connectedDevs == 1 && d == 0) return tmp;
+                            if (connectedDevs == 1 && d == 0)
+                                return tmp;
                         }
                     }
+                }
             }
 
             return null;
@@ -388,12 +409,16 @@ namespace OpenCMIS.Cypress
 
         protected virtual void Dispose(bool isDisposing)
         {
-            if (_alreadyDisposed) return;
+            if (_alreadyDisposed)
+                return;
 
             if (isDisposing)
+
                     // Free managed members that implement IDisposable
+            {
                 foreach (USBDevice u in Items)
                     u.Dispose();
+            }
 
             // Free the un-managed resources (handles)
             foreach (IntPtr h in hDevNotifications)
@@ -464,7 +489,8 @@ namespace OpenCMIS.Cypress
             {
                 var rkDevs = Registry.LocalMachine.OpenSubKey("SYSTEM\\CurrentControlSet\\Enum\\USB");
 
-                if (rkDevs == null) return;
+                if (rkDevs == null)
+                    return;
 
                 var sDevs = rkDevs.GetSubKeyNames();
 
@@ -614,7 +640,8 @@ namespace OpenCMIS.Cypress
             dFilter.dbcc_classguid  = DrvGuid;
 
             var hNotify = PInvoke.RegisterDeviceNotification(h, dFilter, CyConst.DEVICE_NOTIFY_WINDOW_HANDLE);
-            if (hNotify == IntPtr.Zero) return false;
+            if (hNotify == IntPtr.Zero)
+                return false;
 
             hDevNotifications.Add(hNotify);
 

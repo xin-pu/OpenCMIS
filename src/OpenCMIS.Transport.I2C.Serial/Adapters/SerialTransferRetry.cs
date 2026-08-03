@@ -1,44 +1,41 @@
 using OpenCMIS.Shared;
 using OpenCMIS.Transport.Abstractions;
 
-namespace OpenCMIS.Transport.I2C.Serial.Adapters;
-
-internal sealed class SerialTransferRetry(
-    I2cRetryOptions options,
-    TimeProvider timeProvider)
+namespace OpenCMIS.Transport.I2C.Serial.Adapters
 {
-    public async ValueTask<T> ExecuteAsync<T>(
-        Func<CancellationToken, ValueTask<T>> operation,
-        CancellationToken cancellationToken)
+    internal sealed class SerialTransferRetry(I2cRetryOptions options,
+                                              TimeProvider    timeProvider)
     {
-        for (var attempt = 1; attempt <= options.MaxAttempts; attempt++)
+        public async ValueTask<T> ExecuteAsync<T>(Func<CancellationToken, ValueTask<T>> operation,
+                                                  CancellationToken                     cancellationToken)
         {
-            try
-            {
-                return await operation(cancellationToken).ConfigureAwait(false);
-            }
-            catch (Exception exception)
-                when (IsTransient(exception) && attempt < options.MaxAttempts)
-            {
-                await Task.Delay(
-                        options.Delay,
-                        timeProvider,
-                        cancellationToken)
-                    .ConfigureAwait(false);
-            }
-            catch (Exception exception) when (IsTransient(exception))
-            {
-                throw new CmisException(
-                    CmisErrorCode.I2cTransferFailed,
-                    exception);
-            }
+            for (var attempt = 1; attempt <= options.MaxAttempts; attempt++)
+                try
+                {
+                    return await operation(cancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception exception)
+                        when (IsTransient(exception) && attempt < options.MaxAttempts)
+                {
+                    await Task.Delay(
+                                       options.Delay,
+                                       timeProvider,
+                                       cancellationToken)
+                              .ConfigureAwait(false);
+                }
+                catch (Exception exception) when (IsTransient(exception))
+                {
+                    throw new CmisException(
+                            CmisErrorCode.I2cTransferFailed,
+                            exception);
+                }
+
+            throw new InvalidOperationException("The retry loop completed unexpectedly.");
         }
 
-        throw new InvalidOperationException("The retry loop completed unexpectedly.");
-    }
-
-    private static bool IsTransient(Exception exception)
-    {
-        return exception is IOException or TimeoutException;
+        private static bool IsTransient(Exception exception)
+        {
+            return exception is IOException or TimeoutException;
+        }
     }
 }

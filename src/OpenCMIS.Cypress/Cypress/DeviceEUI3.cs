@@ -52,14 +52,16 @@ namespace OpenCMIS.Cypress
         public override string GetFPGAFWVersion()
         {
             var retValue = string.Empty;
-            var buffer = new byte[512];
-            var length = 16;
-            var version = new string[8];
+            var buffer   = new byte[512];
+            var length   = 16;
+            var version  = new string[8];
 
             buffer[0] = CMD_VERSION & 0x0F;
             buffer[1] = CMD_VERSION >> 8;
+
             // buffer[2 - 15]
-            for (var i = 2; i < 2 + 14; i++) buffer[i] = 0;
+            for (var i = 2; i < 2 + 14; i++)
+                buffer[i] = 0;
 
             if (CyUsbEndPointOut.XferData(ref buffer, ref length) &&
                 CyUsbEndPointIn.XferData(ref buffer, ref length))
@@ -72,6 +74,7 @@ namespace OpenCMIS.Cypress
                 version[5] = ".";
                 version[6] = Convert.ToString(buffer[7], 16);
                 version[7] = Convert.ToString(buffer[6], 16);
+
                 //for (int i = 0; i < version.Length; i++) retValue += version[i];
                 retValue = string.Join("", version);
             }
@@ -107,7 +110,7 @@ namespace OpenCMIS.Cypress
             // packet size only 512 bytes, max data only 31
 
             var bufferOut = new byte[16 + 8];
-            var bufferIn = new byte[16  + 8];
+            var bufferIn  = new byte[16 + 8];
 
             //Word 0:  Command Code (0x0001)
             //Word 1:  ST(15~14) + OP(13~12) + Port(11~7) + Device(6~2) + TA(1~0)
@@ -117,22 +120,24 @@ namespace OpenCMIS.Cypress
             // ADDR packet
             bufferOut[0] = CMD_MDIOMASTER & 0xFF;
             bufferOut[1] = CMD_MDIOMASTER >> 8;
-            bufferOut[2] = (byte) (((port & 0x01) << 7) | ((device & 0x1F) << 2) | 0x02);
-            bufferOut[3] = (byte) (0x00                 | ((port   & 0x1F) >> 1)); // (ST is always 0 | ADDR) = 0x00
+            bufferOut[2] = (byte) ((port & 0x01) << 7 | (device & 0x1F) << 2 | 0x02);
+            bufferOut[3] = (byte) (0x00               | (port   & 0x1F) >> 1); // (ST is always 0 | ADDR) = 0x00
             bufferOut[4] = (byte) (address & 0xFF);
             bufferOut[5] = (byte) ((address & 0xFF00) >> 8);
             bufferOut[6] = 0x00; // ADDR
+
             //bufferOut[7] = 0x00;
             bufferOut[7] = (byte) (sel << 7);
 
             // WRITE data packet
             bufferOut[8]  = CMD_MDIOMASTER & 0xFF;
             bufferOut[9]  = CMD_MDIOMASTER >> 8;
-            bufferOut[10] = (byte) (((port & 0x01) << 7) | ((device & 0x1F) << 2) | 0x02);
-            bufferOut[11] = (byte) (0x10                 | ((port   & 0x1F) >> 1)); // (ST is always 0 | WRITE ) = 01b
-            bufferOut[12] = (byte) (data & 0xFF);                                   // DATA byte
-            bufferOut[13] = (byte) ((data & 0xFF00) >> 8);                          // DATA byte
-            bufferOut[14] = 0x01;                                                   // WRITE OP - 01b
+            bufferOut[10] = (byte) ((port & 0x01) << 7 | (device & 0x1F) << 2 | 0x02);
+            bufferOut[11] = (byte) (0x10               | (port   & 0x1F) >> 1); // (ST is always 0 | WRITE ) = 01b
+            bufferOut[12] = (byte) (data & 0xFF);                               // DATA byte
+            bufferOut[13] = (byte) ((data & 0xFF00) >> 8);                      // DATA byte
+            bufferOut[14] = 0x01;                                               // WRITE OP - 01b
+
             //bufferOut[15] = 0x00;
             bufferOut[15] = (byte) (sel << 7);
 
@@ -164,9 +169,12 @@ namespace OpenCMIS.Cypress
                                 }
                             }*/
                     if ((bufferIn[i] & 0xFF) != (bufferOut[i] & 0xFF))
+
                             //MessageBox.Show("Sent & returned data packet are mismatched.");
+                    {
                         throw new CyPacketMismatchException(
                                 "Sent & returned data packet are mismatched.");
+                    }
             }
             else
                 throw new CyXferDataEndPointException("USB Device " + ProductName);
@@ -189,7 +197,7 @@ namespace OpenCMIS.Cypress
             // packet size only 512 bytes, max data only 31
 
             var bufferOut = new byte[16 + 8];
-            var bufferIn = new byte[16  + 8];
+            var bufferIn  = new byte[16 + 8];
 
             //Word 0:  Command Code (0x0001)
             //Word 1:  ST(15~14) + OP(13~12) + Port(11~7) + Device(6~2) + TA(1~0)
@@ -199,22 +207,24 @@ namespace OpenCMIS.Cypress
             // ADDR packet
             bufferOut[0] = CMD_MDIOMASTER & 0xFF;
             bufferOut[1] = CMD_MDIOMASTER >> 8;
-            bufferOut[2] = (byte) (((port & 0x01) << 7) | ((device & 0x1F) << 2) | 0x02);
-            bufferOut[3] = (byte) (0x00                 | ((port   & 0x1F) >> 1)); // (ST is always 0 | ADDR) = 0x00
+            bufferOut[2] = (byte) ((port & 0x01) << 7 | (device & 0x1F) << 2 | 0x02);
+            bufferOut[3] = (byte) (0x00               | (port   & 0x1F) >> 1); // (ST is always 0 | ADDR) = 0x00
             bufferOut[4] = (byte) (address & 0xFF);
             bufferOut[5] = (byte) ((address & 0xFF00) >> 8);
             bufferOut[6] = 0x00; // ADDR
+
             //bufferOut[7] = 0x00;
             bufferOut[7] = (byte) (sel << 7);
 
             // READ data packet
             bufferOut[8]  = CMD_MDIOMASTER & 0xFF;
             bufferOut[9]  = CMD_MDIOMASTER >> 8;
-            bufferOut[10] = (byte) (((port & 0x01) << 7) | ((device & 0x1F) << 2) | 0x03);
-            bufferOut[11] = (byte) (0x30                 | ((port   & 0x1F) >> 1)); // (ST is always 0 | READ ) = 0x03
-            bufferOut[12] = 0x00;                                                   // DATA byte
-            bufferOut[13] = 0x00;                                                   // DATA byte
-            bufferOut[14] = 0x03;                                                   // READ OP - 11b
+            bufferOut[10] = (byte) ((port & 0x01) << 7 | (device & 0x1F) << 2 | 0x03);
+            bufferOut[11] = (byte) (0x30               | (port   & 0x1F) >> 1); // (ST is always 0 | READ ) = 0x03
+            bufferOut[12] = 0x00;                                               // DATA byte
+            bufferOut[13] = 0x00;                                               // DATA byte
+            bufferOut[14] = 0x03;                                               // READ OP - 11b
+
             //bufferOut[15] = 0x00;
             bufferOut[15] = (byte) (sel << 7);
 
@@ -234,17 +244,24 @@ namespace OpenCMIS.Cypress
             {
                 // do the proper checking of returned bytes
                 for (var i = 0; i < length; i++)
+
                         // exclude DATA (12, 13) & TA (10) fields
                     if ((i - 12) % 16 != 0 && (i - 13) % 16 != 0 && (i - 10) % 16 != 0)
+                    {
                         if ((bufferIn[i] & 0xFF) != (bufferOut[i] & 0xFF))
+
                                 //MessageBox.Show("Sent & returned data packet are mismatched.");
+                        {
                             throw new CyPacketMismatchException(
                                     "Sent & returned data packet are mismatched.");
+                        }
+                    }
+
                 //retValue = 3;   // throw new Exception("Invalid data returned.");
                 //break;
 
                 // fetch data
-                data = ((uint) bufferIn[13] << 8) | bufferIn[12];
+                data = (uint) bufferIn[13] << 8 | bufferIn[12];
             }
             else
                 throw new CyXferDataEndPointException("USB Device " + ProductName);
@@ -264,21 +281,23 @@ namespace OpenCMIS.Cypress
         /// <exception cref="System.ArgumentException">Exceed MAX number of words allowed to read.</exception>
         /// <exception cref="CyPacketMismatchException">Sent and returned data packet are mismatched.</exception>
         /// <exception cref="CyXferDataEndPointException">USB Device  + ProductName</exception>
-        public void MDIOReadInc(byte sel,
-                                byte port,
-                                byte device,
-                                uint address,
+        public void MDIOReadInc(byte       sel,
+                                byte       port,
+                                byte       device,
+                                uint       address,
                                 ref uint[] data,
-                                int wordlength)
+                                int        wordlength)
         {
             // packet size only 512 bytes, max data only 31
             if (wordlength > 62)
+
                     //MessageBox.Show("Exceeds allowable max number of data.");
                 throw new ArgumentException("Exceed MAX number of words allowed to read.");
+
             //return 3;
 
-            var bufferOut = new byte[wordlength * 8 + 16];
-            var bufferIn = new byte[wordlength  * 8 + 16];
+            var bufferOut  = new byte[wordlength * 8 + 16];
+            var bufferIn   = new byte[wordlength * 8 + 16];
             var addressInc = address;
 
             //Word 0:  Command Code (0x0001)
@@ -289,11 +308,12 @@ namespace OpenCMIS.Cypress
             // ADDR packet
             bufferOut[0] = CMD_MDIOMASTER & 0xFF;
             bufferOut[1] = CMD_MDIOMASTER >> 8;
-            bufferOut[2] = (byte) (((port & 0x01) << 7) | ((device & 0x1F) << 2) | 0x02);
-            bufferOut[3] = (byte) (0x00                 | ((port   & 0x1F) >> 1)); // (ST is always 0 | ADDR) = 0x00
+            bufferOut[2] = (byte) ((port & 0x01) << 7 | (device & 0x1F) << 2 | 0x02);
+            bufferOut[3] = (byte) (0x00               | (port   & 0x1F) >> 1); // (ST is always 0 | ADDR) = 0x00
             bufferOut[4] = (byte) (addressInc & 0xFF);
             bufferOut[5] = (byte) ((addressInc & 0xFF00) >> 8);
             bufferOut[6] = 0x00; // ADDR
+
             //bufferOut[7] = 0x00;
             bufferOut[7] = (byte) (sel << 7);
 
@@ -302,12 +322,13 @@ namespace OpenCMIS.Cypress
                 // READ data packet
                 bufferOut[i * 8 + 8]  = CMD_MDIOMASTER & 0xFF;
                 bufferOut[i * 8 + 9]  = CMD_MDIOMASTER >> 8;
-                bufferOut[i * 8 + 10] = (byte) (((port & 0x01) << 7) | ((device & 0x1F) << 2) | 0x02);
+                bufferOut[i * 8 + 10] = (byte) ((port & 0x01) << 7 | (device & 0x1F) << 2 | 0x02);
                 bufferOut[i * 8 + 11] =
-                        (byte) (0x20 | ((port & 0x1F) >> 1)); // (ST is always 0 | READ ) = 0x03
-                bufferOut[i * 8 + 12] = 0x00;                 // DATA byte
-                bufferOut[i * 8 + 13] = 0x00;                 // DATA byte
-                bufferOut[i * 8 + 14] = 0x02;                 // READ INC OP - 10b
+                        (byte) (0x20 | (port & 0x1F) >> 1); // (ST is always 0 | READ ) = 0x03
+                bufferOut[i * 8 + 12] = 0x00;               // DATA byte
+                bufferOut[i * 8 + 13] = 0x00;               // DATA byte
+                bufferOut[i * 8 + 14] = 0x02;               // READ INC OP - 10b
+
                 //bufferOut[(i * 8) + 15] = 0x00;
                 bufferOut[i * 8 + 15] = (byte) (sel << 7);
 
@@ -333,18 +354,25 @@ namespace OpenCMIS.Cypress
             {
                 // do the proper checking of returned bytes
                 for (var i = 0; i < length; i++)
+
                         // exclude DATA (4, 5) & TA (2) fields, include all of address packet
-                    if (((i - 4) % 8 != 0 && (i - 5) % 8 != 0 && (i - 2) % 8 != 0) || i < 8)
+                    if ((i - 4) % 8 != 0 && (i - 5) % 8 != 0 && (i - 2) % 8 != 0 || i < 8)
+                    {
                         if ((bufferIn[i] & 0xFF) != (bufferOut[i] & 0xFF))
+
                                 //MessageBox.Show("Sent & returned data packet are mismatched.");
+                        {
                             throw new CyPacketMismatchException(
                                     "Sent & returned data packet are mismatched.");
+                        }
+                    }
+
                 //retValue = 3;   // throw new Exception("Invalid data returned.");
                 //break;
 
                 // fetch data
                 for (var i = 0; i < wordlength; i++)
-                    data[i] = ((uint) bufferIn[13 + i * 8] << 8) | bufferIn[12 + i * 8];
+                    data[i] = (uint) bufferIn[13 + i * 8] << 8 | bufferIn[12 + i * 8];
             }
             else
                 throw new CyXferDataEndPointException("USB Device " + ProductName);
@@ -367,8 +395,9 @@ namespace OpenCMIS.Cypress
         public void I2CInit()
         {
             var bufferOut = new byte[2 * 8];
-            var bufferIn = new byte[2  * 8];
-            var length = 16;
+            var bufferIn  = new byte[2 * 8];
+            var length    = 16;
+
             //int i = 0;
 
             /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -408,12 +437,16 @@ namespace OpenCMIS.Cypress
                 int j;
                 for (j = 0; j < length - 8 - 1; j += 8)
                     if (bufferIn[j] != bufferOut[j])
+                    {
                         throw new CyPacketMismatchException(
                                 "Sent & returned data packet Command ID are mismatched.");
+                    }
 
                 if (bufferIn[j] != bufferOut[j]) //Compare the END Packet
+                {
                     throw new CyPacketMismatchException(
                             "Sent & returned data END packet are mismatched.");
+                }
             }
             else
                 throw new CyXferDataEndPointException("USB Device " + ProductName);
@@ -438,13 +471,15 @@ namespace OpenCMIS.Cypress
                 // maximum USB packet size - 512 bytes
                 var maxDataByte = 64 - (addrLength + 3);
                 if (byteLength > maxDataByte)
+
                         //MessageBox.Show("Exceeds allowable max number of data.");
                     throw new ArgumentException("Exceed MAX number of words allowed to write.");
+
                 //return 3;
 
                 //int retValue = 0;
                 var bufferOut = new byte[byteLength * 8 + (addrLength + 3) * 8];
-                var bufferIn = new byte[byteLength  * 8 + (addrLength + 3) * 8];
+                var bufferIn  = new byte[byteLength * 8 + (addrLength + 3) * 8];
                 int i;
                 int k;
 
@@ -459,7 +494,7 @@ namespace OpenCMIS.Cypress
                 bufferOut[0] = CMD_I2C & 0xFF;
                 bufferOut[1] = CMD_I2C >> 8;
                 bufferOut[2] = CMD_I2C_W_STA & 0xFF;
-                bufferOut[3] = (byte) ((CMD_I2C_W_STA >> 8) & device & 0xFF);
+                bufferOut[3] = (byte) (CMD_I2C_W_STA >> 8 & device & 0xFF);
                 bufferOut[4] = 0x00;
                 bufferOut[5] = 0x00;
                 bufferOut[6] = 0x00;
@@ -472,7 +507,7 @@ namespace OpenCMIS.Cypress
                     bufferOut[addrIndex + 8 * k]     = CMD_I2C & 0xFF;
                     bufferOut[addrIndex + 8 * k + 1] = CMD_I2C >> 8;
                     bufferOut[addrIndex + 8 * k + 2] = CMD_I2C_W & 0xFF;
-                    bufferOut[addrIndex + 8 * k + 3] = (byte) ((CMD_I2C_W >> 8) & address[k]);
+                    bufferOut[addrIndex + 8 * k + 3] = (byte) (CMD_I2C_W >> 8 & address[k]);
                     bufferOut[addrIndex + 8 * k + 4] = 0x00;
                     bufferOut[addrIndex + 8 * k + 5] = 0x00;
                     bufferOut[addrIndex + 8 * k + 6] = 0x00;
@@ -487,7 +522,7 @@ namespace OpenCMIS.Cypress
                     bufferOut[dataIndex + 8 * i]     = CMD_I2C & 0xFF;
                     bufferOut[dataIndex + 8 * i + 1] = CMD_I2C >> 8;
                     bufferOut[dataIndex + 8 * i + 2] = CMD_I2C_W & 0xFF;
-                    bufferOut[dataIndex + 8 * i + 3] = (byte) ((CMD_I2C_W >> 8) & dataArray[i] & 0xFF);
+                    bufferOut[dataIndex + 8 * i + 3] = (byte) (CMD_I2C_W >> 8 & dataArray[i] & 0xFF);
                     bufferOut[dataIndex + 8 * i + 4] = 0x00;
                     bufferOut[dataIndex + 8 * i + 5] = 0x00;
                     bufferOut[dataIndex + 8 * i + 6] = 0x00;
@@ -500,7 +535,7 @@ namespace OpenCMIS.Cypress
                 bufferOut[stopIndex]     = CMD_I2C & 0xFF;
                 bufferOut[stopIndex + 1] = CMD_I2C >> 8;
                 bufferOut[stopIndex + 2] = CMD_I2C_W_STP & 0xFF;
-                bufferOut[stopIndex + 3] = (byte) ((CMD_I2C_W_STP >> 8) & dataArray[i] & 0xFF);
+                bufferOut[stopIndex + 3] = (byte) (CMD_I2C_W_STP >> 8 & dataArray[i] & 0xFF);
                 bufferOut[stopIndex + 4] = 0x00;
                 bufferOut[stopIndex + 5] = 0x00;
                 bufferOut[stopIndex + 6] = 0x00;
@@ -527,25 +562,34 @@ namespace OpenCMIS.Cypress
                     int j;
                     for (j = 0; j < length - 8 - 1; j = j + 8)
                         if (bufferIn[j] != bufferOut[j])
+
                                 //MessageBox.Show("Sent & returned data packet Command ID are mismatched.");
+                        {
                             throw new CyPacketMismatchException(
                                     "Sent & returned data packet Command ID are mismatched.");
+                        }
 
                     if (bufferIn[j] != bufferOut[j]) //Compare the END Packet
                             //MessageBox.Show("Sent & returned data END packet are mismatched.");
+                    {
                         throw new CyPacketMismatchException(
                                 "Sent & returned data END packet are mismatched.");
+                    }
 
                     //Step 2:the Device and Start ACK
                     for (j = 0; j < length - 8 - 1; j = j + 8) //The Last CDB is END Packet
                         if ((bufferIn[j + 2] & 0x80) != 0)
+
                                 // error - NO ACK
+                        {
                             throw new I2CNoACKException(
                                     "Device " + device.ToString("X") + " may be disconnected.");
+                        }
 
                     //Step 3: CLK_STETCH_OVER_FLOW
                     for (j = 0; j < length - 8 - 1; j = j + 8) //The Last CDB is END Packet
                         if ((bufferIn[j + 2] & 0x04) != 0)
+
                                 //error - clock stretch overflow
                             throw new I2CAccessException("I2C Slave Clock Stretch overflow Error");
                 }
@@ -582,13 +626,15 @@ namespace OpenCMIS.Cypress
                 // maximum USB packet size - 512 bytes
                 var maxDataByte = 64 - (addrLength + 3);
                 if (byteLength > maxDataByte)
+
                         //MessageBox.Show("Exceeds allowable max number of data.");
                     throw new ArgumentException("Exceed MAX number of words allowed to write.");
+
                 //return 3;
 
                 //int retValue = 0;
                 var bufferOut = new byte[byteLength * 8 + (addrLength + 3) * 8];
-                var bufferIn = new byte[byteLength  * 8 + (addrLength + 3) * 8];
+                var bufferIn  = new byte[byteLength * 8 + (addrLength + 3) * 8];
                 int i;
 
                 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -602,7 +648,7 @@ namespace OpenCMIS.Cypress
                 bufferOut[0] = CMD_I2C & 0xFF;
                 bufferOut[1] = CMD_I2C >> 8;
                 bufferOut[2] = CMD_I2C_W_STA & 0xFF;
-                bufferOut[3] = (byte) ((CMD_I2C_W_STA >> 8) & device & 0xFF);
+                bufferOut[3] = (byte) (CMD_I2C_W_STA >> 8 & device & 0xFF);
                 bufferOut[4] = 0x00;
                 bufferOut[5] = 0x00;
                 bufferOut[6] = 0x00;
@@ -615,7 +661,7 @@ namespace OpenCMIS.Cypress
                     bufferOut[addrIndex + 0] = CMD_I2C & 0xFF;
                     bufferOut[addrIndex + 1] = CMD_I2C >> 8;
                     bufferOut[addrIndex + 2] = CMD_I2C_W & 0xFF;
-                    bufferOut[addrIndex + 3] = (byte) ((CMD_I2C_W >> 8) & (address >> 8) & 0xFF);
+                    bufferOut[addrIndex + 3] = (byte) (CMD_I2C_W >> 8 & address >> 8 & 0xFF);
                     bufferOut[addrIndex + 4] = 0x00;
                     bufferOut[addrIndex + 5] = 0x00;
                     bufferOut[addrIndex + 6] = 0x00;
@@ -628,7 +674,7 @@ namespace OpenCMIS.Cypress
                 bufferOut[addrIndex + 0] = CMD_I2C & 0xFF;
                 bufferOut[addrIndex + 1] = CMD_I2C >> 8;
                 bufferOut[addrIndex + 2] = CMD_I2C_W & 0xFF;
-                bufferOut[addrIndex + 3] = (byte) ((CMD_I2C_W >> 8) & address & 0xFF);
+                bufferOut[addrIndex + 3] = (byte) (CMD_I2C_W >> 8 & address & 0xFF);
                 bufferOut[addrIndex + 4] = 0x00;
                 bufferOut[addrIndex + 5] = 0x00;
                 bufferOut[addrIndex + 6] = 0x00;
@@ -642,7 +688,7 @@ namespace OpenCMIS.Cypress
                     bufferOut[dataIndex + 8 * i]     = CMD_I2C & 0xFF;
                     bufferOut[dataIndex + 8 * i + 1] = CMD_I2C >> 8;
                     bufferOut[dataIndex + 8 * i + 2] = CMD_I2C_W & 0xFF;
-                    bufferOut[dataIndex + 8 * i + 3] = (byte) ((CMD_I2C_W >> 8) & dataArray[i] & 0xFF);
+                    bufferOut[dataIndex + 8 * i + 3] = (byte) (CMD_I2C_W >> 8 & dataArray[i] & 0xFF);
                     bufferOut[dataIndex + 8 * i + 4] = 0x00;
                     bufferOut[dataIndex + 8 * i + 5] = 0x00;
                     bufferOut[dataIndex + 8 * i + 6] = 0x00;
@@ -655,7 +701,7 @@ namespace OpenCMIS.Cypress
                 bufferOut[stopIndex]     = CMD_I2C & 0xFF;
                 bufferOut[stopIndex + 1] = CMD_I2C >> 8;
                 bufferOut[stopIndex + 2] = CMD_I2C_W_STP & 0xFF;
-                bufferOut[stopIndex + 3] = (byte) ((CMD_I2C_W_STP >> 8) & dataArray[i] & 0xFF);
+                bufferOut[stopIndex + 3] = (byte) (CMD_I2C_W_STP >> 8 & dataArray[i] & 0xFF);
                 bufferOut[stopIndex + 4] = 0x00;
                 bufferOut[stopIndex + 5] = 0x00;
                 bufferOut[stopIndex + 6] = 0x00;
@@ -682,25 +728,34 @@ namespace OpenCMIS.Cypress
                     int j;
                     for (j = 0; j < length - 8 - 1; j = j + 8)
                         if (bufferIn[j] != bufferOut[j])
+
                                 //MessageBox.Show("Sent & returned data packet Command ID are mismatched.");
+                        {
                             throw new CyPacketMismatchException(
                                     "Sent & returned data packet Command ID are mismatched.");
+                        }
 
                     if (bufferIn[j] != bufferOut[j]) //Compare the END Packet
                             //MessageBox.Show("Sent & returned data END packet are mismatched.");
+                    {
                         throw new CyPacketMismatchException(
                                 "Sent & returned data END packet are mismatched.");
+                    }
 
                     //Step 2:the Device and Start ACK
                     for (j = 0; j < length - 8 - 1; j = j + 8) //The Last CDB is END Packet
                         if ((bufferIn[j + 2] & 0x80) != 0)
+
                                 // error - NO ACK
+                        {
                             throw new I2CNoACKException(
                                     "Device " + device.ToString("X") + " may be disconnected.");
+                        }
 
                     //Step 3: CLK_STETCH_OVER_FLOW
                     for (j = 0; j < length - 8 - 1; j = j + 8) //The Last CDB is END Packet
                         if ((bufferIn[j + 2] & 0x04) != 0)
+
                                 //error - clock stretch overflow
                             throw new I2CAccessException("I2C Slave Clock Stretch overflow Error");
                 }
@@ -734,13 +789,15 @@ namespace OpenCMIS.Cypress
             {
                 // maximum USB packet size - 512 bytes
                 if (byteLength > 60)
+
                         //MessageBox.Show("Exceeds allowable max number of data.");
                     throw new ArgumentException("Exceed MAX number of words allowed to write.");
+
                 //return 3;
 
                 //int retValue = 0;
                 var bufferOut = new byte[byteLength * 8 + 5 * 8];
-                var bufferIn = new byte[byteLength  * 8 + 5 * 8];
+                var bufferIn  = new byte[byteLength * 8 + 5 * 8];
                 int i;
 
                 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -754,7 +811,7 @@ namespace OpenCMIS.Cypress
                 bufferOut[0] = CMD_I2C & 0xFF;
                 bufferOut[1] = CMD_I2C >> 8;
                 bufferOut[2] = CMD_I2C_W_STA & 0xFF;
-                bufferOut[3] = (byte) ((CMD_I2C_W_STA >> 8) & device & 0xFF);
+                bufferOut[3] = (byte) (CMD_I2C_W_STA >> 8 & device & 0xFF);
                 bufferOut[4] = 0x00;
                 bufferOut[5] = 0x00;
                 bufferOut[6] = 0x00;
@@ -768,7 +825,7 @@ namespace OpenCMIS.Cypress
                     bufferOut[dataIndex + 8 * i]     = CMD_I2C & 0xFF;
                     bufferOut[dataIndex + 8 * i + 1] = CMD_I2C >> 8;
                     bufferOut[dataIndex + 8 * i + 2] = CMD_I2C_W & 0xFF;
-                    bufferOut[dataIndex + 8 * i + 3] = (byte) ((CMD_I2C_W >> 8) & dataArray[i] & 0xFF);
+                    bufferOut[dataIndex + 8 * i + 3] = (byte) (CMD_I2C_W >> 8 & dataArray[i] & 0xFF);
                     bufferOut[dataIndex + 8 * i + 4] = 0x00;
                     bufferOut[dataIndex + 8 * i + 5] = 0x00;
                     bufferOut[dataIndex + 8 * i + 6] = 0x00;
@@ -781,7 +838,7 @@ namespace OpenCMIS.Cypress
                 bufferOut[stopIndex]     = CMD_I2C & 0xFF;
                 bufferOut[stopIndex + 1] = CMD_I2C >> 8;
                 bufferOut[stopIndex + 2] = CMD_I2C_W_STP & 0xFF;
-                bufferOut[stopIndex + 3] = (byte) ((CMD_I2C_W_STP >> 8) & dataArray[i] & 0xFF);
+                bufferOut[stopIndex + 3] = (byte) (CMD_I2C_W_STP >> 8 & dataArray[i] & 0xFF);
                 bufferOut[stopIndex + 4] = 0x00;
                 bufferOut[stopIndex + 5] = 0x00;
                 bufferOut[stopIndex + 6] = 0x00;
@@ -808,25 +865,34 @@ namespace OpenCMIS.Cypress
                     int j;
                     for (j = 0; j < length - 8 - 1; j = j + 8)
                         if (bufferIn[j] != bufferOut[j])
+
                                 //MessageBox.Show("Sent & returned data packet Command ID are mismatched.");
+                        {
                             throw new CyPacketMismatchException(
                                     "Sent & returned data packet Command ID are mismatched.");
+                        }
 
                     if (bufferIn[j] != bufferOut[j]) //Compare the END Packet
                             //MessageBox.Show("Sent & returned data END packet are mismatched.");
+                    {
                         throw new CyPacketMismatchException(
                                 "Sent & returned data END packet are mismatched.");
+                    }
 
                     //Step 2:the Device and Start ACK
                     for (j = 0; j < length - 8 - 1; j = j + 8) //The Last CDB is END Packet
                         if ((bufferIn[j + 2] & 0x80) != 0)
+
                                 // error - NO ACK
+                        {
                             throw new I2CNoACKException(
                                     "Device " + device.ToString("X") + " may be disconnected.");
+                        }
 
                     //Step 3: CLK_STETCH_OVER_FLOW
                     for (j = 0; j < length - 8 - 1; j = j + 8) //The Last CDB is END Packet
                         if ((bufferIn[j + 2] & 0x04) != 0)
+
                                 //error - clock stretch overflow
                             throw new I2CAccessException("I2C Slave Clock Stretch overflow Error");
                 }
@@ -847,24 +913,26 @@ namespace OpenCMIS.Cypress
         /// <param name="dataArray">The data array in bytes</param>
         /// <param name="byteLength">Length of the byte array</param>
         /// <param name="addrLength">Length of the address.</param>
-        public void I2CRead(byte device,
-                            byte[] address,
+        public void I2CRead(byte       device,
+                            byte[]     address,
                             ref byte[] dataArray,
-                            int byteLength,
-                            int addrLength)
+                            int        byteLength,
+                            int        addrLength)
         {
             lock (lockdevice)
             {
                 // maximum Read Size
                 var maxDataByte = 64 - (addrLength + 4);
                 if (byteLength > maxDataByte)
+
                         //MessageBox.Show("Exceeds allowable max number of data.");
                     throw new ArgumentException("Exceed MAX number of words allowed to read.");
+
                 //return 3;
 
                 //int retValue = 0;
                 var bufferOut = new byte[byteLength * 8 + (addrLength + 4) * 8];
-                var bufferIn = new byte[byteLength  * 8 + (addrLength + 4) * 8];
+                var bufferIn  = new byte[byteLength * 8 + (addrLength + 4) * 8];
                 int i;
                 int k;
 
@@ -879,7 +947,7 @@ namespace OpenCMIS.Cypress
                 bufferOut[0] = CMD_I2C & 0xFF;
                 bufferOut[1] = CMD_I2C >> 8;
                 bufferOut[2] = CMD_I2C_W_STA & 0xFF;
-                bufferOut[3] = (byte) ((CMD_I2C_W_STA >> 8) & device & 0xFF);
+                bufferOut[3] = (byte) (CMD_I2C_W_STA >> 8 & device & 0xFF);
                 bufferOut[4] = 0x00;
                 bufferOut[5] = 0x00;
                 bufferOut[6] = 0x00;
@@ -892,7 +960,7 @@ namespace OpenCMIS.Cypress
                     bufferOut[addrIndex + 8 * k]     = CMD_I2C & 0xFF;
                     bufferOut[addrIndex + 8 * k + 1] = CMD_I2C >> 8;
                     bufferOut[addrIndex + 8 * k + 2] = CMD_I2C_W & 0xFF;
-                    bufferOut[addrIndex + 8 * k + 3] = (byte) ((CMD_I2C_W >> 8) & address[k]);
+                    bufferOut[addrIndex + 8 * k + 3] = (byte) (CMD_I2C_W >> 8 & address[k]);
                     bufferOut[addrIndex + 8 * k + 4] = 0x00;
                     bufferOut[addrIndex + 8 * k + 5] = 0x00;
                     bufferOut[addrIndex + 8 * k + 6] = 0x00;
@@ -905,7 +973,7 @@ namespace OpenCMIS.Cypress
                 bufferOut[devIndex + 0] = CMD_I2C & 0xFF;
                 bufferOut[devIndex + 1] = CMD_I2C >> 8;
                 bufferOut[devIndex + 2] = CMD_I2C_W_STA & 0xFF;
-                bufferOut[devIndex + 3] = (byte) ((CMD_I2C_W_STA >> 8) & (device | 0x01) & 0xFF); //READ bit
+                bufferOut[devIndex + 3] = (byte) (CMD_I2C_W_STA >> 8 & (device | 0x01) & 0xFF); //READ bit
                 bufferOut[devIndex + 4] = 0x00;
                 bufferOut[devIndex + 5] = 0x00;
                 bufferOut[devIndex + 6] = 0x00;
@@ -918,8 +986,8 @@ namespace OpenCMIS.Cypress
                     // DATA to read (1 to byteLength-1) packet
                     bufferOut[dataIndex + 8 * i]     = CMD_I2C & 0xFF;
                     bufferOut[dataIndex + 8 * i + 1] = CMD_I2C >> 8;
-                    bufferOut[dataIndex + 8 * i + 2] = CMD_I2C_R        & 0xFF;
-                    bufferOut[dataIndex + 8 * i + 3] = (CMD_I2C_R >> 8) & 0xFF;
+                    bufferOut[dataIndex + 8 * i + 2] = CMD_I2C_R      & 0xFF;
+                    bufferOut[dataIndex + 8 * i + 3] = CMD_I2C_R >> 8 & 0xFF;
                     bufferOut[dataIndex + 8 * i + 4] = 0x00;
                     bufferOut[dataIndex + 8 * i + 5] = 0x00;
                     bufferOut[dataIndex + 8 * i + 6] = 0x00;
@@ -931,8 +999,8 @@ namespace OpenCMIS.Cypress
                 // STOP+DATA(byteLength) packet - LAST data byte
                 bufferOut[stopIndex]     = CMD_I2C & 0xFF;
                 bufferOut[stopIndex + 1] = CMD_I2C >> 8;
-                bufferOut[stopIndex + 2] = CMD_I2C_R_STP        & 0xFF;
-                bufferOut[stopIndex + 3] = (CMD_I2C_R_STP >> 8) & 0xFF;
+                bufferOut[stopIndex + 2] = CMD_I2C_R_STP      & 0xFF;
+                bufferOut[stopIndex + 3] = CMD_I2C_R_STP >> 8 & 0xFF;
                 bufferOut[stopIndex + 4] = 0x00;
                 bufferOut[stopIndex + 5] = 0x00;
                 bufferOut[stopIndex + 6] = 0x00;
@@ -959,23 +1027,31 @@ namespace OpenCMIS.Cypress
                     int j;
                     for (j = 0; j < length - 8 - 1; j = j + 8)
                         if (bufferIn[j] != bufferOut[j])
+
                                 //MessageBox.Show("Sent & returned data packet Command ID are mismatched.");
+                        {
                             throw new CyPacketMismatchException(
                                     "Sent & returned data packet Command ID are mismatched.");
+                        }
 
                     if (bufferIn[j] != bufferOut[j]) //Compare the END Packet
                             //MessageBox.Show("Sent & returned data END packet are mismatched.");
+                    {
                         throw new CyPacketMismatchException(
                                 "Sent & returned data END packet are mismatched.");
+                    }
 
                     //Step 2:the Device, DATA ACK and Last DATA NACK
                     for (j = 0;
                          j < length - 8 * 2 - 1;
                          j = j + 8) //The Last CDB is END packet. Second to Last CDB is Last DATA packet.
                         if ((bufferIn[j + 2] & 0x80) != 0)
+
                                 // error - NO ACK
+                        {
                             throw new I2CNoACKException(
                                     "Device " + device.ToString("X") + " may be disconnected.");
+                        }
 
                     if ((bufferIn[j + 2] & 0x80) ==
                         0) //The Second to Last CDB is Last DATA Packet. Check for NACK
@@ -985,6 +1061,7 @@ namespace OpenCMIS.Cypress
                     //Step 3: CLK_STETCH_OVER_FLOW
                     for (j = 0; j < length - 8 - 1; j = j + 8) //The Last CDB is END Packet
                         if ((bufferIn[j + 2] & 0x04) != 0)
+
                                 //error - clock stretch overflow
                             throw new I2CAccessException("I2C Slave Clock Stretch overflow Error");
 
@@ -1039,7 +1116,7 @@ namespace OpenCMIS.Cypress
 
                 //int retValue = 0;
                 var bufferOut = new byte[byteLength * 8 + (addrLength + 4) * 8];
-                var bufferIn = new byte[byteLength  * 8 + (addrLength + 4) * 8];
+                var bufferIn  = new byte[byteLength * 8 + (addrLength + 4) * 8];
                 int i;
 
                 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1053,7 +1130,7 @@ namespace OpenCMIS.Cypress
                 bufferOut[0] = CMD_I2C & 0xFF;
                 bufferOut[1] = CMD_I2C >> 8;
                 bufferOut[2] = CMD_I2C_W_STA & 0xFF;
-                bufferOut[3] = (byte) ((CMD_I2C_W_STA >> 8) & device & 0xFF);
+                bufferOut[3] = (byte) (CMD_I2C_W_STA >> 8 & device & 0xFF);
                 bufferOut[4] = 0x00;
                 bufferOut[5] = 0x00;
                 bufferOut[6] = 0x00;
@@ -1066,7 +1143,7 @@ namespace OpenCMIS.Cypress
                     bufferOut[addrIndex + 0] = CMD_I2C & 0xFF;
                     bufferOut[addrIndex + 1] = CMD_I2C >> 8;
                     bufferOut[addrIndex + 2] = CMD_I2C_W & 0xFF;
-                    bufferOut[addrIndex + 3] = (byte) ((CMD_I2C_W >> 8) & (address >> 8) & 0xFF);
+                    bufferOut[addrIndex + 3] = (byte) (CMD_I2C_W >> 8 & address >> 8 & 0xFF);
                     bufferOut[addrIndex + 4] = 0x00;
                     bufferOut[addrIndex + 5] = 0x00;
                     bufferOut[addrIndex + 6] = 0x00;
@@ -1079,7 +1156,7 @@ namespace OpenCMIS.Cypress
                 bufferOut[addrIndex + 0] = CMD_I2C & 0xFF;
                 bufferOut[addrIndex + 1] = CMD_I2C >> 8;
                 bufferOut[addrIndex + 2] = CMD_I2C_W & 0xFF;
-                bufferOut[addrIndex + 3] = (byte) ((CMD_I2C_W >> 8) & address & 0xFF);
+                bufferOut[addrIndex + 3] = (byte) (CMD_I2C_W >> 8 & address & 0xFF);
                 bufferOut[addrIndex + 4] = 0x00;
                 bufferOut[addrIndex + 5] = 0x00;
                 bufferOut[addrIndex + 6] = 0x00;
@@ -1090,7 +1167,7 @@ namespace OpenCMIS.Cypress
                 bufferOut[devIndex + 0] = CMD_I2C & 0xFF;
                 bufferOut[devIndex + 1] = CMD_I2C >> 8;
                 bufferOut[devIndex + 2] = CMD_I2C_W_STA & 0xFF;
-                bufferOut[devIndex + 3] = (byte) ((CMD_I2C_W_STA >> 8) & (device | 0x01) & 0xFF); //READ bit
+                bufferOut[devIndex + 3] = (byte) (CMD_I2C_W_STA >> 8 & (device | 0x01) & 0xFF); //READ bit
                 bufferOut[devIndex + 4] = 0x00;
                 bufferOut[devIndex + 5] = 0x00;
                 bufferOut[devIndex + 6] = 0x00;
@@ -1103,8 +1180,8 @@ namespace OpenCMIS.Cypress
                     // DATA to read (1 to byteLength-1) packet
                     bufferOut[dataIndex + 8 * i]     = CMD_I2C & 0xFF;
                     bufferOut[dataIndex + 8 * i + 1] = CMD_I2C >> 8;
-                    bufferOut[dataIndex + 8 * i + 2] = CMD_I2C_R        & 0xFF;
-                    bufferOut[dataIndex + 8 * i + 3] = (CMD_I2C_R >> 8) & 0xFF;
+                    bufferOut[dataIndex + 8 * i + 2] = CMD_I2C_R      & 0xFF;
+                    bufferOut[dataIndex + 8 * i + 3] = CMD_I2C_R >> 8 & 0xFF;
                     bufferOut[dataIndex + 8 * i + 4] = 0x00;
                     bufferOut[dataIndex + 8 * i + 5] = 0x00;
                     bufferOut[dataIndex + 8 * i + 6] = 0x00;
@@ -1116,8 +1193,8 @@ namespace OpenCMIS.Cypress
                 // STOP+DATA(byteLength) packet - LAST data byte
                 bufferOut[stopIndex]     = CMD_I2C & 0xFF;
                 bufferOut[stopIndex + 1] = CMD_I2C >> 8;
-                bufferOut[stopIndex + 2] = CMD_I2C_R_STP        & 0xFF;
-                bufferOut[stopIndex + 3] = (CMD_I2C_R_STP >> 8) & 0xFF;
+                bufferOut[stopIndex + 2] = CMD_I2C_R_STP      & 0xFF;
+                bufferOut[stopIndex + 3] = CMD_I2C_R_STP >> 8 & 0xFF;
                 bufferOut[stopIndex + 4] = 0x00;
                 bufferOut[stopIndex + 5] = 0x00;
                 bufferOut[stopIndex + 6] = 0x00;
@@ -1144,21 +1221,28 @@ namespace OpenCMIS.Cypress
                     int j;
                     for (j = 0; j < length - 8 - 1; j = j + 8)
                         if (bufferIn[j] != bufferOut[j])
+                        {
                             throw new CyPacketMismatchException(
                                     "Sent & returned data packet Command ID are mismatched.");
+                        }
 
                     if (bufferIn[j] != bufferOut[j]) //Compare the END Packet
+                    {
                         throw new CyPacketMismatchException(
                                 "Sent & returned data END packet are mismatched.");
+                    }
 
                     //Step 2:the Device, DATA ACK and Last DATA NACK
                     for (j = 0;
                          j < length - 8 * 2 - 1;
                          j = j + 8) //The Last CDB is END packet. Second to Last CDB is Last DATA packet.
                         if ((bufferIn[j + 2] & 0x80) != 0)
+
                                 // error - NO ACK
+                        {
                             throw new I2CNoACKException(
                                     "Device " + device.ToString("X") + " may be disconnected.");
+                        }
 
                     if ((bufferIn[j + 2] & 0x80) ==
                         0) //The Second to Last CDB is Last DATA Packet. Check for NACK
@@ -1168,6 +1252,7 @@ namespace OpenCMIS.Cypress
                     //Step 3: CLK_STETCH_OVER_FLOW
                     for (j = 0; j < length - 8 - 1; j = j + 8) //The Last CDB is END Packet
                         if ((bufferIn[j + 2] & 0x04) != 0)
+
                                 //error - clock stretch overflow
                             throw new I2CAccessException("I2C Slave Clock Stretch overflow Error");
 
@@ -1215,13 +1300,15 @@ namespace OpenCMIS.Cypress
             {
                 // maximum Read Size
                 if (byteLength > 59)
+
                         //MessageBox.Show("Exceeds allowable max number of data.");
                     throw new ArgumentException("Exceed MAX number of words allowed to read.");
+
                 //return 3;
 
                 //int retValue = 0;
                 var bufferOut = new byte[byteLength * 8 + 7 * 8];
-                var bufferIn = new byte[byteLength  * 8 + 7 * 8];
+                var bufferIn  = new byte[byteLength * 8 + 7 * 8];
                 int i;
 
                 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1235,7 +1322,7 @@ namespace OpenCMIS.Cypress
                 bufferOut[0] = CMD_I2C & 0xFF;
                 bufferOut[1] = CMD_I2C >> 8;
                 bufferOut[2] = CMD_I2C_W_STA & 0xFF;
-                bufferOut[3] = (byte) ((CMD_I2C_W_STA >> 8) & (device | 0x01) & 0xFF); //READ bit
+                bufferOut[3] = (byte) (CMD_I2C_W_STA >> 8 & (device | 0x01) & 0xFF); //READ bit
                 bufferOut[4] = 0x00;
                 bufferOut[5] = 0x00;
                 bufferOut[6] = 0x00;
@@ -1248,8 +1335,8 @@ namespace OpenCMIS.Cypress
                     // DATA to read (1 to byteLength-1) packet
                     bufferOut[dataIndex + 8 * i]     = CMD_I2C & 0xFF;
                     bufferOut[dataIndex + 8 * i + 1] = CMD_I2C >> 8;
-                    bufferOut[dataIndex + 8 * i + 2] = CMD_I2C_R        & 0xFF;
-                    bufferOut[dataIndex + 8 * i + 3] = (CMD_I2C_R >> 8) & 0xFF;
+                    bufferOut[dataIndex + 8 * i + 2] = CMD_I2C_R      & 0xFF;
+                    bufferOut[dataIndex + 8 * i + 3] = CMD_I2C_R >> 8 & 0xFF;
                     bufferOut[dataIndex + 8 * i + 4] = 0x00;
                     bufferOut[dataIndex + 8 * i + 5] = 0x00;
                     bufferOut[dataIndex + 8 * i + 6] = 0x00;
@@ -1261,8 +1348,8 @@ namespace OpenCMIS.Cypress
                 // STOP+DATA(byteLength) packet
                 bufferOut[stopIndex]     = CMD_I2C & 0xFF;
                 bufferOut[stopIndex + 1] = CMD_I2C >> 8;
-                bufferOut[stopIndex + 2] = CMD_I2C_R_STP        & 0xFF;
-                bufferOut[stopIndex + 3] = (CMD_I2C_R_STP >> 8) & 0xFF;
+                bufferOut[stopIndex + 2] = CMD_I2C_R_STP      & 0xFF;
+                bufferOut[stopIndex + 3] = CMD_I2C_R_STP >> 8 & 0xFF;
                 bufferOut[stopIndex + 4] = 0x00;
                 bufferOut[stopIndex + 5] = 0x00;
                 bufferOut[stopIndex + 6] = 0x00;
@@ -1289,23 +1376,31 @@ namespace OpenCMIS.Cypress
                     int j;
                     for (j = 0; j < length - 8 - 1; j = j + 8)
                         if (bufferIn[j] != bufferOut[j])
+
                                 //MessageBox.Show("Sent & returned data packet Command ID are mismatched.");
+                        {
                             throw new CyPacketMismatchException(
                                     "Sent & returned data packet Command ID are mismatched.");
+                        }
 
                     if (bufferIn[j] != bufferOut[j]) //Compare the END Packet
                             //MessageBox.Show("Sent & returned data END packet are mismatched.");
+                    {
                         throw new CyPacketMismatchException(
                                 "Sent & returned data END packet are mismatched.");
+                    }
 
                     //Step 2:the Device, DATA ACK and Last DATA NACK
                     for (j = 0;
                          j < length - 8 * 2 - 1;
                          j = j + 8) //The Last CDB is END packet. Second to Last CDB is Last DATA packet.
                         if ((bufferIn[j + 2] & 0x80) != 0)
+
                                 // error - NO ACK
+                        {
                             throw new I2CNoACKException(
                                     "Device " + device.ToString("X") + " may be disconnected.");
+                        }
 
                     if ((bufferIn[j + 2] & 0x80) ==
                         0) //The Second to Last CDB is Last DATA Packet. Check for NACK
@@ -1315,6 +1410,7 @@ namespace OpenCMIS.Cypress
                     //Step 3: CLK_STETCH_OVER_FLOW
                     for (j = 0; j < length - 8 - 1; j = j + 8) //The Last CDB is END Packet
                         if ((bufferIn[j + 2] & 0x04) != 0)
+
                                 //error - clock stretch overflow
                             throw new I2CAccessException("I2C Slave Clock Stretch overflow Error");
 
@@ -1344,42 +1440,52 @@ namespace OpenCMIS.Cypress
             ushort[] SetData;
 
             if (Freq == 50) //50KHz
+            {
                 SetData = new ushort[]
-                {
-                        0x00C9, 0x01CA, 0x00C1, 0x0101, 0x0184, 0x01D4, 0x01D7, 0x02F4, 0x046E, 0x0258, 0x0FA0,
-                        0x0009,
-                        0x000A
-                };
+                          {
+                              0x00C9, 0x01CA, 0x00C1, 0x0101, 0x0184, 0x01D4, 0x01D7, 0x02F4, 0x046E, 0x0258, 0x0FA0,
+                              0x0009,
+                              0x000A
+                          };
+            }
             else if (Freq == 90) //90KHz
+            {
                 SetData = new ushort[]
-                {
-                        0x0078, 0x00F0, 0x0078, 0x008C, 0x00A0, 0x0104, 0x0104, 0x0190, 0x0208, 0x0258, 0x0FA0,
-                        0x0009,
-                        0x000A
-                };
+                          {
+                              0x0078, 0x00F0, 0x0078, 0x008C, 0x00A0, 0x0104, 0x0104, 0x0190, 0x0208, 0x0258, 0x0FA0,
+                              0x0009,
+                              0x000A
+                          };
+            }
             else if (Freq == 200) //200KHz
+            {
                 SetData = new ushort[]
-                {
-                        0x0098, 0x00D8, 0x0030, 0x0040, 0x0060, 0x0074, 0x0075, 0x0170, 0x0271, 0x0258, 0x0FA0,
-                        0x0009,
-                        0x000A
-                };
+                          {
+                              0x0098, 0x00D8, 0x0030, 0x0040, 0x0060, 0x0074, 0x0075, 0x0170, 0x0271, 0x0258, 0x0FA0,
+                              0x0009,
+                              0x000A
+                          };
+            }
             else if (Freq == 400) //400KHz
+            {
                 SetData = new ushort[]
-                {
-                        0x000D, 0x0028, 0x0014, 0x001A, 0x002C, 0x0037, 0x0038, 0x0050, 0x007B, 0x000F, 0x0FA0,
-                        0x0009,
-                        0x000A
-                };
+                          {
+                              0x000D, 0x0028, 0x0014, 0x001A, 0x002C, 0x0037, 0x0038, 0x0050, 0x007B, 0x000F, 0x0FA0,
+                              0x0009,
+                              0x000A
+                          };
+            }
             else //90KHz-Default
+            {
                 SetData = new ushort[]
-                {
-                        0x0078, 0x00F0, 0x0078, 0x008C, 0x00A0, 0x0104, 0x0104, 0x0190, 0x0208, 0x0258, 0x0FA0,
-                        0x0009,
-                        0x000A
-                };
+                          {
+                              0x0078, 0x00F0, 0x0078, 0x008C, 0x00A0, 0x0104, 0x0104, 0x0190, 0x0208, 0x0258, 0x0FA0,
+                              0x0009,
+                              0x000A
+                          };
+            }
 
-            var max = 13;
+            var max  = 13;
             var data = new ushort[SetData.Length * max + 5];
 
             for (ushort i = 0; i < SetData.Length; i++)
@@ -1409,9 +1515,10 @@ namespace OpenCMIS.Cypress
         public void GPIOWrite(ushort Value, ushort PortEnable)
         {
             var bufferOut = new byte[16];
-            var bufferIn = new byte[16];
+            var bufferIn  = new byte[16];
             PortEnableSetting = 0;
             PortValue         = 0;
+
             //Word 0:  Command Code (0x0010)
             //Word 1:  Pin value
             //Word 2:  Port enable
@@ -1441,15 +1548,19 @@ namespace OpenCMIS.Cypress
             bufferOut[15] = 0x00;
 
             var length = 16;
+
             // send PACKET
             if (CommandData(ref bufferIn, ref bufferOut, ref length))
             {
                 // do the proper checking of returned bytes
                 for (var i = 0; i < 4; i++)
                     if ((bufferIn[i] & 0xFF) != (bufferOut[i] & 0xFF))
+
                             //MessageBox.Show("Sent & returned data packet are mismatched.");
+                    {
                         throw new CyPacketMismatchException(
                                 "Sent & returned data packet are mismatched.");
+                    }
             }
             else
                 throw new CyXferDataEndPointException("USB Device " + ProductName);
@@ -1463,9 +1574,10 @@ namespace OpenCMIS.Cypress
         /// <exception cref="CyXferDataEndPointException">USB Device  + ProductName</exception>
         public void GPIORead(ref int MyportValue)
         {
-            var retValue = 0;
+            var retValue  = 0;
             var bufferOut = new byte[16];
-            var bufferIn = new byte[16];
+            var bufferIn  = new byte[16];
+
             //Word 0:  Command Code (0x0020)
             //Word 1:  Pin value
             //Word 2:  Port enable
@@ -1492,15 +1604,19 @@ namespace OpenCMIS.Cypress
             bufferOut[15] = 0x00;
 
             var length = 16;
+
             // send PACKET
             if (CommandData(ref bufferIn, ref bufferOut, ref length))
             {
                 // do the proper checking of returned bytes
                 for (var i = 0; i < 2; i++)
                     if ((bufferIn[i] & 0xFF) != (bufferOut[i] & 0xFF))
+
                             //MessageBox.Show("Sent & returned data packet are mismatched.");
+                    {
                         throw new CyPacketMismatchException(
                                 "Sent & returned data packet are mismatched.");
+                    }
 
                 if (retValue == 0)
                 {
@@ -1525,7 +1641,7 @@ namespace OpenCMIS.Cypress
         public void MDIOFrequency(byte sel, double Freq)
         {
             var bufferOut = new byte[16];
-            var bufferIn = new byte[16];
+            var bufferIn  = new byte[16];
             if (Freq > 4000 || Freq <= 95)
                 throw new ArgumentException("Wrong frequency setting for MDIO interface.");
 
@@ -1565,14 +1681,17 @@ namespace OpenCMIS.Cypress
             bufferOut[15] = 0x00;
 
             var length = 16;
+
             // send PACKET
             if (CommandData(ref bufferIn, ref bufferOut, ref length))
+
                     // do the proper checking of returned bytes
+            {
                 for (var i = 0; i < length; i = i + 8)
                 {
                     var temp = "";
-                    if (((bufferIn[i]     & 0xFF) != (bufferOut[i]     & 0xFF) && bufferOut[i]     != 0x00) ||
-                        ((bufferIn[i + 1] & 0xFF) != (bufferOut[i + 1] & 0xFF) && bufferOut[i + 1] != 0x00))
+                    if ((bufferIn[i]     & 0xFF) != (bufferOut[i]     & 0xFF) && bufferOut[i]     != 0x00 ||
+                        (bufferIn[i + 1] & 0xFF) != (bufferOut[i + 1] & 0xFF) && bufferOut[i + 1] != 0x00)
                     {
                         for (var k = 0; k < length; k++)
                             temp = "bufferIn["                        + Convert.ToString(k) + "]=" +
@@ -1586,7 +1705,9 @@ namespace OpenCMIS.Cypress
                                 "Sent & returned data packet are mismatched MDIO frequency set.\r\n" + temp);
                     }
                 }
-            else throw new CyXferDataEndPointException("USB Device " + ProductName);
+            }
+            else
+                throw new CyXferDataEndPointException("USB Device " + ProductName);
         }
 
         /// <summary>
@@ -1600,9 +1721,10 @@ namespace OpenCMIS.Cypress
         public void CDBcomm(ushort[] InBuf, out ushort[] OutBuf, int length)
         {
             var bufferOut = new byte[length * 2];
-            var bufferIn = new byte[length  * 2];
+            var bufferIn  = new byte[length * 2];
             OutBuf = new ushort[length];
             int i;
+
             //Word 0:  Command Code (0x0020)
             //Word 1:  Pin value
             //Word 2:  Port enable
@@ -1621,9 +1743,12 @@ namespace OpenCMIS.Cypress
                 // do the proper checking of returned bytes
                 for (i = 0; i < 2; i++)
                     if ((bufferIn[i] & 0xFF) != (bufferOut[i] & 0xFF))
+
                             //MessageBox.Show("Sent & returned data packet are mismatched.");
+                    {
                         throw new CyPacketMismatchException(
                                 "Sent & returned data packet are mismatched.");
+                    }
 
                 for (i = 0; i < length; i++)
                 {
@@ -1637,7 +1762,6 @@ namespace OpenCMIS.Cypress
         }
 
         #region COMMAND words
-
         // COMMAND words
         private const int CMD_END = 0;
 
@@ -1689,13 +1813,13 @@ namespace OpenCMIS.Cypress
         private const byte I2C_ACK = 0x80;
 
         private const byte I2C_STRETCH = 0x40;
+
         //_ARR
 
         // endpoint configuration
         private const byte OUT_ENDPOINTADDR = 0x02; // OUT from USB
 
         private const byte IN_ENDPOINTADDR = 0x86; // IN to USB
-
         #endregion COMMAND words
     }
 }

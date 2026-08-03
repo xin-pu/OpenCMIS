@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OpenCMIS.Protocol.Abstractions;
@@ -6,9 +7,9 @@ using OpenCMIS.UI.WPF.Models;
 
 namespace OpenCMIS.UI.WPF.ViewModels
 {
-    public partial class PageEditorViewModel : ObservableObject
+    public class PageEditorViewModel : ObservableObject
     {
-        private ICmisDevice? _device;
+        private ICmisDevice?   _device;
         private MsaPageBuffer? _pageBuffer;
 
         [ObservableProperty]
@@ -37,12 +38,51 @@ namespace OpenCMIS.UI.WPF.ViewModels
 
         public void SetDevice(ICmisDevice? device)
         {
-            _device = device;
+            _device     = device;
             _pageBuffer = null;
             HexRows.Clear();
-            PageInfo = "No data loaded";
+            PageInfo      = "No data loaded";
             StatusMessage = string.Empty;
-            IsLoaded = false;
+            IsLoaded      = false;
+        }
+
+        /// <summary>
+        ///     Splits a write segment if it crosses the upper-page boundary
+        ///     (address 0x80 = byte 128 in the combined 256-byte buffer).
+        ///     Lower portion goes to common page (0,0); upper portion goes
+        ///     to the selected bank/page.
+        /// </summary>
+        internal static IEnumerable<MsaWriteSegment> SplitAtPageBoundary(MsaWriteSegment segment)
+        {
+            var endAddr = segment.StartAddress + segment.Data.Length;
+
+            // Segment is entirely in lower page (0x00-0x7F)
+            if (endAddr <= 0x80)
+            {
+                yield return segment;
+
+                yield break;
+            }
+
+            // Segment is entirely in upper page (0x80-0xFF)
+            if (segment.StartAddress >= 0x80)
+            {
+                yield return segment;
+
+                yield break;
+            }
+
+            // Segment crosses the boundary — split at 0x80
+            var lowerLength = 0x80                - segment.StartAddress;
+            var upperLength = segment.Data.Length - lowerLength;
+
+            yield return new (
+                    segment.StartAddress,
+                    segment.Data.Take(lowerLength));
+
+            yield return new (
+                    0x80,
+                    segment.Data.Skip(lowerLength).Take(upperLength));
         }
 
         [RelayCommand]
@@ -70,21 +110,28 @@ namespace OpenCMIS.UI.WPF.ViewModels
             {
                 // Lower 128 bytes always come from page 0 (common memory)
                 var lowerBlock = await _device.RegisterAccess.ReadBlockAsync(
-                    0, 0, 0x00, 128);
+                                         0,
+                                         0,
+                                         0x00,
+                                         128);
+
                 // Upper 128 bytes from selected bank/page
                 var upperBlock = await _device.RegisterAccess.ReadBlockAsync(
-                    bank, page, 0x80, 128);
+                                         bank,
+                                         page,
+                                         0x80,
+                                         128);
 
                 var fullPage = new byte[256];
-                Array.Copy(lowerBlock, 0, fullPage, 0, 128);
+                Array.Copy(lowerBlock, 0, fullPage, 0,   128);
                 Array.Copy(upperBlock, 0, fullPage, 128, 128);
 
-                _pageBuffer = new MsaPageBuffer();
+                _pageBuffer = new ();
                 _pageBuffer.Load(fullPage);
                 IsLoaded = true;
 
                 BuildHexRows();
-                PageInfo = $"Bank 0x{bank:X2}, Page 0x{page:X2} — 256 bytes loaded";
+                PageInfo      = $"Bank 0x{bank:X2}, Page 0x{page:X2} — 256 bytes loaded";
                 StatusMessage = "Page read successfully.";
             }
             catch (Exception ex)
@@ -126,7 +173,7 @@ namespace OpenCMIS.UI.WPF.ViewModels
                 SyncFromGrid();
 
                 // Build dirty contiguous segments (only changed bytes)
-                var segments = _pageBuffer.BuildWriteSegments(fullPage: false);
+                var segments = _pageBuffer.BuildWriteSegments(false);
                 if (segments.Count == 0)
                 {
                     StatusMessage = "No changes to write.";
@@ -140,30 +187,35 @@ namespace OpenCMIS.UI.WPF.ViewModels
                 // to common page (0,0) and upper addresses (0x80-0xFF) to the
                 // selected bank/page.
                 foreach (var segment in segments)
-                {
-                    foreach (var split in SplitAtPageBoundary(segment))
+                foreach (var split in SplitAtPageBoundary(segment))
+                    if (split.StartAddress < 0x80)
                     {
-                        if (split.StartAddress < 0x80)
-                        {
-                            await _device.RegisterAccess.WriteBlockAsync(
-                                0, 0, split.StartAddress, split.Data);
-                            lowerWritten = true;
-                        }
-                        else
-                        {
-                            await _device.RegisterAccess.WriteBlockAsync(
-                                bank, page, split.StartAddress, split.Data);
-                            upperWritten = true;
-                        }
+                        await _device.RegisterAccess.WriteBlockAsync(
+                                0,
+                                0,
+                                split.StartAddress,
+                                split.Data);
+                        lowerWritten = true;
                     }
-                }
+                    else
+                    {
+                        await _device.RegisterAccess.WriteBlockAsync(
+                                bank,
+                                page,
+                                split.StartAddress,
+                                split.Data);
+                        upperWritten = true;
+                    }
 
                 // Read back the changed ranges to verify
                 var fullReadBack = new byte[256];
                 if (lowerWritten)
                 {
                     var lowerBack = await _device.RegisterAccess.ReadBlockAsync(
-                        0, 0, 0x00, 128);
+                                            0,
+                                            0,
+                                            0x00,
+                                            128);
                     Array.Copy(lowerBack, 0, fullReadBack, 0, 128);
                 }
                 else
@@ -176,7 +228,10 @@ namespace OpenCMIS.UI.WPF.ViewModels
                 if (upperWritten)
                 {
                     var upperBack = await _device.RegisterAccess.ReadBlockAsync(
-                        bank, page, 0x80, 128);
+                                            bank,
+                                            page,
+                                            0x80,
+                                            128);
                     Array.Copy(upperBack, 0, fullReadBack, 128, 128);
                 }
                 else
@@ -195,8 +250,8 @@ namespace OpenCMIS.UI.WPF.ViewModels
                 else
                 {
                     StatusMessage =
-                        "Write completed but read-back MISMATCH — edits preserved. " +
-                        "Re-read the page to confirm hardware state.";
+                            "Write completed but read-back MISMATCH — edits preserved. " +
+                            "Re-read the page to confirm hardware state.";
                 }
             }
             catch (Exception ex)
@@ -217,16 +272,19 @@ namespace OpenCMIS.UI.WPF.ViewModels
             try
             {
                 var data = await _device.RegisterAccess.ReadBlockAsync(
-                    0, 0, 0x00, 256);
+                                   0,
+                                   0,
+                                   0x00,
+                                   256);
 
-                _pageBuffer = new MsaPageBuffer();
+                _pageBuffer = new ();
                 _pageBuffer.Load(data);
                 IsLoaded = true;
 
                 BuildHexRows();
-                PageInfo = "Common Page (Bank 0, Page 0) — 256 bytes loaded";
-                BankNumber = "0";
-                PageNumber = "0";
+                PageInfo      = "Common Page (Bank 0, Page 0) — 256 bytes loaded";
+                BankNumber    = "0";
+                PageNumber    = "0";
                 StatusMessage = "Common page read successfully.";
             }
             catch (Exception ex)
@@ -238,11 +296,11 @@ namespace OpenCMIS.UI.WPF.ViewModels
         [RelayCommand]
         private async Task ReadRangeAsync()
         {
-            if (!ValidateHexInputs(out var bank, out var page,
-                    out var start, out var length))
-            {
+            if (!ValidateHexInputs(out var bank,
+                                   out var page,
+                                   out var start,
+                                   out var length))
                 return;
-            }
 
             if (length == 0)
             {
@@ -288,23 +346,29 @@ namespace OpenCMIS.UI.WPF.ViewModels
                 if (start < 0x80)
                 {
                     var lowerStart = start;
-                    var lowerLen = Math.Min(endAddr, 0x80) - start;
+                    var lowerLen   = Math.Min(endAddr, 0x80) - start;
                     var lowerData = await _device.RegisterAccess.ReadBlockAsync(
-                        0, 0, lowerStart, lowerLen);
+                                            0,
+                                            0,
+                                            lowerStart,
+                                            lowerLen);
                     Array.Copy(lowerData, 0, fullPage, lowerStart, lowerLen);
                 }
 
                 // Upper portion (0x80–0xFF) from selected bank/page
                 if (endAddr > 0x80)
                 {
-                    var upperStart = Math.Max(start, (byte)0x80);
-                    var upperLen = endAddr - upperStart;
+                    var upperStart = Math.Max(start, (byte) 0x80);
+                    var upperLen   = endAddr - upperStart;
                     var upperData = await _device.RegisterAccess.ReadBlockAsync(
-                        bank, page, upperStart, upperLen);
+                                            bank,
+                                            page,
+                                            upperStart,
+                                            upperLen);
                     Array.Copy(upperData, 0, fullPage, upperStart, upperLen);
                 }
 
-                _pageBuffer = new MsaPageBuffer();
+                _pageBuffer = new ();
                 _pageBuffer.Load(fullPage);
                 IsLoaded = true;
 
@@ -322,21 +386,20 @@ namespace OpenCMIS.UI.WPF.ViewModels
         [RelayCommand]
         private void FillRow(HexRowViewModel row)
         {
-            if (row == null || _pageBuffer == null) return;
+            if (row == null || _pageBuffer == null)
+                return;
 
             var rowIndex = HexRows.IndexOf(row);
-            if (rowIndex < 0) return;
+            if (rowIndex < 0)
+                return;
+
             var offset = rowIndex * 16;
 
             foreach (var cell in row.Bytes)
-            {
                 cell.Hex = "00";
-            }
 
             for (var col = 0; col < 16; col++)
-            {
                 _pageBuffer.SetByte(offset + col, 0x00);
-            }
 
             row.RefreshAscii();
         }
@@ -344,50 +407,47 @@ namespace OpenCMIS.UI.WPF.ViewModels
         [RelayCommand]
         private void FillAll()
         {
-            if (_pageBuffer == null) return;
+            if (_pageBuffer == null)
+                return;
 
             for (var rowIndex = 0; rowIndex < HexRows.Count; rowIndex++)
             {
-                var row = HexRows[rowIndex];
+                var row    = HexRows[rowIndex];
                 var offset = rowIndex * 16;
                 foreach (var cell in row.Bytes)
-                {
                     cell.Hex = "00";
-                }
                 for (var col = 0; col < 16; col++)
-                {
                     _pageBuffer.SetByte(offset + col, 0x00);
-                }
                 row.RefreshAscii();
             }
+
             StatusMessage = "All bytes set to 00.";
         }
 
         [RelayCommand]
         private void FillAllFF()
         {
-            if (_pageBuffer == null) return;
+            if (_pageBuffer == null)
+                return;
 
             for (var rowIndex = 0; rowIndex < HexRows.Count; rowIndex++)
             {
-                var row = HexRows[rowIndex];
+                var row    = HexRows[rowIndex];
                 var offset = rowIndex * 16;
                 foreach (var cell in row.Bytes)
-                {
                     cell.Hex = "FF";
-                }
                 for (var col = 0; col < 16; col++)
-                {
                     _pageBuffer.SetByte(offset + col, 0xFF);
-                }
                 row.RefreshAscii();
             }
+
             StatusMessage = "All bytes set to FF.";
         }
 
         private void BuildHexRows()
         {
-            if (_pageBuffer == null) return;
+            if (_pageBuffer == null)
+                return;
 
             HexRows.Clear();
 
@@ -395,19 +455,19 @@ namespace OpenCMIS.UI.WPF.ViewModels
             {
                 var offset = rowIndex * 16;
                 var row = new HexRowViewModel
-                {
-                    Offset = $"0x{offset:X2}"
-                };
+                          {
+                              Offset = $"0x{offset:X2}"
+                          };
 
                 for (var col = 0; col < 16; col++)
                 {
                     var byteIndex = offset + col;
-                    var value = _pageBuffer.GetByte(byteIndex);
-                    row.Bytes.Add(new HexByteViewModel
-                    {
-                        Hex = $"{value:X2}",
-                        OriginalValue = value
-                    });
+                    var value     = _pageBuffer.GetByte(byteIndex);
+                    row.Bytes.Add(new()
+                                  {
+                                      Hex           = $"{value:X2}",
+                                      OriginalValue = value
+                                  });
                 }
 
                 row.RefreshAscii();
@@ -417,20 +477,19 @@ namespace OpenCMIS.UI.WPF.ViewModels
 
         private void SyncFromGrid()
         {
-            if (_pageBuffer == null) return;
+            if (_pageBuffer == null)
+                return;
 
             for (var rowIndex = 0; rowIndex < HexRows.Count; rowIndex++)
             {
-                var row = HexRows[rowIndex];
+                var row    = HexRows[rowIndex];
                 var offset = rowIndex * 16;
 
                 for (var col = 0; col < row.Bytes.Count; col++)
                 {
                     var hex = row.Bytes[col].Hex;
-                    if (byte.TryParse(hex, System.Globalization.NumberStyles.HexNumber, null, out var val))
-                    {
+                    if (byte.TryParse(hex, NumberStyles.HexNumber, null, out var val))
                         _pageBuffer.SetByte(offset + col, val);
-                    }
                 }
             }
         }
@@ -438,10 +497,10 @@ namespace OpenCMIS.UI.WPF.ViewModels
         private static bool TryParseHexByte(string text, out byte value)
         {
             return byte.TryParse(
-                text,
-                System.Globalization.NumberStyles.HexNumber,
-                null,
-                out value);
+                    text,
+                    NumberStyles.HexNumber,
+                    null,
+                    out value);
         }
 
         /// <summary>
@@ -449,8 +508,7 @@ namespace OpenCMIS.UI.WPF.ViewModels
         ///     ReadLength). Sets StatusMessage on first failure and returns
         ///     false so callers can bail out early.
         /// </summary>
-        private bool ValidateHexInputs(
-            out byte bank, out byte page, out byte start, out byte length)
+        private bool ValidateHexInputs(out byte bank, out byte page, out byte start, out byte length)
         {
             bank = page = start = length = 0;
 
@@ -480,47 +538,9 @@ namespace OpenCMIS.UI.WPF.ViewModels
 
             return true;
         }
-
-        /// <summary>
-        ///     Splits a write segment if it crosses the upper-page boundary
-        ///     (address 0x80 = byte 128 in the combined 256-byte buffer).
-        ///     Lower portion goes to common page (0,0); upper portion goes
-        ///     to the selected bank/page.
-        /// </summary>
-        internal static IEnumerable<MsaWriteSegment> SplitAtPageBoundary(
-            MsaWriteSegment segment)
-        {
-            var endAddr = segment.StartAddress + segment.Data.Length;
-
-            // Segment is entirely in lower page (0x00-0x7F)
-            if (endAddr <= 0x80)
-            {
-                yield return segment;
-                yield break;
-            }
-
-            // Segment is entirely in upper page (0x80-0xFF)
-            if (segment.StartAddress >= 0x80)
-            {
-                yield return segment;
-                yield break;
-            }
-
-            // Segment crosses the boundary — split at 0x80
-            var lowerLength = 0x80 - segment.StartAddress;
-            var upperLength = segment.Data.Length - lowerLength;
-
-            yield return new MsaWriteSegment(
-                segment.StartAddress,
-                segment.Data.Take(lowerLength));
-
-            yield return new MsaWriteSegment(
-                0x80,
-                segment.Data.Skip(lowerLength).Take(upperLength));
-        }
     }
 
-    public partial class HexRowViewModel : ObservableObject
+    public class HexRowViewModel : ObservableObject
     {
         [ObservableProperty]
         private string _offset = "0x00";
@@ -534,21 +554,16 @@ namespace OpenCMIS.UI.WPF.ViewModels
         {
             var chars = new char[16];
             for (var i = 0; i < 16 && i < Bytes.Count; i++)
-            {
-                if (byte.TryParse(Bytes[i].Hex, System.Globalization.NumberStyles.HexNumber, null, out var val))
-                {
-                    chars[i] = val >= 32 && val < 127 ? (char)val : '.';
-                }
+                if (byte.TryParse(Bytes[i].Hex, NumberStyles.HexNumber, null, out var val))
+                    chars[i] = val >= 32 && val < 127 ? (char) val : '.';
                 else
-                {
                     chars[i] = '.';
-                }
-            }
+
             Ascii = new string(chars);
         }
     }
 
-    public partial class HexByteViewModel : ObservableObject
+    public class HexByteViewModel : ObservableObject
     {
         private string _hex = "00";
 
@@ -561,9 +576,7 @@ namespace OpenCMIS.UI.WPF.ViewModels
             set
             {
                 if (SetProperty(ref _hex, NormalizeHex(value)))
-                {
                     IsModified = OriginalValue != GetByteValue();
-                }
             }
         }
 
@@ -571,18 +584,25 @@ namespace OpenCMIS.UI.WPF.ViewModels
 
         public byte GetByteValue()
         {
-            return byte.TryParse(_hex, System.Globalization.NumberStyles.HexNumber, null, out var val) ? val : (byte)0;
+            return byte.TryParse(_hex, NumberStyles.HexNumber, null, out var val) ? val : (byte) 0;
         }
 
         private static string NormalizeHex(string value)
         {
-            if (string.IsNullOrEmpty(value)) return "00";
+            if (string.IsNullOrEmpty(value))
+                return "00";
+
             value = value.ToUpperInvariant().Trim();
+
             // Strip non-hex characters
-            value = new string(value.Where(c => (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F')).ToArray());
-            if (value.Length == 0) return "00";
-            if (value.Length == 1) return "0" + value;
-            if (value.Length > 2) return value[..2];
+            value = new (value.Where(c => c >= '0' && c <= '9' || c >= 'A' && c <= 'F').ToArray());
+            if (value.Length == 0)
+                return "00";
+            if (value.Length == 1)
+                return "0" + value;
+            if (value.Length > 2)
+                return value[..2];
+
             return value.Length == 2 ? value : "0" + value;
         }
     }

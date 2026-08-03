@@ -62,9 +62,9 @@ namespace OpenCMIS.Cypress
         /// <param name="port">0-7 is the 3:8 chip selection, 0->Y0 and 7->Y7</param>
         public void PortSelection(int port)
         {
-            var length = 3;
+            var length    = 3;
             var bufferOut = new byte[3];
-            var bufferIn = new byte[3];
+            var bufferIn  = new byte[3];
             myPortValue = port;
 
             //*************************** I2C Bus Switch Format*********************************************
@@ -80,26 +80,29 @@ namespace OpenCMIS.Cypress
             if (CommandData(ref bufferIn, ref bufferOut, ref length))
             {
                 if (bufferIn[length - 1] != 0x1)
+                {
                     throw new CyXferDataEndPointException("USB Device " + ProductName +
                                                           " enable I2C port command not executed successfully.");
+                }
             }
             else
                 throw new CyXferDataEndPointException("USB Device " + ProductName);
         }
 
         #region ADC
-
         public double[] GetADCValues()
         {
-            var length = 26;
+            var length    = 26;
             var bufferOut = new byte[26];
-            var bufferIn = new byte[26];
+            var bufferIn  = new byte[26];
             bufferOut[0] = 97;
             if (CommandData(ref bufferIn, ref bufferOut, ref length))
             {
                 if (bufferIn[length - 1] != 0x1)
+                {
                     throw new CyXferDataEndPointException("USB Device " + ProductName +
                                                           " GPIOWrite command not executed successfully.");
+                }
             }
             else
                 throw new CyXferDataEndPointException("USB Device " + ProductName);
@@ -108,7 +111,7 @@ namespace OpenCMIS.Cypress
             foreach (var i in Enumerable.Range(0, 12))
             {
                 var data = bufferIn.Skip(1 + i * 2).Take(2).ToArray();
-                var vol = (data[0] * 256.0 + data[1]) / 1000;
+                var vol  = (data[0] * 256.0 + data[1]) / 1000;
                 listVol.Add(vol);
             }
 
@@ -117,7 +120,6 @@ namespace OpenCMIS.Cypress
 
             return listVol.ToArray();
         }
-
         #endregion ADC
 
         private string EvaluateSerialnum()
@@ -133,18 +135,18 @@ namespace OpenCMIS.Cypress
                 if (data.Take(6).All(a => a == 0xff))
                 {
                     var myvalue = DateTime.Now.AddMinutes(55).ToString("dd'.'MM'.'yyyy'.'HH'.'mm'.'ss");
-                    var items = myvalue.Split('.');
+                    var items   = myvalue.Split('.');
                     data = new byte[]
-                    {
-                            0,
-                            0,
-                            (byte) (Convert.ToInt16(items[0])          & 0xFF),
-                            (byte) (Convert.ToInt16(items[1])          & 0xFF),
-                            (byte) ((Convert.ToInt16(items[2]) - 2000) & 0xFF),
-                            (byte) (Convert.ToInt16(items[3])          & 0xFF),
-                            (byte) (Convert.ToInt16(items[4])          & 0xFF),
-                            (byte) (Convert.ToInt16(items[5])          & 0xFF)
-                    };
+                           {
+                               0,
+                               0,
+                               (byte) (Convert.ToInt16(items[0])        & 0xFF),
+                               (byte) (Convert.ToInt16(items[1])        & 0xFF),
+                               (byte) (Convert.ToInt16(items[2]) - 2000 & 0xFF),
+                               (byte) (Convert.ToInt16(items[3])        & 0xFF),
+                               (byte) (Convert.ToInt16(items[4])        & 0xFF),
+                               (byte) (Convert.ToInt16(items[5])        & 0xFF)
+                           };
                     I2CWrite(0xAA, data, 2); //write memory address
                     I2CWrite(0xAA, data, 8); //write serial number
                     return string.Join("", data.Where((a, b) => b >= 2).Select(a => a.ToString()));
@@ -160,13 +162,17 @@ namespace OpenCMIS.Cypress
             {
                 init_bridge = Init_fsb_bridge();
                 if (!init_bridge)
+                {
                     throw new CyXferDataEndPointException("USB Device " + ProductName +
                                                           " initialize bridge for FSB not executed successfully.");
+                }
 
                 init_bridge = init_SPI_bridge();
                 if (!init_bridge)
+                {
                     throw new CyXferDataEndPointException("USB Device " + ProductName +
                                                           " initialize bridge for SPI not executed successfully.");
+                }
             }
         }
 
@@ -176,7 +182,8 @@ namespace OpenCMIS.Cypress
             var mydata = new byte[2 + data.Length];
             mydata[0] = (byte) ((addr & 0xFF00) >> 8);
             mydata[1] = (byte) (addr & 0xFF);
-            for (i = 0; i < data.Length; i++) mydata[2 + i] = data[i];
+            for (i = 0; i < data.Length; i++)
+                mydata[2 + i] = data[i];
 
             myPortValue = port;
             try
@@ -191,7 +198,6 @@ namespace OpenCMIS.Cypress
         }
 
         #region COMMAND words
-
         // COMMAND words
         //-----------------------------------------------------------------------------
         //USB Command Codes
@@ -237,33 +243,35 @@ namespace OpenCMIS.Cypress
         private const byte OUT_ENDPOINTADDR = 0x02; // OUT from USB
 
         private const byte IN_ENDPOINTADDR = 0x86; // IN to USB
-
         #endregion COMMAND words
 
         #region block build functions
-
         private byte[] GetFSBDelay(int NumRegisters, FIC2USB_FSBSpeed Speed, bool EnableCRC)
         {
             int d;
             var command = new byte[4];
             if (EnableCRC)
+
                     //Delay with CRC
                     //'(100uS*Speed)+150uS
                     //Return in Milliseconds
                 d = (int) Math.Round(NumRegisters * (0.1 * (int) Speed + 0.15));
+
             //Check for minimum of 1mS delay
             //If d < 1 Then d = 1
             else
+
                     //Delay w/o CRC
                     //(80uS*Speed)+120uS
                     //Return in Milliseconds
                 d = (int) Math.Round(NumRegisters * (0.08 * (int) Speed + 0.12));
+
             //Check for minimum of 1mS delay
             //If d < 1 Then d = 1
 
             command[0] = 0xD;
-            command[1] = (byte) ((d >> 8) & 0xff);
-            command[2] = (byte) (d        & 0xff);
+            command[1] = (byte) (d >> 8 & 0xff);
+            command[2] = (byte) (d      & 0xff);
             command[3] = 0;
             return command;
         }
@@ -352,10 +360,10 @@ namespace OpenCMIS.Cypress
         }
 
         private byte[] GetMSCReadBlock(FIC2USB_FSBSpeed Speed,
-                                       byte FSBDevAddr,
-                                       bool EnableCRC,
-                                       byte StartReg,
-                                       int Length)
+                                       byte             FSBDevAddr,
+                                       bool             EnableCRC,
+                                       byte             StartReg,
+                                       int              Length)
         {
             //Determine Op Code
             var OpCode = EnableCRC ? MSC_OPCODE.MSCO_FSB_RD_W_CRC : MSC_OPCODE.MSCO_FSB_RD_WO_CRC;
@@ -378,10 +386,10 @@ namespace OpenCMIS.Cypress
         }
 
         private byte[] GetMSCWriteBlock(FIC2USB_FSBSpeed Speed,
-                                        byte FSBDevAddr,
-                                        bool EnableCRC,
-                                        byte StartReg,
-                                        int Length)
+                                        byte             FSBDevAddr,
+                                        bool             EnableCRC,
+                                        byte             StartReg,
+                                        int              Length)
         {
             //Determine Op Code
             var OpCode = EnableCRC ? MSC_OPCODE.MSCO_FSB_WR_W_CRC : MSC_OPCODE.MSCO_FSB_WR_WO_CRC;
@@ -409,8 +417,8 @@ namespace OpenCMIS.Cypress
             int i;
             for (i = 0; i < Length; i++)
             {
-                ba[i * 2 + 1] = (byte) (WordArray[i]        & 0xFF);
-                ba[i * 2]     = (byte) ((WordArray[i] >> 8) & 0xFF);
+                ba[i * 2 + 1] = (byte) (WordArray[i]      & 0xFF);
+                ba[i * 2]     = (byte) (WordArray[i] >> 8 & 0xFF);
             }
 
             return ba;
@@ -501,16 +509,15 @@ namespace OpenCMIS.Cypress
 
             return data;
         }
-
         #endregion block build functions
 
         #region SPI
-
         private bool init_SPI_bridge()
         {
             var MSCblock = new byte[7];
             myPortValue = SPI_PORT; //FCC03 SPI Port
             PortSelection(myPortValue);
+
             //write level3 password
             MSCblock[0] = 0x7B; //password entry
             MSCblock[1] = 0xC6;
@@ -530,7 +537,8 @@ namespace OpenCMIS.Cypress
             //increase SYSCLK oscillator
             var data = new byte[1];
             data[0] = 0x0;
-            if (!RAM_write(FSB2W_DevAddr, 4, 0x1008, data)) return false;
+            if (!RAM_write(FSB2W_DevAddr, 4, 0x1008, data))
+                return false;
 
             //config digital IO pin
             data    = new byte[8];
@@ -542,19 +550,22 @@ namespace OpenCMIS.Cypress
             data[5] = 0x75;
             data[6] = 0x85;
             data[7] = 0x4;
-            if (!RAM_write(FSB2W_DevAddr, 4, 0x1020, data)) return false;
+            if (!RAM_write(FSB2W_DevAddr, 4, 0x1020, data))
+                return false;
 
             //GPIO setting
             data    = new byte[3];
             data[0] = 0x1F;
             data[1] = 0x0;
             data[2] = 0x1F;
-            if (!RAM_write(FSB2W_DevAddr, 4, 0x10C0, data)) return false;
+            if (!RAM_write(FSB2W_DevAddr, 4, 0x10C0, data))
+                return false;
 
             data[0] = 0x20;
             data[1] = 0x0;
             data[2] = 0x0;
-            if (!RAM_write(FSB2W_DevAddr, 4, 0x101C, data)) return false;
+            if (!RAM_write(FSB2W_DevAddr, 4, 0x101C, data))
+                return false;
 
             return true;
         }
@@ -569,18 +580,19 @@ namespace OpenCMIS.Cypress
         /// <param name="cpol">CLK leading edge</param>
         /// <param name="cpha_miso">MISO sample edge</param>
         /// <param name="cpha_mosi">MOSI sample edge</param>
-        public void SPIWriteRead(int Port,
-                                 int[] WriteData,
+        public void SPIWriteRead(int       Port,
+                                 int[]     WriteData,
                                  ref int[] ReadData,
-                                 int Length,
-                                 int cpol,
-                                 int cpha_miso,
-                                 int cpha_mosi)
+                                 int       Length,
+                                 int       cpol,
+                                 int       cpha_miso,
+                                 int       cpha_mosi)
         {
             if (Port > 3)
                 throw new ("FIC2USB card " + ProductName + " SPI Port select cannot be great than 3.");
 
-            if (!init_bridge) Init_FIC2USBCard();
+            if (!init_bridge)
+                Init_FIC2USBCard();
             myPortValue = SPI_PORT; //FCC03 SPI Port
             PortSelection(myPortValue);
             var MSCblock = new byte[Length + 2];
@@ -589,7 +601,8 @@ namespace OpenCMIS.Cypress
             //Data
             MSCblock[0] = 0x2;
             MSCblock[1] = 0x0;
-            for (i = 0; i < Length; i++) MSCblock[i + 2] = (byte) WriteData[i];
+            for (i = 0; i < Length; i++)
+                MSCblock[i + 2] = (byte) WriteData[i];
 
             I2CWrite(FSB2W_DevAddr, MSCblock, Length + 2);
 
@@ -635,7 +648,8 @@ namespace OpenCMIS.Cypress
 
             var tempdata = new byte[Length];
             I2CRead(FSB2W_DevAddr, ref tempdata, Length);
-            for (i = 0; i < Length; i++) ReadData[i] = tempdata[i];
+            for (i = 0; i < Length; i++)
+                ReadData[i] = tempdata[i];
         }
 
         private byte SPI_Config(int cpol, int cpha_miso, int cpha_mosi)
@@ -647,7 +661,8 @@ namespace OpenCMIS.Cypress
             if (cpha_miso == 1) //CPHA = 0, sample at rising edge, CPHA = 1, sample at trailing edge
                 spi_config |= 0x4;
 
-            if (cpha_mosi == 1) spi_config |= 0x2;
+            if (cpha_mosi == 1)
+                spi_config |= 0x2;
 
             return spi_config;
         }
@@ -665,7 +680,9 @@ namespace OpenCMIS.Cypress
         {
             if (Port > 3)
                 throw new ("FIC2USB card " + ProductName + " SPI Port select cannot be great than 3.");
-            if (!init_bridge) Init_FIC2USBCard();
+
+            if (!init_bridge)
+                Init_FIC2USBCard();
 
             myPortValue = SPI_PORT; //FCC03 SPI Port
             PortSelection(myPortValue);
@@ -674,9 +691,11 @@ namespace OpenCMIS.Cypress
             //Write RAM - MSC REQ Block
             var MSCblock = GetSPIMSCReadBlock((byte) Port, 1, (byte) Length, SPI_Config(cpol, cpha_miso, cpha_mosi));
             I2CWrite(FSB2W_DevAddr, MSCblock, MSCblock.Length);
+
             //Set ChipSelect and LED Status
             MSCblock = GetSPIGPIOState(Port);
             I2CWrite(FSB2W_DevAddr, MSCblock, MSCblock.Length);
+
             //Wrote REQ_BLCK_AddrH/L + RESET MSC_STUS
             MSCblock    = new byte[5];
             MSCblock[0] = 0x10;
@@ -685,6 +704,7 @@ namespace OpenCMIS.Cypress
             MSCblock[3] = 0x80;
             MSCblock[4] = 0x35;
             I2CWrite(FSB2W_DevAddr, MSCblock, MSCblock.Length);
+
             //Read Status Byte
             MSCblock[0] = 0x10;
             MSCblock[1] = 0xED;
@@ -710,7 +730,8 @@ namespace OpenCMIS.Cypress
 
             var tempdata = new byte[Length];
             I2CRead(FSB2W_DevAddr, ref tempdata, Length);
-            for (i = 0; i < Length; i++) ReadData[i] = tempdata[i];
+            for (i = 0; i < Length; i++)
+                ReadData[i] = tempdata[i];
         }
 
         /// <summary>
@@ -726,7 +747,9 @@ namespace OpenCMIS.Cypress
         {
             if (Port > 3)
                 throw new ("FIC2USB card " + ProductName + " SPI Port select cannot be great than 3.");
-            if (!init_bridge) Init_FIC2USBCard();
+
+            if (!init_bridge)
+                Init_FIC2USBCard();
 
             myPortValue = SPI_PORT; //FCC03 SPI Port
             PortSelection(myPortValue);
@@ -736,7 +759,8 @@ namespace OpenCMIS.Cypress
             //Data
             MSCblock[0] = 0x2;
             MSCblock[1] = 0x0;
-            for (i = 0; i < Length; i++) MSCblock[i + 2] = (byte) WriteData[i];
+            for (i = 0; i < Length; i++)
+                MSCblock[i + 2] = (byte) WriteData[i];
 
             I2CWrite(FSB2W_DevAddr, MSCblock, Length + 2);
 
@@ -775,16 +799,15 @@ namespace OpenCMIS.Cypress
             MSCblock[2] = 0x1F;
             I2CWrite(FSB2W_DevAddr, MSCblock, 3);
         }
-
         #endregion SPI
 
         #region FSB
-
         private bool Init_fsb_bridge()
         {
             var MSCblock = new byte[7];
             myPortValue = FSB_PORT; //FCC03 I2C Port
             PortSelection(myPortValue);
+
             //write level3 password
             MSCblock[0] = 0x7B; //password entry
             MSCblock[1] = 0xC6;
@@ -844,19 +867,21 @@ namespace OpenCMIS.Cypress
             get => myFSBspeed;
             set
             {
-                if (value <= 15) myFSBspeed = value;
+                if (value <= 15)
+                    myFSBspeed = value;
             }
         }
 
         public bool FSB2WRead(FIC2USB_FSB2WPort Port,
-                              FIC2USB_FSBSpeed Speed,
-                              byte FSBDevAddr,
-                              bool EnableCRC,
-                              byte StartReg,
-                              ref int[] ReadData)
+                              FIC2USB_FSBSpeed  Speed,
+                              byte              FSBDevAddr,
+                              bool              EnableCRC,
+                              byte              StartReg,
+                              ref int[]         ReadData)
         {
             var Length = ReadData.Length;
-            if (!init_bridge) Init_FIC2USBCard();
+            if (!init_bridge)
+                Init_FIC2USBCard();
 
             // Step 1 Create miscellenous block
             var MSCblock = GetMSCReadBlock(Speed, FSBDevAddr, EnableCRC, StartReg, Length);
@@ -873,17 +898,17 @@ namespace OpenCMIS.Cypress
                      FSB2W_DevAddr,
                      new byte[]
                      {
-                             0x10,
-                             0xEA,
-                             0x0,
-                             0x80,
-                             0x35
+                         0x10,
+                         0xEA,
+                         0x0,
+                         0x80,
+                         0x35
                      });
 
             //set delay
-            var bufferIn = new byte[4];
+            var bufferIn  = new byte[4];
             var bufferOut = GetFSBDelay(ReadData.Length, Speed, EnableCRC);
-            var length = 4;
+            var length    = 4;
             if (!CommandData(ref bufferIn, ref bufferOut, ref length) || bufferIn[length - 1] != 0x1)
                 return false;
 
@@ -892,8 +917,8 @@ namespace OpenCMIS.Cypress
                      FSB2W_DevAddr,
                      new byte[]
                      {
-                             0x10,
-                             0xED
+                         0x10,
+                         0xED
                      });
 
             //read status
@@ -906,9 +931,9 @@ namespace OpenCMIS.Cypress
                      FSB2W_DevAddr,
                      new byte[]
                      {
-                             0x10,
-                             0xEC,
-                             0x3F
+                         0x10,
+                         0xEC,
+                         0x3F
                      });
 
             //Reset GPIO Cfg Registers
@@ -921,8 +946,8 @@ namespace OpenCMIS.Cypress
                      FSB2W_DevAddr,
                      new byte[]
                      {
-                             0x2,
-                             0x0
+                         0x2,
+                         0x0
                      });
 
             var rdbackdata = new byte[Length * 2];
@@ -940,18 +965,19 @@ namespace OpenCMIS.Cypress
         }
 
         public bool FSB2WWrite(FIC2USB_FSB2WPort Port,
-                               FIC2USB_FSBSpeed Speed,
-                               byte FSBDevAddr,
-                               bool EnableCRC,
-                               byte StartReg,
-                               ref int[] WriteData)
+                               FIC2USB_FSBSpeed  Speed,
+                               byte              FSBDevAddr,
+                               bool              EnableCRC,
+                               byte              StartReg,
+                               ref int[]         WriteData)
         {
             var Length = WriteData.Length;
-            if (!init_bridge) Init_FIC2USBCard();
+            if (!init_bridge)
+                Init_FIC2USBCard();
 
             var bWriteData = ConvertToByteArray(ref WriteData, Length);
-            var index = 0;
-            var wadd = 0x100;
+            var index      = 0;
+            var wadd       = 0x100;
 
             //pages
             for (var i = 0; i < bWriteData.Length / 32; i++)
@@ -959,7 +985,8 @@ namespace OpenCMIS.Cypress
                 var page = new byte[34];
                 page[0] = (byte) (wadd >> 8);
                 page[1] = (byte) (wadd & 0xff);
-                for (var j = 0; j < 32; j++) page[j + 2] = bWriteData[i * 32 + j];
+                for (var j = 0; j < 32; j++)
+                    page[j + 2] = bWriteData[i * 32 + j];
 
                 index = (i + 1) * 32;
                 I2CWrite(FIC2USB_I2CPort.I2CPort7, FIC2USB_I2CSpeed.HS400Khz, FSB2W_DevAddr, page);
@@ -970,7 +997,8 @@ namespace OpenCMIS.Cypress
             var restpage = new byte[bWriteData.Length - index + 2];
             restpage[0] = (byte) (wadd >> 8);
             restpage[1] = (byte) (wadd & 0xff);
-            for (var i = index; i < bWriteData.Length; i++) restpage[2 + i] = bWriteData[i];
+            for (var i = index; i < bWriteData.Length; i++)
+                restpage[2 + i] = bWriteData[i];
 
             I2CWrite(FIC2USB_I2CPort.I2CPort7, FIC2USB_I2CSpeed.HS400Khz, FSB2W_DevAddr, restpage);
 
@@ -988,19 +1016,20 @@ namespace OpenCMIS.Cypress
                      FSB2W_DevAddr,
                      new byte[]
                      {
-                             0x10,
-                             0xEA,
-                             0x0,
-                             0x80,
-                             0x35
+                         0x10,
+                         0xEA,
+                         0x0,
+                         0x80,
+                         0x35
                      });
 
             //Add Delay (During Execution of FSB command)
             //set delay
-            var bufferIn = new byte[4];
+            var bufferIn  = new byte[4];
             var bufferOut = GetFSBDelay(WriteData.Length, Speed, EnableCRC);
-            var length = 4;
-            if (!CommandData(ref bufferIn, ref bufferOut, ref length) || bufferIn[length - 1] != 0x1) return false;
+            var length    = 4;
+            if (!CommandData(ref bufferIn, ref bufferOut, ref length) || bufferIn[length - 1] != 0x1)
+                return false;
 
             //Read Status Byte
             //Start By writing the address, then reading the byte
@@ -1009,9 +1038,10 @@ namespace OpenCMIS.Cypress
                      FSB2W_DevAddr,
                      new byte[]
                      {
-                             0x10,
-                             0xED
+                         0x10,
+                         0xED
                      });
+
             //read status
             var status = new byte[1];
             I2CRead(FIC2USB_I2CPort.I2CPort7, FIC2USB_I2CSpeed.HS400Khz, FSB2W_DevAddr, 1, ref status);
@@ -1022,9 +1052,9 @@ namespace OpenCMIS.Cypress
                      FSB2W_DevAddr,
                      new byte[]
                      {
-                             0x10,
-                             0xEC,
-                             0x3F
+                         0x10,
+                         0xEC,
+                         0x3F
                      });
 
             //Write RAM - Reset GPIO Cfg Registers
@@ -1034,45 +1064,43 @@ namespace OpenCMIS.Cypress
         }
 
         public bool FSB4WRead(FIC2USB_FSB4WPort Port,
-                              FIC2USB_FSBSpeed Speed,
-                              byte FSBDevAddr,
-                              bool EnableCRC,
-                              byte StartReg,
-                              ref int[] ReadData,
-                              FIC2USB_I2CPort FCC03Port = FIC2USB_I2CPort.I2CPort6)
+                              FIC2USB_FSBSpeed  Speed,
+                              byte              FSBDevAddr,
+                              bool              EnableCRC,
+                              byte              StartReg,
+                              ref int[]         ReadData,
+                              FIC2USB_I2CPort   FCC03Port = FIC2USB_I2CPort.I2CPort6)
         {
             return true;
         }
 
         public bool FSB4WWrite(FIC2USB_FSB4WPort Port,
-                               FIC2USB_FSBSpeed Speed,
-                               byte FSBDevAddr,
-                               bool EnableCRC,
-                               byte StartReg,
-                               ref int[] WriteData,
-                               ref byte ReturnStatus,
-                               FIC2USB_I2CPort FCC03Port = FIC2USB_I2CPort.I2CPort6)
+                               FIC2USB_FSBSpeed  Speed,
+                               byte              FSBDevAddr,
+                               bool              EnableCRC,
+                               byte              StartReg,
+                               ref int[]         WriteData,
+                               ref byte          ReturnStatus,
+                               FIC2USB_I2CPort   FCC03Port = FIC2USB_I2CPort.I2CPort6)
         {
             return true;
         }
 
         public bool FSB4WExtRead(FIC2USB_FSB4WPort Port,
-                                 FIC2USB_FSBSpeed Speed,
-                                 byte FSBDevAddr,
-                                 bool EnableCRC,
-                                 ref byte[] ExtRegAddrs,
-                                 int ExtRegVal,
-                                 ref int[] ExtReadData,
-                                 ref byte ReturnStatus,
-                                 FIC2USB_I2CPort FCC03Port = FIC2USB_I2CPort.I2CPort6)
+                                 FIC2USB_FSBSpeed  Speed,
+                                 byte              FSBDevAddr,
+                                 bool              EnableCRC,
+                                 ref byte[]        ExtRegAddrs,
+                                 int               ExtRegVal,
+                                 ref int[]         ExtReadData,
+                                 ref byte          ReturnStatus,
+                                 FIC2USB_I2CPort   FCC03Port = FIC2USB_I2CPort.I2CPort6)
         {
             return true;
         }
-
         #endregion FSB
 
         #region I2C
-
         //*************************** I2C Bus Switch Format*********************************************
         //  I2C write
         //	Offset 	Use		Value
@@ -1085,14 +1113,14 @@ namespace OpenCMIS.Cypress
         //	6..N	*dat		Byte array with 'length' elements
         //	N+1		result		Result Byte
         //**********************************************************************************************
-        public bool I2CWrite(FIC2USB_I2CPort i2cPort,
+        public bool I2CWrite(FIC2USB_I2CPort  i2cPort,
                              FIC2USB_I2CSpeed speed,
-                             byte device_addr,
-                             byte[] dataArray)
+                             byte             device_addr,
+                             byte[]           dataArray)
         {
             var byteLength = dataArray.Length;
-            var bufferOut = new byte[7 + byteLength];
-            var bufferIn = new byte[7  + byteLength];
+            var bufferOut  = new byte[7 + byteLength];
+            var bufferIn   = new byte[7 + byteLength];
 
             //select the port for I2C communication
             PortSelection(myPortValue);
@@ -1103,7 +1131,8 @@ namespace OpenCMIS.Cypress
             bufferOut[3] = device_addr;
             bufferOut[4] = (byte) ((byteLength & 0xFF00) >> 8);
             bufferOut[5] = (byte) (byteLength & 0xFF);
-            for (var i = 0; i < byteLength; i++) bufferOut[6 + i] = dataArray[i];
+            for (var i = 0; i < byteLength; i++)
+                bufferOut[6 + i] = dataArray[i];
 
             bufferOut[7 + byteLength - 1] = 0;
             var length = bufferOut.Length;
@@ -1135,14 +1164,14 @@ namespace OpenCMIS.Cypress
         //	N+1		result		Result Byte
         //**********************************************************************************************
         /// <returns></returns>
-        public bool I2CRead(FIC2USB_I2CPort i2cPort,
+        public bool I2CRead(FIC2USB_I2CPort  i2cPort,
                             FIC2USB_I2CSpeed speed,
-                            byte device_addr,
-                            int byteLength,
-                            ref byte[] readData)
+                            byte             device_addr,
+                            int              byteLength,
+                            ref byte[]       readData)
         {
             var bufferOut = new byte[7 + byteLength];
-            var bufferIn = new byte[7  + byteLength];
+            var bufferIn  = new byte[7 + byteLength];
 
             //select the port for I2C communication
             PortSelection(myPortValue);
@@ -1153,14 +1182,16 @@ namespace OpenCMIS.Cypress
             bufferOut[3] = device_addr;
             bufferOut[4] = (byte) ((byteLength & 0xFF00) >> 8);
             bufferOut[5] = (byte) (byteLength & 0xFF);
-            for (var i = 0; i < byteLength; i++) bufferOut[6 + i] = 0;
+            for (var i = 0; i < byteLength; i++)
+                bufferOut[6 + i] = 0;
 
             bufferOut[7 + byteLength - 1] = 0;
             var length = bufferOut.Length;
 
             if (CommandData(ref bufferIn, ref bufferOut, ref length) && bufferIn[length - 1] == 0x1)
             {
-                for (var i = 0; i < byteLength; i++) readData[i] = bufferIn[6 + i];
+                for (var i = 0; i < byteLength; i++)
+                    readData[i] = bufferIn[6 + i];
                 return true;
             }
 
@@ -1177,29 +1208,25 @@ namespace OpenCMIS.Cypress
         {
             I2CRead((FIC2USB_I2CPort) myPortValue, FIC2USB_I2CSpeed.LS100Khz, device_addr, byteLength, ref dataArray);
         }
-
         #endregion I2C
 
         #region I2C Package Method
-
         public bool I2CWaitForEEPROMWrite(FIC2USB_I2CPort I2CPort, FIC2USB_I2CSpeed HighSpeed, byte I2CAddr)
         {
             return true;
         }
 
-        public bool I2CFindAllI2CAddresses(FIC2USB_I2CPort I2CPort,
+        public bool I2CFindAllI2CAddresses(FIC2USB_I2CPort  I2CPort,
                                            FIC2USB_I2CSpeed HighSpeed,
-                                           byte StartAddr,
-                                           byte SearchNum,
-                                           ref byte[] Addresses)
+                                           byte             StartAddr,
+                                           byte             SearchNum,
+                                           ref byte[]       Addresses)
         {
             return true;
         }
-
         #endregion I2C Package Method
 
         #region GPIO
-
         /// <summary>
         ///     Gets or sets the port setting.
         /// </summary>
@@ -1238,9 +1265,10 @@ namespace OpenCMIS.Cypress
         /// </exception>
         public void GPIOWrite(ushort Value, ushort PortEnable)
         {
-            var length = 4;
+            var length    = 4;
             var bufferOut = new byte[4];
-            var bufferIn = new byte[4];
+            var bufferIn  = new byte[4];
+
             //**********************************************************************************************
             // write port
             //	Offset 	Use		Value
@@ -1256,8 +1284,10 @@ namespace OpenCMIS.Cypress
             if (CommandData(ref bufferIn, ref bufferOut, ref length))
             {
                 if (bufferIn[length - 1] != 0x1)
+                {
                     throw new CyXferDataEndPointException("USB Device " + ProductName +
                                                           " GPIOWrite command not executed successfully.");
+                }
             }
             else
                 throw new CyXferDataEndPointException("USB Device " + ProductName);
@@ -1277,8 +1307,10 @@ namespace OpenCMIS.Cypress
             if (CommandData(ref bufferIn, ref bufferOut, ref length))
             {
                 if (bufferIn[length - 1] != 0x1)
+                {
                     throw new CyXferDataEndPointException("USB Device " + ProductName +
                                                           " enable GPIO port command not executed successfully.");
+                }
 
                 GPIOPortOE = PortEnable; //record the latest port OE value
             }
@@ -1305,8 +1337,8 @@ namespace OpenCMIS.Cypress
             //	3		result		Result Byte
             //**********************************************************************************************
             var bufferOut = new byte[4];
-            var bufferIn = new byte[4];
-            var length = 4;
+            var bufferIn  = new byte[4];
+            var length    = 4;
             bufferOut[0] = CMD_DIOReadPort;
             bufferOut[1] = (byte) GPIOPort;
             bufferOut[2] = 0;
@@ -1314,23 +1346,23 @@ namespace OpenCMIS.Cypress
             if (CommandData(ref bufferIn, ref bufferOut, ref length))
             {
                 if (bufferIn[length - 1] != 0x1)
+                {
                     throw new CyXferDataEndPointException("USB Device " + ProductName +
                                                           " GPIOWrite command not executed successfully.");
+                }
 
                 MyportValue = bufferIn[2];
             }
             else
                 throw new CyXferDataEndPointException("USB Device " + ProductName);
         }
-
         #endregion GPIO
 
         #region
-
         public byte ReadPortOE(FIC2USB_DIOPort DIOPort)
         {
             var bufferOut = new byte[4];
-            var bufferIn = new byte[4];
+            var bufferIn  = new byte[4];
 
             bufferIn[0] = 208;
             bufferIn[1] = checked((byte) DIOPort);
@@ -1347,7 +1379,7 @@ namespace OpenCMIS.Cypress
         public bool WritePortOE(FIC2USB_DIOPort DIOPort, byte PortOE)
         {
             var bufferOut = new byte[4];
-            var bufferIn = new byte[4];
+            var bufferIn  = new byte[4];
 
             bufferIn[0] = 209;
             bufferIn[1] = checked((byte) DIOPort);
@@ -1364,7 +1396,7 @@ namespace OpenCMIS.Cypress
         public byte ReadPort(FIC2USB_DIOPort DIOPort)
         {
             var bufferOut = new byte[4];
-            var bufferIn = new byte[4];
+            var bufferIn  = new byte[4];
 
             bufferIn[0] = 210;
             bufferIn[1] = checked((byte) DIOPort);
@@ -1381,7 +1413,7 @@ namespace OpenCMIS.Cypress
         public bool WritePort(FIC2USB_DIOPort DIOPort, byte PortData)
         {
             var bufferOut = new byte[4];
-            var bufferIn = new byte[4];
+            var bufferIn  = new byte[4];
 
             bufferIn[0] = 211;
             bufferIn[1] = checked((byte) DIOPort);
@@ -1394,12 +1426,10 @@ namespace OpenCMIS.Cypress
 
             return res;
         }
-
         #endregion
     }
 
     #region enums
-
     public enum MSC_CMD
     {
         FRV_MSCC_REQ_SAVE_0       = 0x10,
@@ -1612,6 +1642,5 @@ namespace OpenCMIS.Cypress
         EPOut2In6 = 2,
         EPOut4In8 = 3
     }
-
     #endregion
 }

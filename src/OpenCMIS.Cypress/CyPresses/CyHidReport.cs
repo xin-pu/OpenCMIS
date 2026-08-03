@@ -63,19 +63,21 @@ namespace OpenCMIS.Cypress
             }
 
             // Big enough to hold the report ID and the report data
-            if (RptByteLen > 0) DataBuf = new byte[RptByteLen + 1];
+            if (RptByteLen > 0)
+                DataBuf = new byte[RptByteLen + 1];
 
             if (NumBtnCaps > 0)
             {
                 HIDP_BTN_VAL_CAPS ButtonCaps;
                 Buttons = new CyHidButton[NumBtnCaps];
 
-                var bc = new HIDP_BTN_VAL_CAPS();
+                var bc     = new HIDP_BTN_VAL_CAPS();
                 var buffer = new byte[NumBtnCaps * Marshal.SizeOf(bc)];
 
                 fixed (byte * buf = buffer)
                 {
                     var numCaps = NumBtnCaps;
+
                     //
                     //  BUGFIX 3/07/2008 - HidP_GetButtonCaps will modify numCaps to the
                     //      "actual number of elements that the routine returns".
@@ -113,7 +115,7 @@ namespace OpenCMIS.Cypress
             {
                 Values = new CyHidValue[NumValCaps];
 
-                var vc = new HIDP_BTN_VAL_CAPS();
+                var vc     = new HIDP_BTN_VAL_CAPS();
                 var buffer = new byte[NumValCaps * Marshal.SizeOf(vc)];
 
                 fixed (byte * buf = buffer)
@@ -139,6 +141,7 @@ namespace OpenCMIS.Cypress
 
             NumValues = 0;
             for (var i = 0; i < NumValCaps; i++)
+
                     //if (Values[i].IsRange)
                     //    _NumValues += Values[i].UsageMax - Values[i].Usage + 1;
                     //else
@@ -146,10 +149,12 @@ namespace OpenCMIS.Cypress
 
             NumItems = NumBtnCaps + NumValues;
 
-            if (NumItems > 0) Items = new HID_DATA[NumItems];
+            if (NumItems > 0)
+                Items = new HID_DATA[NumItems];
 
             //if ((ButtonCaps != null) && (Items != null))
             if (NumBtnCaps > 0 && Items != null)
+            {
                 for (var i = 0; i < NumBtnCaps; i++)
                 {
                     Items[i].IsButtonData = 1;
@@ -173,9 +178,11 @@ namespace OpenCMIS.Cypress
 
                     Items[i].ReportID = Buttons[i].ReportID;
                 }
+            }
 
             for (var i = 0; i < NumValues; i++)
                 if (Values[i].IsRange)
+                {
                     for (var usage = Values[i].Usage;
                          usage <= Values[i].UsageMax;
                          usage++)
@@ -186,6 +193,7 @@ namespace OpenCMIS.Cypress
                         Items[i].Usage        = usage;
                         Items[i].ReportID     = Values[i].ReportID;
                     }
+                }
                 else
                 {
                     Items[i].IsButtonData = 0;
@@ -214,10 +222,10 @@ namespace OpenCMIS.Cypress
             {
                 var sType = _rptType switch
                             {
-                                    HIDP_REPORT_TYPE.HidP_Input   => "Input",
-                                    HIDP_REPORT_TYPE.HidP_Output  => "Output",
-                                    HIDP_REPORT_TYPE.HidP_Feature => "Feature",
-                                    _                             => ""
+                                HIDP_REPORT_TYPE.HidP_Input   => "Input",
+                                HIDP_REPORT_TYPE.HidP_Output  => "Output",
+                                HIDP_REPORT_TYPE.HidP_Feature => "Feature",
+                                _                             => ""
                             };
 
                 if (NumItems > 0)
@@ -228,25 +236,25 @@ namespace OpenCMIS.Cypress
                     for (b = 0; b < NumBtnCaps; b++)
                     {
                         var t = new TreeNode("Button")
-                        {
-                                Tag = Buttons[b]
-                        };
+                                {
+                                    Tag = Buttons[b]
+                                };
                         subTree[b] = t;
                     }
 
                     for (var v = 0; v < NumValCaps; v++)
                     {
                         var t = new TreeNode("Value")
-                        {
-                                Tag = Values[v]
-                        };
+                                {
+                                    Tag = Values[v]
+                                };
                         subTree[b + v] = t;
                     }
 
                     var tr = new TreeNode(sType, subTree)
-                    {
-                            Tag = this
-                    };
+                             {
+                                 Tag = this
+                             };
 
                     return tr;
                 }
@@ -267,13 +275,14 @@ namespace OpenCMIS.Cypress
 
             var sRptType = _rptType switch
                            {
-                                   HIDP_REPORT_TYPE.HidP_Feature => "FEATURE",
-                                   HIDP_REPORT_TYPE.HidP_Input   => "INPUT",
-                                   HIDP_REPORT_TYPE.HidP_Output  => "OUTPUT",
-                                   _                             => ""
+                               HIDP_REPORT_TYPE.HidP_Feature => "FEATURE",
+                               HIDP_REPORT_TYPE.HidP_Input   => "INPUT",
+                               HIDP_REPORT_TYPE.HidP_Output  => "OUTPUT",
+                               _                             => ""
                            };
 
             s.Append($"\t<{sRptType}>\r\n");
+
             //s.Append(string.Format("\t\tReportID=\"{0}\"\r\n", _ReportID));
             s.Append($"\t\tRptByteLen=\"{RptByteLen}\"\r\n");
 
@@ -281,12 +290,16 @@ namespace OpenCMIS.Cypress
             s.Append($"\t\tValues=\"{NumValues}\"\r\n");
 
             if (NumBtnCaps > 0)
+            {
                 foreach (var btn in Buttons)
                     s.Append(btn);
+            }
 
             if (NumValCaps > 0)
+            {
                 foreach (var val in Values)
                     s.Append(val);
+            }
 
             s.Append($"\t</{sRptType}>\r\n");
 

@@ -64,7 +64,7 @@ namespace OpenCMIS.Cypress
         {
             //Dire : in, Target : Device, ReqCode:0xA0,wValue:0x0000,wIndex:0x0000
             // This function checks for bootloader,it will return false if it is not running.
-            var buf = new byte[1];
+            var  buf = new byte[1];
             uint len = 1;
             return Ep0VendorCommand(ref buf, ref len, true, 0xA0, 0x0000);
         }
@@ -91,11 +91,14 @@ namespace OpenCMIS.Cypress
         public FX3_FWDWNLOAD_ERROR_CODE DownloadFw(string filename, FX3_FWDWNLOAD_MEDIA_TYPE enMediaType)
         {
             uint fwSize = 0;
-            if (filename.Equals("")) return FX3_FWDWNLOAD_ERROR_CODE.INVALID_FILE;
+            if (filename.Equals(""))
+                return FX3_FWDWNLOAD_ERROR_CODE.INVALID_FILE;
 
             // Suck-in the data from the .iic file
             Stream fStream = new FileStream(filename, FileMode.Open, FileAccess.Read);
-            if (fStream == null) return FX3_FWDWNLOAD_ERROR_CODE.INVALID_FILE;
+            if (fStream == null)
+                return FX3_FWDWNLOAD_ERROR_CODE.INVALID_FILE;
+
             fwSize = (uint) fStream.Length;
 
             if (fwSize <= 0)
@@ -111,11 +114,11 @@ namespace OpenCMIS.Cypress
             fStream.Close();
             return enMediaType switch
                    {
-                           // call api to download the image
-                           FX3_FWDWNLOAD_MEDIA_TYPE.RAM       => DownloadFwToRam(ref FwImage, ref fwSize),
-                           FX3_FWDWNLOAD_MEDIA_TYPE.I2CE2PROM => DownloadUserIMGtoI2CE2PROM(ref FwImage, ref fwSize),
-                           FX3_FWDWNLOAD_MEDIA_TYPE.SPIFLASH  => DownloadUserIMGtoSPIFLASH(ref FwImage, ref fwSize),
-                           _                                  => FX3_FWDWNLOAD_ERROR_CODE.INVALID_MEDIA_TYPE
+                       // call api to download the image
+                       FX3_FWDWNLOAD_MEDIA_TYPE.RAM       => DownloadFwToRam(ref FwImage, ref fwSize),
+                       FX3_FWDWNLOAD_MEDIA_TYPE.I2CE2PROM => DownloadUserIMGtoI2CE2PROM(ref FwImage, ref fwSize),
+                       FX3_FWDWNLOAD_MEDIA_TYPE.SPIFLASH  => DownloadUserIMGtoSPIFLASH(ref FwImage, ref fwSize),
+                       _                                  => FX3_FWDWNLOAD_ERROR_CODE.INVALID_MEDIA_TYPE
                    };
         }
 
@@ -129,42 +132,49 @@ namespace OpenCMIS.Cypress
         {
             const int BUFSIZE_UPORT = CyConst.CONTROLTFRER_DATA_LENGTH;
 
-            var downloadbuf = new byte[BUFSIZE_UPORT];
-            var uploadbuf = new byte[BUFSIZE_UPORT];
-            uint ComputeCheckSum = 0;
-            uint ExpectedCheckSum = 0;
-            uint SectionLength = 0;
-            uint SectionAddress = 0;
-            uint DownloadAddress = 0;
-            uint ProgramEntry = 0;
-            uint FwImagePtr = 0;
-            var usbSuspendTestRequired = false;
+            var  downloadbuf            = new byte[BUFSIZE_UPORT];
+            var  uploadbuf              = new byte[BUFSIZE_UPORT];
+            uint ComputeCheckSum        = 0;
+            uint ExpectedCheckSum       = 0;
+            uint SectionLength          = 0;
+            uint SectionAddress         = 0;
+            uint DownloadAddress        = 0;
+            uint ProgramEntry           = 0;
+            uint FwImagePtr             = 0;
+            var  usbSuspendTestRequired = false;
+
             // Initialize computed checksum
             ComputeCheckSum = 0;
+
             // Check "CY" signature (0x43,0x59) and download the firmware image
             if (buf[FwImagePtr] != 0x43 || buf[FwImagePtr + 1] != 0x59)
+
                     // signature doesn't match
                 return FX3_FWDWNLOAD_ERROR_CODE.INVALID_FWSIGNATURE;
 
             // Skip the two bytes signature and the following two bytes
             FwImagePtr += 4;
+
             // Download one section at a time to the device, compute checksum, and upload-verify it
             var executeUsbSuspendTest = usbSuspendTestRequired;
-            var isTrue = true;
+            var isTrue                = true;
             while (isTrue)
             {
                 SectionLength = 0;
+
                 // Get section length (4 bytes) and convert it from byte arrya to 32-bit word count
                 CYWB_BL_4_BYTES_COPY(ref SectionLength, ref buf, ref FwImagePtr);
                 FwImagePtr    += 4;
                 SectionLength =  SectionLength << 2;
 
                 // If SectionLength = 0, the transfer is complete
-                if (SectionLength == 0) break;
+                if (SectionLength == 0)
+                    break;
 
                 // Get section address (4 bytes)
                 CYWB_BL_4_BYTES_COPY(ref SectionAddress, ref buf, ref FwImagePtr);
                 FwImagePtr += 4;
+
                 // Download and upload-verify SSV_BUFFER_SIZE_FOR_DOWNLOAD_FROM_UPORT maximum bytes at a time
                 var bytesLeftToDownload = SectionLength;
                 DownloadAddress = SectionAddress;
@@ -201,6 +211,7 @@ namespace OpenCMIS.Cypress
                         {
                             // Check if we exceeded the max try count
                             if (tryCount == maxTryCount)
+
                                     //LogMessage(LOG_ERROR, 0, "Failure while downloading firmware to the device. Abort");
                                 return FX3_FWDWNLOAD_ERROR_CODE.FAILED;
 
@@ -213,6 +224,7 @@ namespace OpenCMIS.Cypress
                         {
                             // Check if we exceeded the max try count
                             if (tryCount == maxTryCount)
+
                                     //LogMessage(LOG_ERROR, 0, "Failure while uploading firmware from the device for verification. Abort");
                                 return FX3_FWDWNLOAD_ERROR_CODE.FAILED;
 
@@ -223,10 +235,15 @@ namespace OpenCMIS.Cypress
                         //compare the downloaded and uploaded data, if doesn't match then return error
                         for (var i = 0; i < bytesToTransfer; i++)
                             if (downloadbuf[i] != uploadbuf[i])
+
                                     // Check if we exceeded the max try count
+                            {
                                 if (tryCount == maxTryCount)
+
                                         //LogMessage(LOG_ERROR, 0, "Uploaded firmware data does not match downloaded data. Abort");
                                     return FX3_FWDWNLOAD_ERROR_CODE.FAILED;
+                            }
+
                         //LogMessage(LOG_WARNING, 0, " *** Uploaded data does not match downloaded data. Trying writing/verifying current buffer again... ***");
                     }
 
@@ -254,13 +271,16 @@ namespace OpenCMIS.Cypress
                         // Close and Re-open access to the device
                         Close();
                         if (!Open(0))
+
                                 //LogMessage(LOG_ERROR, 0, "  Cannot re-open the USB device after a USB Suspend test has been executed");
                             return FX3_FWDWNLOAD_ERROR_CODE.DEVICE_CREATE_FAILED;
+
                         // Wait a bit before continuing
                         Thread.Sleep(100);
 
                         // Verify that we have access to the device
                         if (!UploadBufferFromDevice(ref uploadbuf, ref bytesToTransfer, DownloadAddress))
+
                                 //LogMessage(LOG_ERROR, 0, " Could not recover from USB cable disconnect/connect (Manual USB Suspend test)");
                             return FX3_FWDWNLOAD_ERROR_CODE.FAILED;
 
@@ -271,8 +291,10 @@ namespace OpenCMIS.Cypress
                     DownloadAddress     += bytesToTransfer;
                     FwImagePtr          += bytesToTransfer;
                     bytesLeftToDownload -= bytesToTransfer;
+
                     // Sanity check
                     if (FwImagePtr > buflen)
+
                             //LogMessage(LOG_ERROR, 0, "Incorrect image data structure: reading beyond the image file boundary");
                         return FX3_FWDWNLOAD_ERROR_CODE.INCORRECT_IMAGE_LENGTH;
                 }
@@ -295,8 +317,9 @@ namespace OpenCMIS.Cypress
             }
 
             // Transfer execution to Program Entry
-            var dummyBuffer = new byte[1];
-            uint len = 0;
+            var  dummyBuffer = new byte[1];
+            uint len         = 0;
+
             // Some of the xHCI controller have issue with Control In transfer, due to this below request fail.
             // This request send ProgramEntry.
             //if (DownloadBufferToDevice(ref dummyBuffer, ref len, ProgramEntry) == false)
@@ -313,25 +336,25 @@ namespace OpenCMIS.Cypress
 
         internal FX3_FWDWNLOAD_ERROR_CODE DownloadUserIMGtoI2CE2PROM(ref byte[] buf, ref uint buflen)
         {
-            var STAGE_SIZE = CyConst.CONTROLTFRER_DATA_LENGTH;
-            var downloadbuf = new byte[STAGE_SIZE];
-            var NoOfStage = (int) buflen / STAGE_SIZE;
-            var LastStage = (int) buflen % STAGE_SIZE;
+            var  STAGE_SIZE      = CyConst.CONTROLTFRER_DATA_LENGTH;
+            var  downloadbuf     = new byte[STAGE_SIZE];
+            var  NoOfStage       = (int) buflen / STAGE_SIZE;
+            var  LastStage       = (int) buflen % STAGE_SIZE;
             uint DownloadAddress = 0;
-            var FwImagePtr = 0;
-            var StageSize = STAGE_SIZE;
-            var maxpkt = ControlEndPt.MaxPktSize;
+            var  FwImagePtr      = 0;
+            var  StageSize       = STAGE_SIZE;
+            var  maxpkt          = ControlEndPt.MaxPktSize;
+
             //Get the I2C addressing size
-            var ImgI2CSizeByte = buf[2]; // the 2nd byte of the IMG file will tell us the I2EPROM internal addressing.
+            var  ImgI2CSizeByte     = buf[2]; // the 2nd byte of the IMG file will tell us the I2EPROM internal addressing.
             uint AddresingStageSize = 0;
-            ImgI2CSizeByte = (byte) ((ImgI2CSizeByte >> 1) & 0x07); // Bit3:1 represent the addressing
+            ImgI2CSizeByte = (byte) (ImgI2CSizeByte >> 1 & 0x07); // Bit3:1 represent the addressing
             var IsMicroShipE2Prom = false;
 
             switch (ImgI2CSizeByte)
             {
                 case 0:
-                case 1:
-                    return FX3_FWDWNLOAD_ERROR_CODE.I2CEEPROM_UNKNOWN_I2C_SIZE;
+                case 1: return FX3_FWDWNLOAD_ERROR_CODE.I2CEEPROM_UNKNOWN_I2C_SIZE;
 
                 case 2:
                     AddresingStageSize = 4 * 1024; // 4KByte
@@ -358,8 +381,7 @@ namespace OpenCMIS.Cypress
                     AddresingStageSize = 64 * 1024; // 64KByte // case 7 represent 128Kbyte but it follow 64Kbyte addressing
                     break;
 
-                default:
-                    return FX3_FWDWNLOAD_ERROR_CODE.I2CEEPROM_UNKNOWN_I2C_SIZE;
+                default: return FX3_FWDWNLOAD_ERROR_CODE.I2CEEPROM_UNKNOWN_I2C_SIZE;
             }
 
             ControlEndPt.TimeOut   = 5000;
@@ -438,6 +460,7 @@ namespace OpenCMIS.Cypress
 
                 if (!ControlEndPt.XferData(ref downloadbuf, ref LastStage))
                     return FX3_FWDWNLOAD_ERROR_CODE.FAILED;
+
                 /*Failure Case:
                   The device does not return failure message when file size is more than 128KByte and only one 128Byte E2PROM on the DVK.
                   Solution:
@@ -454,14 +477,15 @@ namespace OpenCMIS.Cypress
         internal FX3_FWDWNLOAD_ERROR_CODE EraseSectorOfSPIFlash(uint SectorNumber)
         {
             bool ret;
-            var buf = new byte[1];
+            var  buf     = new byte[1];
             byte ReqCode = 0xC4;
-            uint buflen = 0;
+            uint buflen  = 0;
             uint elapsed = 0;
             buf[0] = 1;
 
             // Value = isErase, index = sector number
             ret = Ep0VendorCommand(ref buf, ref buflen, false, ReqCode, 1 + (SectorNumber << 16));
+
             //et = Ep0VendorCommand(usbDevice, CyFalse, 0xc4, (1 + (sectorNumber << 16)), 0, 0);
             if (ret)
             {
@@ -489,19 +513,21 @@ namespace OpenCMIS.Cypress
         internal bool WriteToSPIFlash(ref byte[] Buf, ref uint buflen, ref uint ByteAddress)
         {
             byte ReqCode = 0xC2;
-            return Ep0VendorCommand(ref Buf, ref buflen, false, ReqCode, (ByteAddress / SPI_FLASH_PAGE_SIZE_IN_BYTE) << 16);
+            return Ep0VendorCommand(ref Buf, ref buflen, false, ReqCode, ByteAddress / SPI_FLASH_PAGE_SIZE_IN_BYTE << 16);
         }
 
         internal FX3_FWDWNLOAD_ERROR_CODE DownloadUserIMGtoSPIFLASH(ref byte[] buf, ref uint buflen)
         {
             // The size of the image needs to be rounded to a multiple of the SPI page size. */
-            var ImageSizeInPage = (buflen + SPI_FLASH_PAGE_SIZE_IN_BYTE - 1) / SPI_FLASH_PAGE_SIZE_IN_BYTE;
-            var TotalNumOfByteToWrote = ImageSizeInPage                      * SPI_FLASH_PAGE_SIZE_IN_BYTE;
+            var ImageSizeInPage       = (buflen + SPI_FLASH_PAGE_SIZE_IN_BYTE - 1) / SPI_FLASH_PAGE_SIZE_IN_BYTE;
+            var TotalNumOfByteToWrote = ImageSizeInPage                            * SPI_FLASH_PAGE_SIZE_IN_BYTE;
+
             // Sectors needs to be erased in case of SPI. Sector size = 64k. Page Size = 256 bytes. 1 Sector = 256 pages.
             // Calculate the number of sectors needed to write firmware image and erase them.
             var NumOfSector = buflen / SPI_FLASH_SECTOR_SIZE_IN_BYTE;
             if (buflen % SPI_FLASH_SECTOR_SIZE_IN_BYTE != 0)
                 NumOfSector++;
+
             //Erase the sectors
             for (uint i = 0; i < NumOfSector; i++)
                 if (EraseSectorOfSPIFlash(i) != FX3_FWDWNLOAD_ERROR_CODE.SUCCESS)
@@ -509,10 +535,11 @@ namespace OpenCMIS.Cypress
 
             //Write the firmware to the SPI flash
             var numberOfBytesLeftToWrite = TotalNumOfByteToWrote; // Current number of bytes left to write
+
             //byte *imagePointer_p = buf; // Current image pointer
-            uint FwFilePointer = 0;
+            uint FwFilePointer          = 0;
             uint massStorageByteAddress = 0; // Current Mass Storage Byte Address
-            var WriteBuf = new byte[CYWB_BL_MAX_BUFFER_SIZE_WHEN_USING_EP0_TRANSPORT];
+            var  WriteBuf               = new byte[CYWB_BL_MAX_BUFFER_SIZE_WHEN_USING_EP0_TRANSPORT];
 
             while (numberOfBytesLeftToWrite > 0)
             {
@@ -520,6 +547,7 @@ namespace OpenCMIS.Cypress
 
                 if (numberOfBytesLeftToWrite < CYWB_BL_MAX_BUFFER_SIZE_WHEN_USING_EP0_TRANSPORT)
                     numberOfBytesToWrite = numberOfBytesLeftToWrite;
+
                 // Trigger a mass storage write...
                 for (var i = 0; i < numberOfBytesToWrite; i++)
                     if (FwFilePointer + i < buflen)
@@ -527,6 +555,7 @@ namespace OpenCMIS.Cypress
 
                 if (!WriteToSPIFlash(ref WriteBuf, ref numberOfBytesToWrite, ref massStorageByteAddress))
                     return FX3_FWDWNLOAD_ERROR_CODE.FAILED;
+
                 // Adjust pointers
                 numberOfBytesLeftToWrite -= numberOfBytesToWrite;
                 FwFilePointer            += numberOfBytesToWrite;
@@ -599,9 +628,12 @@ namespace OpenCMIS.Cypress
                 // Allocate the buffer
                 var StageBuf = new byte[Stagelen];
                 if (!IsFromDevice)
+
                         //write operation
+                {
                     for (var i = 0; i < Stagelen; i++)
                         StageBuf[i] = buf[BufIndex + i];
+                }
 
                 bRetCode = ControlEndPt.XferData(ref StageBuf, ref Stagelen);
                 if (m_bRecording && m_script_file_name != null)
@@ -629,9 +661,12 @@ namespace OpenCMIS.Cypress
                     return false;
 
                 if (IsFromDevice)
+
                         //read operation
+                {
                     for (var i = 0; i < Stagelen; i++)
                         buf[BufIndex + i] = StageBuf[i];
+                }
 
                 len      -= Stagelen;
                 BufIndex += Stagelen;

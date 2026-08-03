@@ -41,8 +41,9 @@ namespace OpenCMIS.Cypress
             if (_usbDevice != null)
             {
                 var tempSN = _usbDevice.SerialNumber;
-                var i = tempSN.IndexOf('-');
-                if (i > 0) retValue = tempSN.Substring(i + 1);
+                var i      = tempSN.IndexOf('-');
+                if (i > 0)
+                    retValue = tempSN.Substring(i + 1);
             }
 
             return retValue;
@@ -62,7 +63,7 @@ namespace OpenCMIS.Cypress
             if (_usbDevice != null)
             {
                 var tempSN = _usbDevice.SerialNumber;
-                var i = tempSN.IndexOf('-');
+                var i      = tempSN.IndexOf('-');
                 if (i > 0)
                 {
                     retValue = tempSN.Substring(0, 5);
@@ -98,12 +99,14 @@ namespace OpenCMIS.Cypress
         public void I2CFreqency400KHz(bool freq400KHz)
         {
             if (_usbDevice == null)
+            {
                 throw new ArgumentNullException("Device instance is NULL, actual device may have been detached.",
                                                 new Exception("EZUSBDevice is NULL"));
+            }
 
-            var length = 8;
+            var length    = 8;
             var bufferOut = new byte[length];
-            var bufferIn = new byte[length];
+            var bufferIn  = new byte[length];
 
             bufferOut[0] = CMD_I2CFREQ;
             bufferOut[1] = Convert.ToByte(freq400KHz); // true = 400 kHz, false = 100 kHz
@@ -116,8 +119,10 @@ namespace OpenCMIS.Cypress
             {
                 // index 0 is the return code
                 int retValue = bufferIn[0];
+
                 //dataArray = new byte[length];
-                if (retValue != 0) throw new CyXferDataEndPointException("Command error - USB Device " + ProductName);
+                if (retValue != 0)
+                    throw new CyXferDataEndPointException("Command error - USB Device " + ProductName);
             }
             else
                 throw new CyXferDataEndPointException("USB Device " + ProductName);
@@ -135,12 +140,14 @@ namespace OpenCMIS.Cypress
         public void I2CMUXReset()
         {
             if (_usbDevice == null)
+            {
                 throw new ArgumentNullException("Device instance is NULL, actual device may have been detached.",
                                                 new Exception("EZUSBDevice is NULL"));
+            }
 
-            var length = 8;
+            var length    = 8;
             var bufferOut = new byte[length];
-            var bufferIn = new byte[length];
+            var bufferIn  = new byte[length];
 
             bufferOut[0] = CMD_I2CMUXRESET;
             bufferOut[1] = 0;
@@ -153,8 +160,10 @@ namespace OpenCMIS.Cypress
             {
                 // index 0 is the return code
                 int retValue = bufferIn[0];
+
                 //dataArray = new byte[length];
-                if (retValue != 0) throw new CyXferDataEndPointException("Command error - USB Device " + ProductName);
+                if (retValue != 0)
+                    throw new CyXferDataEndPointException("Command error - USB Device " + ProductName);
             }
             else
                 throw new CyXferDataEndPointException("USB Device " + ProductName);
@@ -175,19 +184,22 @@ namespace OpenCMIS.Cypress
         public void I2CRead(byte deviceAddress, ref byte[] dataArray, int byteLength)
         {
             if (_usbDevice == null)
+            {
                 throw new ArgumentNullException("Device instance is NULL, actual device may have been detached.",
                                                 new Exception("EZUSBDevice is NULL"));
+            }
 
             if (byteLength > 256 - 5)
+
                     //MessageBox.Show("Exceed number of bytes allowed to read.");
                     //dataArray = new byte[0];
                     //return 3;
                 throw new ArgumentException("Exceed MAX number of bytes allowed to read.");
 
             var outLength = 5;
-            var inLength = 256;
+            var inLength  = 256;
             var bufferOut = new byte[outLength];
-            var bufferIn = new byte[inLength];
+            var bufferIn  = new byte[inLength];
 
             bufferOut[0] = CMD_I2CREAD;
             bufferOut[1] = (byte) (deviceAddress >> 1);
@@ -200,6 +212,7 @@ namespace OpenCMIS.Cypress
             {
                 // index 0 is the return code
                 int retValue = bufferIn[0];
+
                 //dataArray = new byte[length];
                 if (retValue == 0)
                 {
@@ -211,15 +224,19 @@ namespace OpenCMIS.Cypress
                         j++;
                     }
                 }
-                else if (retValue == 6) throw new I2CBitErrorException(" device " + deviceAddress.ToString("X"));
+                else if (retValue == 6)
+                    throw new I2CBitErrorException(" device " + deviceAddress.ToString("X"));
                 else if (retValue == 7)
-                    throw new I2CNoACKException("Device "    + deviceAddress.ToString("X") + " may be disconnected.");
-                else throw new I2CAccessException(" device " + deviceAddress.ToString("X"));
+                    throw new I2CNoACKException("Device " + deviceAddress.ToString("X") + " may be disconnected.");
+                else
+                    throw new I2CAccessException(" device " + deviceAddress.ToString("X"));
             }
             else
+
                     //dataArray = new byte[0];
                     //retValue = 4;  //throw new Exception("Transaction not successfully completed.");
                 throw new CyXferDataEndPointException("USB Device " + ProductName);
+
             //return retValue;
         }
 
@@ -240,19 +257,22 @@ namespace OpenCMIS.Cypress
         public void I2CRead(byte deviceAddress, ushort internalAddress, ref byte[] dataArray, int byteLength)
         {
             if (_usbDevice == null)
+            {
                 throw new ArgumentNullException("Device instance is NULL, actual device may have been detached.",
                                                 new Exception("EZUSBDevice is NULL"));
+            }
 
             if (byteLength > 256 - 5)
+
                     //MessageBox.Show("Exceed number of bytes allowed to read.");
                     //dataArray = new byte[0];
                     //return 3;
                 throw new ArgumentException("Exceed MAX number of bytes allowed to read.");
 
             var outLength = 6;
-            var inLength = 256;
+            var inLength  = 256;
             var bufferOut = new byte[outLength];
-            var bufferIn = new byte[inLength];
+            var bufferIn  = new byte[inLength];
 
             bufferOut[0] = CMD_I2CREAD16B;
             bufferOut[1] = (byte) (deviceAddress >> 1);
@@ -267,6 +287,7 @@ namespace OpenCMIS.Cypress
             {
                 // index 0 is the return code
                 int retValue = bufferIn[0];
+
                 //dataArray = new byte[length];
                 if (retValue == 0)
                 {
@@ -277,10 +298,12 @@ namespace OpenCMIS.Cypress
                         j++;
                     }
                 }
-                else if (retValue == 6) throw new I2CBitErrorException(" device " + deviceAddress.ToString("X"));
+                else if (retValue == 6)
+                    throw new I2CBitErrorException(" device " + deviceAddress.ToString("X"));
                 else if (retValue == 7)
-                    throw new I2CNoACKException("Device "    + deviceAddress.ToString("X") + " may be disconnected.");
-                else throw new I2CAccessException(" device " + deviceAddress.ToString("X"));
+                    throw new I2CNoACKException("Device " + deviceAddress.ToString("X") + " may be disconnected.");
+                else
+                    throw new I2CAccessException(" device " + deviceAddress.ToString("X"));
             }
             else
                 throw new CyXferDataEndPointException("USB Device " + ProductName);
@@ -302,19 +325,22 @@ namespace OpenCMIS.Cypress
         public void I2CRead(byte deviceAddress, byte internalAddress, ref byte[] dataArray, int byteLength)
         {
             if (_usbDevice == null)
+            {
                 throw new ArgumentNullException("Device instance is NULL, actual device may have been detached.",
                                                 new Exception("EZUSBDevice is NULL"));
+            }
 
             if (byteLength > 256 - 5)
+
                     //MessageBox.Show("Exceed number of bytes allowed to read.");
                     //dataArray = new byte[0];
                     //return 3;
                 throw new ArgumentException("Exceed MAX number of bytes allowed to read.");
 
             var outLength = 5;
-            var inLength = 256;
+            var inLength  = 256;
             var bufferOut = new byte[outLength];
-            var bufferIn = new byte[inLength];
+            var bufferIn  = new byte[inLength];
 
             bufferOut[0] = CMD_I2CREAD;
             bufferOut[1] = (byte) (deviceAddress >> 1);
@@ -327,6 +353,7 @@ namespace OpenCMIS.Cypress
             {
                 // index 0 is the return code
                 int retValue = bufferIn[0];
+
                 //dataArray = new byte[length];
                 if (retValue == 0)
                 {
@@ -337,15 +364,19 @@ namespace OpenCMIS.Cypress
                         j++;
                     }
                 }
-                else if (retValue == 6) throw new I2CBitErrorException(" device " + deviceAddress.ToString("X"));
+                else if (retValue == 6)
+                    throw new I2CBitErrorException(" device " + deviceAddress.ToString("X"));
                 else if (retValue == 7)
-                    throw new I2CNoACKException("Device "    + deviceAddress.ToString("X") + " may be disconnected.");
-                else throw new I2CAccessException(" device " + deviceAddress.ToString("X"));
+                    throw new I2CNoACKException("Device " + deviceAddress.ToString("X") + " may be disconnected.");
+                else
+                    throw new I2CAccessException(" device " + deviceAddress.ToString("X"));
             }
             else
+
                     //dataArray = new byte[0];
                     //retValue = 4;  //throw new Exception("Transaction not successfully completed.");
                 throw new CyXferDataEndPointException("USB Device " + ProductName);
+
             //return retValue;
         }
 
@@ -364,18 +395,21 @@ namespace OpenCMIS.Cypress
         public void I2CWrite(byte deviceAddress, byte[] dataArray, int byteLength)
         {
             if (_usbDevice == null)
+            {
                 throw new ArgumentNullException("Device instance is NULL, actual device may have been detached.",
                                                 new Exception("EZUSBDevice is NULL"));
+            }
 
             if (byteLength > 256 - 4)
+
                     //MessageBox.Show("Exceed number of bytes allowed to write.");
                     //return 3;
                 throw new ArgumentException("Exceed MAX number of bytes allowed to read.");
 
             var outLength = byteLength + 3;
-            var inLength = 256;
+            var inLength  = 256;
             var bufferOut = new byte[outLength];
-            var bufferIn = new byte[inLength];
+            var bufferIn  = new byte[inLength];
 
             bufferOut[0] = CMD_I2CWRITE;
             bufferOut[1] = (byte) (deviceAddress >> 1);
@@ -383,7 +417,8 @@ namespace OpenCMIS.Cypress
             bufferOut[3] = (byte) byteLength;
 
             // propagate buffer with data starting from index 1
-            for (var i = 1; i < byteLength; i++) bufferOut[i + 3] = dataArray[i];
+            for (var i = 1; i < byteLength; i++)
+                bufferOut[i + 3] = dataArray[i];
 
             // send PACKET
             if (CommandData(ref bufferIn, ref bufferOut, ref outLength, ref inLength))
@@ -394,15 +429,19 @@ namespace OpenCMIS.Cypress
                 {
                     // success, do nothing
                 }
-                else if (retValue == 6) throw new I2CBitErrorException(" device " + deviceAddress.ToString("X"));
+                else if (retValue == 6)
+                    throw new I2CBitErrorException(" device " + deviceAddress.ToString("X"));
                 else if (retValue == 7)
-                    throw new I2CNoACKException("Device "    + deviceAddress.ToString("X") + " may be disconnected.");
-                else throw new I2CAccessException(" device " + deviceAddress.ToString("X"));
+                    throw new I2CNoACKException("Device " + deviceAddress.ToString("X") + " may be disconnected.");
+                else
+                    throw new I2CAccessException(" device " + deviceAddress.ToString("X"));
             }
             else
+
                     //dataArray = new byte[0];
                     //retValue = 4;  //throw new Exception("Transaction not successfully completed.");
                 throw new CyXferDataEndPointException("USB Device " + ProductName);
+
             //return retValue;
         }
 
@@ -423,17 +462,20 @@ namespace OpenCMIS.Cypress
         public void I2CWrite(byte deviceAddress, ushort internalAddress, byte[] dataArray, int byteLength)
         {
             if (_usbDevice == null)
+            {
                 throw new ArgumentNullException("Device instance is NULL, actual device may have been detached.",
                                                 new Exception("EZUSBDevice is NULL"));
+            }
 
             if (byteLength > 256 - 4)
+
                     //MessageBox.Show("Exceed number of bytes allowed to write.");
                 throw new ArgumentException("Exceed MAX number of bytes allowed to read.");
 
             var outLength = byteLength + 5;
-            var inLength = 256;
+            var inLength  = 256;
             var bufferOut = new byte[outLength];
-            var bufferIn = new byte[inLength];
+            var bufferIn  = new byte[inLength];
 
             bufferOut[0] = CMD_I2CWRITE;
             bufferOut[1] = (byte) (deviceAddress   >> 1);
@@ -442,7 +484,8 @@ namespace OpenCMIS.Cypress
             bufferOut[4] = (byte) (internalAddress & 0xFF); // address low next
 
             // propagate buffer with data starting from index 0
-            for (var i = 0; i < byteLength; i++) bufferOut[i + 5] = dataArray[i];
+            for (var i = 0; i < byteLength; i++)
+                bufferOut[i + 5] = dataArray[i];
 
             // send PACKET
             if (CommandData(ref bufferIn, ref bufferOut, ref outLength, ref inLength))
@@ -453,10 +496,12 @@ namespace OpenCMIS.Cypress
                 {
                     // success, do nothing
                 }
-                else if (retValue == 6) throw new I2CBitErrorException(" device " + deviceAddress.ToString("X"));
+                else if (retValue == 6)
+                    throw new I2CBitErrorException(" device " + deviceAddress.ToString("X"));
                 else if (retValue == 7)
-                    throw new I2CNoACKException("Device "    + deviceAddress.ToString("X") + " may be disconnected.");
-                else throw new I2CAccessException(" device " + deviceAddress.ToString("X"));
+                    throw new I2CNoACKException("Device " + deviceAddress.ToString("X") + " may be disconnected.");
+                else
+                    throw new I2CAccessException(" device " + deviceAddress.ToString("X"));
             }
             else
                 throw new CyXferDataEndPointException("USB Device " + ProductName);
@@ -478,18 +523,21 @@ namespace OpenCMIS.Cypress
         public void I2CWrite(byte deviceAddress, byte internalAddress, byte[] dataArray, int byteLength)
         {
             if (_usbDevice == null)
+            {
                 throw new ArgumentNullException("Device instance is NULL, actual device may have been detached.",
                                                 new Exception("EZUSBDevice is NULL"));
+            }
 
             if (byteLength > 256 - 4)
+
                     //MessageBox.Show("Exceed number of bytes allowed to write.");
                     //return 3;
                 throw new ArgumentException("Exceed MAX number of bytes allowed to read.");
 
             var outLength = byteLength + 4;
-            var inLength = 256;
+            var inLength  = 256;
             var bufferOut = new byte[outLength];
-            var bufferIn = new byte[inLength];
+            var bufferIn  = new byte[inLength];
 
             bufferOut[0] = CMD_I2CWRITE;
             bufferOut[1] = (byte) (deviceAddress >> 1);
@@ -497,7 +545,8 @@ namespace OpenCMIS.Cypress
             bufferOut[3] = (byte) (byteLength + 1); // data includes internalAddress
 
             // propagate buffer with data starting from index 0
-            for (var i = 0; i < byteLength; i++) bufferOut[i + 4] = dataArray[i];
+            for (var i = 0; i < byteLength; i++)
+                bufferOut[i + 4] = dataArray[i];
 
             // send PACKET
             if (CommandData(ref bufferIn, ref bufferOut, ref outLength, ref inLength))
@@ -508,15 +557,19 @@ namespace OpenCMIS.Cypress
                 {
                     // success, do nothing
                 }
-                else if (retValue == 6) throw new I2CBitErrorException(" device " + deviceAddress.ToString("X"));
+                else if (retValue == 6)
+                    throw new I2CBitErrorException(" device " + deviceAddress.ToString("X"));
                 else if (retValue == 7)
-                    throw new I2CNoACKException("Device "    + deviceAddress.ToString("X") + " may be disconnected.");
-                else throw new I2CAccessException(" device " + deviceAddress.ToString("X"));
+                    throw new I2CNoACKException("Device " + deviceAddress.ToString("X") + " may be disconnected.");
+                else
+                    throw new I2CAccessException(" device " + deviceAddress.ToString("X"));
             }
             else
+
                     //dataArray = new byte[0];
                     //retValue = 4;  //throw new Exception("Transaction not successfully completed.");
                 throw new CyXferDataEndPointException("USB Device " + ProductName);
+
             //return retValue;
         }
 
@@ -541,30 +594,33 @@ namespace OpenCMIS.Cypress
         /// </exception>
         /// <exception cref="I2CAccessException"> device  + deviceAddress0.ToString(X) + / + deviceAddress1.ToString(X)</exception>
         /// <exception cref="CyXferDataEndPointException">USB Device  + ProductName</exception>
-        public void I2CWriteTwoBytes(byte deviceAddress0,
-                                     byte internalAddress0,
+        public void I2CWriteTwoBytes(byte   deviceAddress0,
+                                     byte   internalAddress0,
                                      byte[] dataArray0,
-                                     int byteLength0,
-                                     byte deviceAddress1,
-                                     byte internalAddress1,
+                                     int    byteLength0,
+                                     byte   deviceAddress1,
+                                     byte   internalAddress1,
                                      byte[] dataArray1,
-                                     int byteLength1,
-                                     int delayMS)
+                                     int    byteLength1,
+                                     int    delayMS)
         {
             if (_usbDevice == null)
+            {
                 throw new ArgumentNullException("Device instance is NULL, actual device may have been detached.",
                                                 new Exception("EZUSBDevice is NULL"));
+            }
 
             if (byteLength0 + byteLength1 > 256 - 8)
+
                     //MessageBox.Show("Exceed number of bytes allowed to write.");
                     //return 3;
                 throw new ArgumentException("Exceed MAX number of bytes allowed to read.");
 
             var outLength = byteLength0 + byteLength1 + 8;
-            var inLength = 256;
+            var inLength  = 256;
             var bufferOut = new byte[outLength];
-            var bufferIn = new byte[inLength];
-            var index = 0;
+            var bufferIn  = new byte[inLength];
+            var index     = 0;
 
             bufferOut[0] = CMD_I2CTWOWRITES;
             bufferOut[1] = (byte) (deviceAddress0 >> 1);
@@ -572,7 +628,8 @@ namespace OpenCMIS.Cypress
             bufferOut[3] = (byte) (byteLength0 + 1); // data includes internalAddress
 
             // propagate buffer with data
-            for (var i = 0; i < byteLength0; i++) bufferOut[i + 4] = dataArray0[i];
+            for (var i = 0; i < byteLength0; i++)
+                bufferOut[i + 4] = dataArray0[i];
 
             index                = byteLength0 + 4;
             bufferOut[index]     = (byte) delayMS; // delay after first write command in milliseconds
@@ -581,7 +638,8 @@ namespace OpenCMIS.Cypress
             bufferOut[index + 3] = (byte) (byteLength1 + 1);
 
             // propagate buffer with data
-            for (var j = 0; j < byteLength1; j++) bufferOut[j + index + 4] = dataArray1[j];
+            for (var j = 0; j < byteLength1; j++)
+                bufferOut[j + index + 4] = dataArray1[j];
 
             // send PACKET
             if (CommandData(ref bufferIn, ref bufferOut, ref outLength, ref inLength))
@@ -593,19 +651,27 @@ namespace OpenCMIS.Cypress
                     // success, do nothing
                 }
                 else if (retValue == 6)
+                {
                     throw new I2CBitErrorException(" device " + deviceAddress0.ToString("X") + "/"
                                                  + deviceAddress1.ToString("X"));
+                }
                 else if (retValue == 7)
+                {
                     throw new I2CNoACKException("Device "                    + deviceAddress0.ToString("X") + "/"
                                               + deviceAddress1.ToString("X") + " may be disconnected.");
+                }
                 else
+                {
                     throw new I2CAccessException(" device " + deviceAddress0.ToString("X") + "/"
                                                + deviceAddress1.ToString("X"));
+                }
             }
             else
+
                     //dataArray = new byte[0];
                     //retValue = 4;  //throw new Exception("Transaction not successfully completed.");
                 throw new CyXferDataEndPointException("USB Device " + ProductName);
+
             //return retValue;
         }
     }

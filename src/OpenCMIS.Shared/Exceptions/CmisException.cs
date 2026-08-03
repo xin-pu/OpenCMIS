@@ -6,19 +6,19 @@ namespace OpenCMIS.Shared
     public class CmisException : Exception
     {
         public CmisException(CmisErrorCode errorCode, string? message = null, Exception? innerException = null)
-            : base(message ?? errorCode.ToString(), innerException)
+                : base(message ?? errorCode.ToString(), innerException)
         {
             ErrorCode = errorCode;
         }
 
         public CmisException(CmisErrorCode errorCode, params object[] args)
-            : base(string.Format(errorCode.ToString(), args))
+                : base(string.Format(errorCode.ToString(), args))
         {
             ErrorCode = errorCode;
         }
 
         public CmisException(CmisErrorCode errorCode, Exception innerException, params object[] args)
-            : base(string.Format(errorCode.ToString(), args), innerException)
+                : base(string.Format(errorCode.ToString(), args), innerException)
         {
             ErrorCode = errorCode;
         }

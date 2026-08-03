@@ -8,7 +8,7 @@ namespace OpenCMIS.CDB.Abstractions
         /// <summary>
         ///     Gets or sets the CDB header information.
         /// </summary>
-        public CdbHeader Header { get; set; } = new();
+        public CdbHeader Header { get; set; } = new ();
 
         /// <summary>
         ///     Gets or sets the collection of CDB fields.
@@ -23,6 +23,6 @@ namespace OpenCMIS.CDB.Abstractions
         /// <summary>
         ///     Gets or sets the CDB version.
         /// </summary>
-        public CdbVersion Version { get; set; } = new();
+        public CdbVersion Version { get; set; } = new ();
     }
 }

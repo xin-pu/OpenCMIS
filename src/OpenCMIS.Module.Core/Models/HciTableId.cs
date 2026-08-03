@@ -1,12 +1,13 @@
-namespace OpenCMIS.Module.Core.Hci;
-
-/// <summary>
-/// Represents a vendor HCI table identifier.
-/// </summary>
-public readonly record struct HciTableId(byte Value)
+namespace OpenCMIS.Module.Core.Hci
 {
-    public override string ToString()
+    /// <summary>
+    ///     Represents a vendor HCI table identifier.
+    /// </summary>
+    public readonly record struct HciTableId(byte Value)
     {
-        return $"0x{Value:X2}";
+        public override string ToString()
+        {
+            return $"0x{Value:X2}";
+        }
     }
 }

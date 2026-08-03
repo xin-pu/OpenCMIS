@@ -6,9 +6,9 @@ using OpenCMIS.App.Core;
 using OpenCMIS.Transport.I2C.Cypress;
 using OpenCMIS.Transport.I2C.Serial;
 using OpenCMIS.Transport.Simulated;
+using OpenCMIS.UI.WPF.Services;
 using OpenCMIS.UI.WPF.ViewModels;
 using OpenCMIS.UI.WPF.Views;
-using OpenCMIS.UI.WPF.Services;
 using Serilog;
 
 namespace OpenCMIS.UI.WPF
@@ -23,47 +23,47 @@ namespace OpenCMIS.UI.WPF
             ApplicationThemeHelper.Preload(PreloadCategories.Core);
         }
 
-        private void OnStartup(object sender, StartupEventArgs e)
-        {
-            _host = Host.CreateDefaultBuilder()
-                .UseSerilog((context, config) =>
-                {
-                    config.MinimumLevel.Debug()
-                          .WriteTo.Console()
-                          .WriteTo.File("logs/cmis-wpf-.log", rollingInterval: Serilog.RollingInterval.Day);
-                })
-                .ConfigureServices(services =>
-                {
-                    services.AddOpenCmisCore();
-                    services.AddOpenCmisSerialAdapters();
-                    services.AddOpenCmisCypressAdapters();
-                    services.AddOpenCmisSimulatedAdapters();
-
-                    // ViewModels
-                    services.AddSingleton<DeviceSession>();
-                    services.AddSingleton<MainViewModel>();
-                    services.AddSingleton<DeviceConnectionViewModel>();
-                    services.AddTransient<DashboardViewModel>();
-                    services.AddTransient<ControlPanelViewModel>();
-                    services.AddTransient<CdbEditorViewModel>();
-                    services.AddTransient<ApplicationSwitchViewModel>();
-                    services.AddTransient<PageEditorViewModel>();
-                    services.AddTransient<ModuleHomeViewModel>();
-
-                    // Views
-                    services.AddTransient<MainWindow>();
-                })
-                .Build();
-
-            var mainWindow = _host.Services.GetRequiredService<MainWindow>();
-            mainWindow.Show();
-        }
-
         protected override async void OnExit(ExitEventArgs e)
         {
             await _host.StopAsync();
             _host.Dispose();
             base.OnExit(e);
+        }
+
+        private void OnStartup(object sender, StartupEventArgs e)
+        {
+            _host = Host.CreateDefaultBuilder()
+                        .UseSerilog((context, config) =>
+                                        {
+                                            config.MinimumLevel.Debug()
+                                                  .WriteTo.Console()
+                                                  .WriteTo.File("logs/cmis-wpf-.log", rollingInterval: RollingInterval.Day);
+                                        })
+                        .ConfigureServices(services =>
+                                               {
+                                                   services.AddOpenCmisCore();
+                                                   services.AddOpenCmisSerialAdapters();
+                                                   services.AddOpenCmisCypressAdapters();
+                                                   services.AddOpenCmisSimulatedAdapters();
+
+                                                   // ViewModels
+                                                   services.AddSingleton<DeviceSession>();
+                                                   services.AddSingleton<MainViewModel>();
+                                                   services.AddSingleton<DeviceConnectionViewModel>();
+                                                   services.AddTransient<DashboardViewModel>();
+                                                   services.AddTransient<ControlPanelViewModel>();
+                                                   services.AddTransient<CdbEditorViewModel>();
+                                                   services.AddTransient<ApplicationSwitchViewModel>();
+                                                   services.AddTransient<PageEditorViewModel>();
+                                                   services.AddTransient<ModuleHomeViewModel>();
+
+                                                   // Views
+                                                   services.AddTransient<MainWindow>();
+                                               })
+                        .Build();
+
+            var mainWindow = _host.Services.GetRequiredService<MainWindow>();
+            mainWindow.Show();
         }
     }
 }

@@ -1,67 +1,69 @@
+using OpenCMIS.Shared;
 using OpenCMIS.Transport.Abstractions;
 using Xunit;
 
-namespace OpenCMIS.Transport.Simulated.Tests;
-
-public sealed class SimulatedI2cAdapterProviderTests
+namespace OpenCMIS.Transport.Simulated.Tests
 {
-    [Fact]
-    public async Task DiscoverAsync_returns_two_devices()
+    public sealed class SimulatedI2cAdapterProviderTests
     {
-        var provider = new SimulatedI2cAdapterProvider();
-        var descriptors = await provider.DiscoverAsync();
-
-        Assert.Equal(2, descriptors.Count);
-        Assert.Contains(descriptors,
-            d => d.DeviceId == "sim-800g-qsfpdd");
-        Assert.Contains(descriptors,
-            d => d.DeviceId == "sim-1p6t-osfp");
-    }
-
-    [Fact]
-    public async Task Discovered_descriptor_has_adapter_id_sim()
-    {
-        var provider = new SimulatedI2cAdapterProvider();
-        var descriptors = await provider.DiscoverAsync();
-
-        foreach (var d in descriptors)
+        [Fact]
+        public async Task DiscoverAsync_returns_two_devices()
         {
-            Assert.Equal("sim", d.AdapterId);
+            var provider    = new SimulatedI2cAdapterProvider();
+            var descriptors = await provider.DiscoverAsync();
+
+            Assert.Equal(2, descriptors.Count);
+            Assert.Contains(descriptors,
+                            d => d.DeviceId == "sim-800g-qsfpdd");
+            Assert.Contains(descriptors,
+                            d => d.DeviceId == "sim-1p6t-osfp");
         }
-    }
 
-    [Fact]
-    public async Task Discovered_800g_display_name_is_correct()
-    {
-        var provider = new SimulatedI2cAdapterProvider();
-        var descriptors = await provider.DiscoverAsync();
-        var d800g = Assert.Single(descriptors,
-            d => d.DeviceId == "sim-800g-qsfpdd");
-        Assert.Equal("Simulated 800G CMIS Module", d800g.DisplayName);
-    }
+        [Fact]
+        public async Task Discovered_descriptor_has_adapter_id_sim()
+        {
+            var provider    = new SimulatedI2cAdapterProvider();
+            var descriptors = await provider.DiscoverAsync();
 
-    [Fact]
-    public async Task OpenAsync_returns_simulated_bus()
-    {
-        var provider = new SimulatedI2cAdapterProvider();
-        var descriptors = await provider.DiscoverAsync();
-        var d800g = descriptors.First(d => d.DeviceId == "sim-800g-qsfpdd");
+            foreach (var d in descriptors)
+                Assert.Equal("sim", d.AdapterId);
+        }
 
-        var bus = await provider.OpenAsync(d800g.Profile);
-        Assert.NotNull(bus);
-        Assert.False(bus.IsOpen); // not opened yet
+        [Fact]
+        public async Task Discovered_800g_display_name_is_correct()
+        {
+            var provider    = new SimulatedI2cAdapterProvider();
+            var descriptors = await provider.DiscoverAsync();
+            var d800g = Assert.Single(descriptors,
+                                      d => d.DeviceId == "sim-800g-qsfpdd");
+            Assert.Equal("Simulated 800G CMIS Module", d800g.DisplayName);
+        }
 
-        await bus.OpenAsync();
-        Assert.True(bus.IsOpen);
-    }
+        [Fact]
+        public async Task OpenAsync_returns_simulated_bus()
+        {
+            var provider    = new SimulatedI2cAdapterProvider();
+            var descriptors = await provider.DiscoverAsync();
+            var d800g       = descriptors.First(d => d.DeviceId == "sim-800g-qsfpdd");
 
-    [Fact]
-    public async Task OpenAsync_with_wrong_adapter_id_throws()
-    {
-        var provider = new SimulatedI2cAdapterProvider();
-        var badProfile = new SerialI2cConnectionProfile(
-            "serial", "COM1", 115200, new I2cDeviceAddress(0x50));
-        await Assert.ThrowsAsync<OpenCMIS.Shared.CmisException>(
-            () => provider.OpenAsync(badProfile).AsTask());
+            var bus = await provider.OpenAsync(d800g.Profile);
+            Assert.NotNull(bus);
+            Assert.False(bus.IsOpen); // not opened yet
+
+            await bus.OpenAsync();
+            Assert.True(bus.IsOpen);
+        }
+
+        [Fact]
+        public async Task OpenAsync_with_wrong_adapter_id_throws()
+        {
+            var provider = new SimulatedI2cAdapterProvider();
+            var badProfile = new SerialI2cConnectionProfile(
+                    "serial",
+                    "COM1",
+                    115200,
+                    new (0x50));
+            await Assert.ThrowsAsync<CmisException>(() => provider.OpenAsync(badProfile).AsTask());
+        }
     }
 }

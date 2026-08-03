@@ -38,7 +38,6 @@ namespace OpenCMIS.Cypress
 
         private IntPtr hRemovedDevice;
 
-
         public MsgForm()
         {
             //
@@ -49,7 +48,6 @@ namespace OpenCMIS.Cypress
             bPnP_DevNodeChange = false;
             bPnP_Arrival       = false;
         }
-
 
         public void Call_Dispose(bool x)
         {
@@ -62,12 +60,13 @@ namespace OpenCMIS.Cypress
         protected override void Dispose(bool disposing)
         {
             if (disposing)
+            {
                 if (components != null)
                     components.Dispose();
+            }
 
             base.Dispose(disposing);
         }
-
 
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         protected override void WndProc(ref Message m)
@@ -92,32 +91,33 @@ namespace OpenCMIS.Cypress
                     if (bcastHdr.dbch_devicetype == CyConst.DBT_DEVTYP_HANDLE)
                     {
                         hRemovedDevice = bcastHdr.dbch_handle;
-                        if (AppCallback != null) AppCallback(CyConst.DBT_DEVICEREMOVECOMPLETE, hRemovedDevice);
+                        if (AppCallback != null)
+                            AppCallback(CyConst.DBT_DEVICEREMOVECOMPLETE, hRemovedDevice);
                     }
                 }
-
 
                 // If DBT_DEVICEARRIVAL followed by DBT_DEVNODES_CHANGED
                 if (bPnP_DevNodeChange && bPnP_Arrival)
                 {
                     bPnP_Arrival       = false;
                     bPnP_DevNodeChange = false;
-                    if (AppCallback != null) AppCallback(CyConst.DBT_DEVICEARRIVAL, CyConst.INVALID_HANDLE);
+                    if (AppCallback != null)
+                        AppCallback(CyConst.DBT_DEVICEARRIVAL, CyConst.INVALID_HANDLE);
                 }
             }
 
             if (m.Msg == CyConst.WM_POWERBROADCAST)
+
                     //if (m.WParam == CyConst.PBT_APMRESUMEAUTOMATIC)
+            {
                 if (m.WParam == CyConst.PBT_APMSUSPEND || m.WParam == CyConst.PBT_APMRESUMEAUTOMATIC)
                     CyConst.Hibernate_first_call = true;
-
+            }
 
             base.WndProc(ref m);
         }
 
-
         #region Windows Form Designer generated code
-
         /// <summary>
         ///     Required method for Designer support - do not modify
         ///     the contents of this method with the code editor.
@@ -127,13 +127,12 @@ namespace OpenCMIS.Cypress
             //
             // MsgForm
             //
-            this.AutoScaleBaseSize = new System.Drawing.Size(5,  13);
-            this.ClientSize        = new System.Drawing.Size(90, 0);
-            this.FormBorderStyle   = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
-            this.Name              = "MsgForm";
-            this.Text              = "MsgForm";
+            AutoScaleBaseSize = new Size(5,  13);
+            ClientSize        = new Size(90, 0);
+            FormBorderStyle   = FormBorderStyle.FixedToolWindow;
+            Name              = "MsgForm";
+            Text              = "MsgForm";
         }
-
         #endregion
     }
 }

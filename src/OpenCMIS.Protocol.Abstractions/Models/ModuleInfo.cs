@@ -35,6 +35,6 @@ namespace OpenCMIS.Protocol.Abstractions.Models
         /// <summary>
         ///     Gets or sets the device capabilities.
         /// </summary>
-        public DeviceCapabilities Capabilities { get; set; } = new();
+        public DeviceCapabilities Capabilities { get; set; } = new ();
     }
 }

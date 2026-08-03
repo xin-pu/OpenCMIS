@@ -7,6 +7,19 @@ namespace OpenCMIS.Protocol.Core
     public class CmisApplication
     {
         /// <summary>
+        ///     Initializes a new instance of the CmisApplication class.
+        /// </summary>
+        /// <param name="appCode">The application code.</param>
+        /// <param name="name">The application name.</param>
+        /// <param name="description">The application description.</param>
+        public CmisApplication(byte appCode, string name, string description)
+        {
+            AppCode     = appCode;
+            Name        = name;
+            Description = description;
+        }
+
+        /// <summary>
         ///     Gets the application code written to the Application Select register.
         /// </summary>
         public byte AppCode { get; }
@@ -20,19 +33,6 @@ namespace OpenCMIS.Protocol.Core
         ///     Gets the application description.
         /// </summary>
         public string Description { get; }
-
-        /// <summary>
-        ///     Initializes a new instance of the CmisApplication class.
-        /// </summary>
-        /// <param name="appCode">The application code.</param>
-        /// <param name="name">The application name.</param>
-        /// <param name="description">The application description.</param>
-        public CmisApplication(byte appCode, string name, string description)
-        {
-            AppCode     = appCode;
-            Name        = name;
-            Description = description;
-        }
 
         /// <inheritdoc />
         public override string ToString()

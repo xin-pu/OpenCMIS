@@ -4,10 +4,11 @@ using CommunityToolkit.Mvvm.Input;
 using OpenCMIS.CDB.Abstractions;
 using OpenCMIS.CDB.Core;
 using OpenCMIS.Protocol.Abstractions;
+using OpenCMIS.Shared;
 
 namespace OpenCMIS.UI.WPF.ViewModels
 {
-    public partial class CdbEditorViewModel : ObservableObject
+    public class CdbEditorViewModel : ObservableObject
     {
         private ICmisDevice? _device;
 
@@ -30,7 +31,8 @@ namespace OpenCMIS.UI.WPF.ViewModels
         [RelayCommand]
         private async Task ReadCdbAsync()
         {
-            if (_device == null) return;
+            if (_device == null)
+                return;
 
             try
             {
@@ -39,16 +41,14 @@ namespace OpenCMIS.UI.WPF.ViewModels
 
                 Fields.Clear();
                 foreach (var field in _cdb.Fields)
-                {
                     Fields.Add(new CdbFieldViewModel
-                    {
-                        Id = field.Id,
-                        Type = field.Type.ToString(),
-                        Value = field.Value?.ToString() ?? ""
-                    });
-                }
+                               {
+                                   Id    = field.Id,
+                                   Type  = field.Type.ToString(),
+                                   Value = field.Value?.ToString() ?? ""
+                               });
 
-                CdbInfo = $"Fields: {_cdb.Fields.Count}, Checksum: 0x{_cdb.Checksum:X4}";
+                CdbInfo       = $"Fields: {_cdb.Fields.Count}, Checksum: 0x{_cdb.Checksum:X4}";
                 StatusMessage = "CDB loaded.";
             }
             catch (Exception ex)
@@ -60,7 +60,8 @@ namespace OpenCMIS.UI.WPF.ViewModels
         [RelayCommand]
         private async Task WriteCdbAsync()
         {
-            if (_device == null || _cdb == null) return;
+            if (_device == null || _cdb == null)
+                return;
 
             try
             {
@@ -68,10 +69,10 @@ namespace OpenCMIS.UI.WPF.ViewModels
                 var fieldList = _cdb.Fields.ToList();
                 for (var i = 0; i < Fields.Count && i < fieldList.Count; i++)
                 {
-                    var vm = Fields[i];
+                    var vm    = Fields[i];
                     var field = fieldList[i];
 
-                    if (field.Type == OpenCMIS.Shared.CdbFieldType.Byte)
+                    if (field.Type == CdbFieldType.Byte)
                         field.Value = byte.TryParse(vm.Value, out var b) ? b : field.Value;
                     else
                         field.Value = vm.Value;
@@ -79,7 +80,7 @@ namespace OpenCMIS.UI.WPF.ViewModels
 
                 _cdb.Fields = fieldList;
 
-                var writer = new CdbWriter();
+                var writer    = new CdbWriter();
                 var validator = new CdbValidator();
 
                 if (!validator.Validate(_cdb))
@@ -98,7 +99,7 @@ namespace OpenCMIS.UI.WPF.ViewModels
         }
     }
 
-    public partial class CdbFieldViewModel : ObservableObject
+    public class CdbFieldViewModel : ObservableObject
     {
         [ObservableProperty]
         private string _id = string.Empty;

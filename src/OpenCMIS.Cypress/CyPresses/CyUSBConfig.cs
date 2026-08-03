@@ -52,7 +52,7 @@ namespace OpenCMIS.Cypress
 
                 int tLen = ConfigDescr->wTotalLength;
 
-                var desc = buf + ConfigDescr->bLength;
+                var desc          = buf + ConfigDescr->bLength;
                 int bytesConsumed = ConfigDescr->bLength;
 
                 Interfaces = new CyUSBInterface[CyConst.MAX_INTERFACES];
@@ -70,13 +70,15 @@ namespace OpenCMIS.Cypress
                         bytesConsumed += Interfaces[i - 1].wTotalLength;
                     }
                     else
+
                             // Unexpected descriptor type
                             // Just skip it and go on  - could have thrown an exception instead
                             // since this indicates that the descriptor structure is invalid.
                         bytesConsumed += interfaceDesc->bLength;
 
                     desc = buf + bytesConsumed;
-                } while (bytesConsumed < tLen && i < CyConst.MAX_INTERFACES);
+                }
+                while (bytesConsumed < tLen && i < CyConst.MAX_INTERFACES);
 
                 // Count the alt interfaces for each interface number
                 for (i = 0; i < AltInterfaces; i++)
@@ -91,7 +93,7 @@ namespace OpenCMIS.Cypress
                 // Create the Interface Container (this is done only for Tree view purpose).
                 IntfcContainer = new CyUSBInterfaceContainer[bNumInterfaces];
 
-                var altDict = new Dictionary<int, bool>();
+                var altDict    = new Dictionary<int, bool>();
                 var intfcCount = 0;
 
                 for (i = 0; i < AltInterfaces; i++)
@@ -132,7 +134,7 @@ namespace OpenCMIS.Cypress
 
                 int tLen = ConfigDescr->wTotalLength;
 
-                var desc = buf + ConfigDescr->bLength;
+                var desc          = buf + ConfigDescr->bLength;
                 int bytesConsumed = ConfigDescr->bLength;
 
                 Interfaces = new CyUSBInterface[CyConst.MAX_INTERFACES];
@@ -150,13 +152,15 @@ namespace OpenCMIS.Cypress
                         bytesConsumed += Interfaces[i - 1].wTotalLength;
                     }
                     else
+
                             // Unexpected descriptor type
                             // Just skip it and go on  - could have thrown an exception instead
                             // since this indicates that the descriptor structure is invalid.
                         bytesConsumed += interfaceDesc->bLength;
 
                     desc = buf + bytesConsumed;
-                } while (bytesConsumed < tLen && i < CyConst.MAX_INTERFACES);
+                }
+                while (bytesConsumed < tLen && i < CyConst.MAX_INTERFACES);
 
                 // Count the alt interfaces for each interface number
                 for (i = 0; i < AltInterfaces; i++)
@@ -171,7 +175,7 @@ namespace OpenCMIS.Cypress
                 // Create the Interface Container (this is done only for Tree view purpose).
                 IntfcContainer = new CyUSBInterfaceContainer[bNumInterfaces];
 
-                var altDict = new Dictionary<int, bool>();
+                var altDict    = new Dictionary<int, bool>();
                 var intfcCount = 0;
 
                 for (i = 0; i < AltInterfaces; i++)
@@ -216,6 +220,7 @@ namespace OpenCMIS.Cypress
             get
             {
                 var tmp = "Configuration " + bConfigurationValue;
+
                 //string tmp = "Primary Configuration";
                 //if (iConfiguration == 1)
                 //    tmp = "Secondary Configuration";
@@ -224,9 +229,9 @@ namespace OpenCMIS.Cypress
                 var iTree = new TreeNode[bNumInterfaces + 1];
 
                 iTree[0] = new ("Control endpoint (0x00)")
-                {
-                        Tag = Interfaces[0].EndPoints[0]
-                };
+                           {
+                               Tag = Interfaces[0].EndPoints[0]
+                           };
 
                 for (var i = 0; i < bNumInterfaces; i++)
                     iTree[i + 1] = IntfcContainer[i].Tree;
@@ -235,9 +240,9 @@ namespace OpenCMIS.Cypress
                 //    iTree[i + 1] = Interfaces[i].Tree;
 
                 var t = new TreeNode(tmp, iTree)
-                {
-                        Tag = this
-                };
+                        {
+                            Tag = this
+                        };
 
                 return t;
             }

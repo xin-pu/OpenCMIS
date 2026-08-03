@@ -31,18 +31,17 @@ namespace OpenCMIS.Protocol.Abstractions
         Task<byte[]> ReadBlockAsync(byte page, byte startAddress, int length);
 
         /// <summary>
-        /// Reads a block from the specified bank and page.
+        ///     Reads a block from the specified bank and page.
         /// </summary>
-        Task<byte[]> ReadBlockAsync(
-            byte bank,
-            byte page,
-            byte startAddress,
-            int length)
+        Task<byte[]> ReadBlockAsync(byte bank,
+                                    byte page,
+                                    byte startAddress,
+                                    int  length)
         {
             if (bank != 0)
             {
                 throw new NotSupportedException(
-                    "This register access implementation supports bank zero only.");
+                        "This register access implementation supports bank zero only.");
             }
 
             return ReadBlockAsync(page, startAddress, length);
@@ -57,18 +56,17 @@ namespace OpenCMIS.Protocol.Abstractions
         Task WriteBlockAsync(byte page, byte startAddress, byte[] data);
 
         /// <summary>
-        /// Writes a block to the specified bank and page.
+        ///     Writes a block to the specified bank and page.
         /// </summary>
-        Task WriteBlockAsync(
-            byte bank,
-            byte page,
-            byte startAddress,
-            byte[] data)
+        Task WriteBlockAsync(byte   bank,
+                             byte   page,
+                             byte   startAddress,
+                             byte[] data)
         {
             if (bank != 0)
             {
                 throw new NotSupportedException(
-                    "This register access implementation supports bank zero only.");
+                        "This register access implementation supports bank zero only.");
             }
 
             return WriteBlockAsync(page, startAddress, data);

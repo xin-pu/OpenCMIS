@@ -1,70 +1,70 @@
 using OpenCMIS.Shared;
 using OpenCMIS.Transport.Abstractions;
 
-namespace OpenCMIS.Transport.Simulated;
-
-/// <summary>
-/// Discovers and opens simulated I2C adapter endpoints.
-/// </summary>
-public sealed class SimulatedI2cAdapterProvider : II2cAdapterProvider
+namespace OpenCMIS.Transport.Simulated
 {
-    public string AdapterId => "sim";
-
-    public ValueTask<IReadOnlyList<I2cAdapterDescriptor>> DiscoverAsync(
-        CancellationToken cancellationToken = default)
+    /// <summary>
+    ///     Discovers and opens simulated I2C adapter endpoints.
+    /// </summary>
+    public sealed class SimulatedI2cAdapterProvider : II2cAdapterProvider
     {
-        var descriptors = new List<I2cAdapterDescriptor>
-        {
-            CreateDescriptor("sim-800g-qsfpdd", "Simulated 800G CMIS Module",
-                "800g-qsfpdd"),
-            CreateDescriptor("sim-1p6t-osfp", "Simulated 1.6T CMIS Module",
-                "1p6t-osfp")
-        };
+        public string AdapterId => "sim";
 
-        return ValueTask.FromResult<IReadOnlyList<I2cAdapterDescriptor>>(
-            descriptors);
-    }
-
-    public ValueTask<II2cRegisterBus> OpenAsync(
-        I2cConnectionProfile profile,
-        CancellationToken cancellationToken = default)
-    {
-        if (profile is not SimulatedI2cConnectionProfile simProfile
-            || !profile.AdapterId.Equals(
-                AdapterId,
-                StringComparison.OrdinalIgnoreCase))
+        public ValueTask<IReadOnlyList<I2cAdapterDescriptor>> DiscoverAsync(CancellationToken cancellationToken = default)
         {
-            throw new CmisException(
-                CmisErrorCode.InvalidParameterValue,
-                nameof(profile));
+            var descriptors = new List<I2cAdapterDescriptor>
+                              {
+                                  CreateDescriptor("sim-800g-qsfpdd",
+                                                   "Simulated 800G CMIS Module",
+                                                   "800g-qsfpdd"),
+                                  CreateDescriptor("sim-1p6t-osfp",
+                                                   "Simulated 1.6T CMIS Module",
+                                                   "1p6t-osfp")
+                              };
+
+            return ValueTask.FromResult<IReadOnlyList<I2cAdapterDescriptor>>(
+                    descriptors);
         }
 
-        var seed = simProfile.Seed > 0
-            ? simProfile.Seed
-            : Random.Shared.Next();
+        public ValueTask<II2cRegisterBus> OpenAsync(I2cConnectionProfile profile,
+                                                    CancellationToken    cancellationToken = default)
+        {
+            if (profile is not SimulatedI2cConnectionProfile simProfile
+             || !profile.AdapterId.Equals(
+                        AdapterId,
+                        StringComparison.OrdinalIgnoreCase))
+            {
+                throw new CmisException(
+                        CmisErrorCode.InvalidParameterValue,
+                        nameof(profile));
+            }
 
-        var bus = new SimulatedI2cRegisterBus(
-            simProfile.ModuleProfile,
-            seed,
-            simProfile.NoiseEnabled);
+            var seed = simProfile.Seed > 0
+                               ? simProfile.Seed
+                               : Random.Shared.Next();
 
-        return ValueTask.FromResult<II2cRegisterBus>(bus);
-    }
+            var bus = new SimulatedI2cRegisterBus(
+                    simProfile.ModuleProfile,
+                    seed,
+                    simProfile.NoiseEnabled);
 
-    private I2cAdapterDescriptor CreateDescriptor(
-        string deviceId,
-        string displayName,
-        string moduleProfile)
-    {
-        var profile = new SimulatedI2cConnectionProfile(
-            AdapterId,
-            new I2cDeviceAddress(CmisConstants.DefaultI2cAddress),
-            moduleProfile);
+            return ValueTask.FromResult<II2cRegisterBus>(bus);
+        }
 
-        return new I2cAdapterDescriptor(
-            AdapterId,
-            deviceId,
-            displayName,
-            profile);
+        private I2cAdapterDescriptor CreateDescriptor(string deviceId,
+                                                      string displayName,
+                                                      string moduleProfile)
+        {
+            var profile = new SimulatedI2cConnectionProfile(
+                    AdapterId,
+                    new (CmisConstants.DefaultI2cAddress),
+                    moduleProfile);
+
+            return new (
+                    AdapterId,
+                    deviceId,
+                    displayName,
+                    profile);
+        }
     }
 }

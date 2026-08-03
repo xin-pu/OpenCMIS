@@ -100,8 +100,8 @@ namespace OpenCMIS.Cypress
             _ssbytesperinterval = 0;
         }
 
-        internal unsafe CyUSBEndPoint(IntPtr h,
-                                      USB_ENDPOINT_DESCRIPTOR * EndPtDescriptor,
+        internal unsafe CyUSBEndPoint(IntPtr                                         h,
+                                      USB_ENDPOINT_DESCRIPTOR *                      EndPtDescriptor,
                                       USB_SUPERSPEED_ENDPOINT_COMPANION_DESCRIPTOR * SSEndPtDescriptor)
         {
             _hDevice = h;
@@ -172,18 +172,18 @@ namespace OpenCMIS.Cypress
             {
                 var sType = Attributes switch
                             {
-                                    1 => "Isoc",
-                                    3 => "Interrupt",
-                                    _ => "Bulk"
+                                1 => "Isoc",
+                                3 => "Interrupt",
+                                _ => "Bulk"
                             };
 
                 var sIn = bIn ? "in" : "out";
 
                 var tmp = $"{sType} {sIn} endpoint (0x{Address:X2})";
                 var t = new TreeNode(tmp)
-                {
-                        Tag = this
-                };
+                        {
+                            Tag = this
+                        };
 
                 return t;
             }
@@ -194,7 +194,8 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_hDevice == CyConst.INVALID_HANDLE) return 0;
+                if (_hDevice == CyConst.INVALID_HANDLE)
+                    return 0;
 
                 var IdleXferVar = new SET_TRANSFER_SIZE_INFO();
 
@@ -240,15 +241,17 @@ namespace OpenCMIS.Cypress
 
             set
             {
-                if (_hDevice == CyConst.INVALID_HANDLE) return;
+                if (_hDevice == CyConst.INVALID_HANDLE)
+                    return;
 
                 if (MaxPktSize == 0)
                     return;
+
                 // Force a multiple of MaxPktSize
-                var pkts = value % MaxPktSize > 0 ? 1 + value / MaxPktSize : value / MaxPktSize;
+                var pkts     = value % MaxPktSize > 0 ? 1 + value / MaxPktSize : value / MaxPktSize;
                 var xferSize = pkts * MaxPktSize;
 
-                var len = 5; // The size of SET_TRANSFER_SIZE_INFO
+                var len    = 5; // The size of SET_TRANSFER_SIZE_INFO
                 var buffer = new byte[len];
 
                 fixed (byte * buf = buffer)
@@ -285,14 +288,15 @@ namespace OpenCMIS.Cypress
         {
             var sType = Attributes switch
                         {
-                                0 => "CONTROL",
-                                1 => "ISOC",
-                                3 => "INTERRUPT",
-                                _ => "BULK"
+                            0 => "CONTROL",
+                            1 => "ISOC",
+                            3 => "INTERRUPT",
+                            _ => "BULK"
                         };
 
             var sIn = bIn ? "IN" : "OUT";
-            if (Attributes == 0) sIn = "BIDI";
+            if (Attributes == 0)
+                sIn = "BIDI";
 
             var s = new StringBuilder("\t\t\t<ENDPOINT>\r\n");
 
@@ -325,10 +329,11 @@ namespace OpenCMIS.Cypress
         {
             if (!bIn || !PacketMode)
                 return XferData(ref buf, ref len);
-            var size = 0;
+
+            var size    = 0;
             var xferLen = MaxPktSize;
-            var status = true;
-            var bufPtr = new byte[MaxPktSize];
+            var status  = true;
+            var bufPtr  = new byte[MaxPktSize];
 
             while (status && size < len)
             {
@@ -338,7 +343,8 @@ namespace OpenCMIS.Cypress
                 status = XferData(ref bufPtr, ref xferLen);
                 if (status)
                 {
-                    for (var i = 0; i < xferLen; ++i) buf[size + i] = bufPtr[i];
+                    for (var i = 0; i < xferLen; ++i)
+                        buf[size + i] = bufPtr[i];
                     size += xferLen;
 
                     if (xferLen < MaxPktSize)
@@ -361,7 +367,7 @@ namespace OpenCMIS.Cypress
                 ovLapStatus->hEvent = PInvoke.CreateEvent(0, 0, 0, 0);
 
                 // This SINGLE_TRANSFER buffer must be allocated at this level.
-                var bufSz = CyConst.SINGLE_XFER_LEN + (XferMode == XMODE.DIRECT ? 0 : len);
+                var bufSz  = CyConst.SINGLE_XFER_LEN + (XferMode == XMODE.DIRECT ? 0 : len);
                 var cmdBuf = new byte[bufSz];
 
                 // These nested fixed blocks ensure that the buffers don't move in memory
@@ -369,6 +375,7 @@ namespace OpenCMIS.Cypress
                 fixed (byte * tmp1 = cmdBuf, tmp2 = buf)
                 {
                     var bResult = BeginDataXfer(ref cmdBuf, ref buf, ref len, ref ovLap);
+
                     //
                     //  This waits for driver to call IoRequestComplete on the IRP
                     //  we just sent.
@@ -385,7 +392,8 @@ namespace OpenCMIS.Cypress
 
         public virtual unsafe bool BeginDataXfer(ref byte[] singleXfer, ref byte[] buffer, ref int len, ref byte[] ov)
         {
-            if (_hDevice == CyConst.INVALID_HANDLE) return false;
+            if (_hDevice == CyConst.INVALID_HANDLE)
+                return false;
 
             var cmdLen = singleXfer.Length;
 
@@ -406,7 +414,8 @@ namespace OpenCMIS.Cypress
                     transfer->BufferLength = (uint) len;
                     IOCTL                  = CyConst.IOCTL_ADAPT_SEND_NON_EP0_TRANSFER;
 
-                    for (var i = 0; i < len; i++) buf[CyConst.SINGLE_XFER_LEN + i] = buffer[i];
+                    for (var i = 0; i < len; i++)
+                        buf[CyConst.SINGLE_XFER_LEN + i] = buffer[i];
 
                     fixed (byte * lpInBuffer = singleXfer)
                     {
@@ -472,7 +481,7 @@ namespace OpenCMIS.Cypress
         public virtual unsafe bool FinishDataXfer(ref byte[] singleXfer, ref byte[] buffer, ref int len, ref byte[] ov)
         {
             bool rResult;
-            var bytes = new uint[1];
+            var  bytes = new uint[1];
 
             // DWY fix single variable during call by converting it into an 'array of 1'
             //  and fixing it to a pointer.
@@ -482,7 +491,8 @@ namespace OpenCMIS.Cypress
                 {
                     var transfer = (SINGLE_TRANSFER *) buf;
                     rResult = PInvoke.GetOverlappedResult(_hDevice, ov, ref bytes[0], 0);
-                    if (!rResult) transfer->NtStatus = PInvoke.GetLastError();
+                    if (!rResult)
+                        transfer->NtStatus = PInvoke.GetLastError();
                 }
             }
 
@@ -495,9 +505,12 @@ namespace OpenCMIS.Cypress
                 _ntStatus   = transfer->NtStatus;
 
                 if (XferMode == XMODE.BUFFERED && len > 0)
+
                         //len -= (int)transfer->BufferOffset; This is not required becuse we pass the actual data buffer length
+                {
                     for (var i = 0; i < len; i++)
                         buffer[i] = buf[transfer->BufferOffset + i];
+                }
             }
 
             _bytesWritten = (uint) len;
@@ -508,7 +521,9 @@ namespace OpenCMIS.Cypress
         public bool WaitForXfer(IntPtr ovlapEvent, uint tOut)
         {
             var waitResult = PInvoke.WaitForSingleObject(ovlapEvent, tOut);
-            if (waitResult == CyConst.WAIT_OBJECT_0) return true;
+            if (waitResult == CyConst.WAIT_OBJECT_0)
+                return true;
+
             return false;
         }
 
@@ -532,11 +547,13 @@ namespace OpenCMIS.Cypress
             {
                 var waitResult = PInvoke.WaitForSingleObject(ovlapEvent, TimeOut);
 
-                if (waitResult == CyConst.WAIT_OBJECT_0) return true;
+                if (waitResult == CyConst.WAIT_OBJECT_0)
+                    return true;
 
                 if (waitResult == CyConst.WAIT_TIMEOUT)
                 {
                     Abort();
+
                     // Wait for the stalled command to complete - should be done already
                     PInvoke.WaitForSingleObject(ovlapEvent, CyConst.INFINITE);
                 }
@@ -683,7 +700,8 @@ namespace OpenCMIS.Cypress
         {
             var bRetVal = false;
 
-            if (_hDevice == CyConst.INVALID_HANDLE) return false;
+            if (_hDevice == CyConst.INVALID_HANDLE)
+                return false;
 
             var tmo = TimeOut > 0 && TimeOut < 1000 ? 1 : TimeOut / 1000;
 
@@ -745,8 +763,8 @@ namespace OpenCMIS.Cypress
         // doesn't collide with the base class' FinishDataXfer, we declare it 'new'
         private new unsafe bool FinishDataXfer(ref byte[] userBuf, ref byte[] xferBuf, ref int len, ref byte[] ov)
         {
-            uint bytes = 0;
-            var rResult = PInvoke.GetOverlappedResult(_hDevice, ov, ref bytes, 0);
+            uint bytes   = 0;
+            var  rResult = PInvoke.GetOverlappedResult(_hDevice, ov, ref bytes, 0);
 
             uint dataOffset;
 
@@ -764,8 +782,10 @@ namespace OpenCMIS.Cypress
 
             // Extract the acquired data and move from xferBuf to userBuf
             if (bIn)
+            {
                 for (var i = 0; i < len; i++)
                     userBuf[i] = xferBuf[dataOffset + i];
+            }
 
             return rResult && _usbdStatus == 0 && _ntStatus == 0;
         }
@@ -780,8 +800,8 @@ namespace OpenCMIS.Cypress
                 :
                 base(h, EndPtDescriptor) { }
 
-        internal unsafe CyIsocEndPoint(IntPtr h,
-                                       USB_ENDPOINT_DESCRIPTOR * EndPtDescriptor,
+        internal unsafe CyIsocEndPoint(IntPtr                                         h,
+                                       USB_ENDPOINT_DESCRIPTOR *                      EndPtDescriptor,
                                        USB_SUPERSPEED_ENDPOINT_COMPANION_DESCRIPTOR * SSEndPtDescriptor)
                 : base(
                         h,
@@ -794,8 +814,10 @@ namespace OpenCMIS.Cypress
                 return 0;
 
             var pkts = len / MaxPktSize;
-            if (len % MaxPktSize > 0) pkts++;
-            if (pkts             == 0) return 0;
+            if (len % MaxPktSize > 0)
+                pkts++;
+            if (pkts == 0)
+                return 0;
 
             var p = new ISO_PKT_INFO();
 
@@ -809,7 +831,8 @@ namespace OpenCMIS.Cypress
                 return 0;
 
             var pkts = len / MaxPktSize;
-            if (len % MaxPktSize > 0) pkts++;
+            if (len % MaxPktSize > 0)
+                pkts++;
             return pkts;
         }
 
@@ -824,7 +847,7 @@ namespace OpenCMIS.Cypress
                 ovLapStatus->hEvent = PInvoke.CreateEvent(0, 0, 0, 0);
 
                 // This SINGLE_TRANSFER buffer must be allocated at this level.
-                var bufSz = CyConst.SINGLE_XFER_LEN + GetPktBlockSize(len) + (XferMode == XMODE.DIRECT ? 0 : len);
+                var bufSz  = CyConst.SINGLE_XFER_LEN + GetPktBlockSize(len) + (XferMode == XMODE.DIRECT ? 0 : len);
                 var cmdBuf = new byte[bufSz];
 
                 fixed (byte * tmp1 = cmdBuf, tmp2 = buf)
@@ -851,7 +874,7 @@ namespace OpenCMIS.Cypress
                 ovLapStatus->hEvent = PInvoke.CreateEvent(0, 0, 0, 0);
 
                 // This SINGLE_TRANSFER buffer must be allocated at this level.
-                var bufSz = CyConst.SINGLE_XFER_LEN + GetPktBlockSize(len) + (XferMode == XMODE.DIRECT ? 0 : len);
+                var bufSz  = CyConst.SINGLE_XFER_LEN + GetPktBlockSize(len) + (XferMode == XMODE.DIRECT ? 0 : len);
                 var cmdBuf = new byte[bufSz];
 
                 fixed (byte * tmp1 = cmdBuf, tmp2 = buf)
@@ -869,10 +892,11 @@ namespace OpenCMIS.Cypress
 
         public override unsafe bool BeginDataXfer(ref byte[] singleXfer, ref byte[] buffer, ref int len, ref byte[] ov)
         {
-            if (_hDevice == CyConst.INVALID_HANDLE) return false;
+            if (_hDevice == CyConst.INVALID_HANDLE)
+                return false;
 
             var pktBlockSize = GetPktBlockSize(len);
-            var cmdLen = singleXfer.Length;
+            var cmdLen       = singleXfer.Length;
 
             fixed (byte * buf = singleXfer)
             {
@@ -894,7 +918,8 @@ namespace OpenCMIS.Cypress
 
                     IOCTL = CyConst.IOCTL_ADAPT_SEND_NON_EP0_TRANSFER;
 
-                    for (var i = 0; i < len; i++) buf[CyConst.SINGLE_XFER_LEN + pktBlockSize + i] = buffer[i];
+                    for (var i = 0; i < len; i++)
+                        buf[CyConst.SINGLE_XFER_LEN + pktBlockSize + i] = buffer[i];
 
                     fixed (byte * lpInBuffer = singleXfer)
                     {
@@ -960,10 +985,10 @@ namespace OpenCMIS.Cypress
 
         // This FinishDataXfer is only called by the second XferData method of CyIsocEndPoint
         // This called when ISO_PKT_INFO data is requested
-        public virtual unsafe bool FinishDataXfer(ref byte[] singleXfer,
-                                                  ref byte[] buffer,
-                                                  ref int len,
-                                                  ref byte[] ov,
+        public virtual unsafe bool FinishDataXfer(ref byte[]         singleXfer,
+                                                  ref byte[]         buffer,
+                                                  ref int            len,
+                                                  ref byte[]         ov,
                                                   ref ISO_PKT_INFO[] pktInfo)
         {
             // Call the base class' FinishDataXfer to do most of the work
@@ -971,16 +996,18 @@ namespace OpenCMIS.Cypress
 
             // Pass-back the Isoc packet info records
             if (len > 0)
+            {
                 fixed (byte * buf = singleXfer)
                 {
                     var transfer = (SINGLE_TRANSFER *) buf;
-                    var packets = (ISO_PKT_INFO *) (buf + transfer->IsoPacketOffset);
+                    var packets  = (ISO_PKT_INFO *) (buf + transfer->IsoPacketOffset);
 
                     var pktCnt = (int) transfer->IsoPacketLength / Marshal.SizeOf(*packets);
 
                     for (var i = 0; i < pktCnt; i++)
                         pktInfo[i] = packets[i];
                 }
+            }
 
             return rResult;
         }
@@ -995,8 +1022,8 @@ namespace OpenCMIS.Cypress
                 :
                 base(h, EndPtDescriptor) { }
 
-        internal unsafe CyBulkEndPoint(IntPtr h,
-                                       USB_ENDPOINT_DESCRIPTOR * EndPtDescriptor,
+        internal unsafe CyBulkEndPoint(IntPtr                                         h,
+                                       USB_ENDPOINT_DESCRIPTOR *                      EndPtDescriptor,
                                        USB_SUPERSPEED_ENDPOINT_COMPANION_DESCRIPTOR * SSEndPtDescriptor)
                 : base(
                         h,
@@ -1014,8 +1041,8 @@ namespace OpenCMIS.Cypress
                         h,
                         EndPtDescriptor) { }
 
-        internal unsafe CyInterruptEndPoint(IntPtr h,
-                                            USB_ENDPOINT_DESCRIPTOR * EndPtDescriptor,
+        internal unsafe CyInterruptEndPoint(IntPtr                                         h,
+                                            USB_ENDPOINT_DESCRIPTOR *                      EndPtDescriptor,
                                             USB_SUPERSPEED_ENDPOINT_COMPANION_DESCRIPTOR * SSEndPtDescriptor)
                 : base(
                         h,

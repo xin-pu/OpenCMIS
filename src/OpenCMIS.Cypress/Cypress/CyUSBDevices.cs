@@ -51,7 +51,9 @@ namespace OpenCMIS.Cypress
                 foreach (USBDevice device in _usbDeviceList)
                 {
                     // not the correct VID, ignore it
-                    if (device.VendorID != VIDSupport) continue;
+                    if (device.VendorID != VIDSupport)
+                        continue;
+
                     // create corresponding device objects & add into dictionary
                     try
                     {
@@ -177,14 +179,15 @@ namespace OpenCMIS.Cypress
         {
             // look for USBDevice which is NOT on the _usbObjects list yet
             USBDevice usbDevice = null;
-            var usbList = new USBDeviceList(CyConst.DEVICES_CYUSB);
+            var       usbList   = new USBDeviceList(CyConst.DEVICES_CYUSB);
             foreach (USBDevice usbDev in usbList)
             {
                 var objExists = false;
                 foreach (var obj in ezusbDevices.Values)
                 {
                     objExists = usbDev.SerialNumber.Contains(obj.SerialNumber);
-                    if (objExists) break;
+                    if (objExists)
+                        break;
                 }
 
                 // this is the new device - not in the list yet
@@ -202,7 +205,7 @@ namespace OpenCMIS.Cypress
         {
             // look for USBDevice which is no longer in the current USBDeviceList since it was detached already
             EZUSBDevice usbDevice = null;
-            var usbList = new USBDeviceList(CyConst.DEVICES_CYUSB);
+            var         usbList   = new USBDeviceList(CyConst.DEVICES_CYUSB);
             foreach (var obj in ezusbDevices.Values)
                 try
                 {
@@ -211,7 +214,8 @@ namespace OpenCMIS.Cypress
                     {
                         var usbDevSN = usbDev.SerialNumber;
                         devExists = usbDevSN.Contains(usbDev.SerialNumber);
-                        if (devExists) break;
+                        if (devExists)
+                            break;
                     }
 
                     // this is the new device - not in the list yet
@@ -239,7 +243,8 @@ namespace OpenCMIS.Cypress
 
         private void RemoveEZUSBDevice(EZUSBDevice usbObjects)
         {
-            if (ezusbDevices.ContainsKey(usbObjects.SerialNumber)) ezusbDevices.Remove(usbObjects.SerialNumber);
+            if (ezusbDevices.ContainsKey(usbObjects.SerialNumber))
+                ezusbDevices.Remove(usbObjects.SerialNumber);
         }
 
         private bool IsVIDSupported(int VID)
@@ -268,14 +273,11 @@ namespace OpenCMIS.Cypress
                 //case 0x1111:
                 //    return new DeviceEUI1(device);
 
-                case 0x1115:
-                    return new DeviceEUI3(device);
+                case 0x1115: return new DeviceEUI3(device);
 
-                case 0x1140:
-                    return new DeviceFIC2USB(device);
+                case 0x1140: return new DeviceFIC2USB(device);
 
-                default:
-                    return null;
+                default: return null;
             }
         }
     }

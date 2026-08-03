@@ -129,9 +129,9 @@ namespace OpenCMIS.Cypress
                         iTree[i] = InvalidDevCap.Tree;
 
                 var t = new TreeNode(tmp, iTree)
-                {
-                        Tag = this
-                };
+                        {
+                            Tag = this
+                        };
 
                 return t;
             }
@@ -168,9 +168,9 @@ namespace OpenCMIS.Cypress
             {
                 var tmp = "Invalid Device Capability";
                 var t = new TreeNode(tmp)
-                {
-                        Tag = this
-                };
+                        {
+                            Tag = this
+                        };
                 return t;
             }
         }
@@ -211,9 +211,9 @@ namespace OpenCMIS.Cypress
             {
                 var tmp = "USB20 Device Extension";
                 var t = new TreeNode(tmp)
-                {
-                        Tag = this
-                };
+                        {
+                            Tag = this
+                        };
                 return t;
             }
         }
@@ -276,9 +276,9 @@ namespace OpenCMIS.Cypress
             {
                 var tmp = "SuperSpeed Device capability";
                 var t = new TreeNode(tmp)
-                {
-                        Tag = this
-                };
+                        {
+                            Tag = this
+                        };
                 return t;
             }
         }
@@ -333,9 +333,9 @@ namespace OpenCMIS.Cypress
             {
                 var tmp = "Container ID";
                 var t = new TreeNode(tmp)
-                {
-                        Tag = this
-                };
+                        {
+                            Tag = this
+                        };
                 return t;
             }
         }
@@ -347,6 +347,7 @@ namespace OpenCMIS.Cypress
             s.Append($"\t\t\tDescriptorLength=\"{_bLength}\"\r\n");
             s.Append($"\t\t\tDescriptorType=\"{_bDescriptorType}\"\r\n");
             s.Append($"\t\t\tDeviceCapabilityType=\"{_bDevCapabilityType}\"\r\n");
+
             //s.Append(string.Format("\t\tbmAttribute=\"{0:X2}h\"\r\n", _ContainerID.));
             s.Append("\t\t</CONTAINER ID>\r\n");
             return s.ToString();

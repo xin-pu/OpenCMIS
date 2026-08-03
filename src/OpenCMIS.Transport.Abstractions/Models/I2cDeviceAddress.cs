@@ -1,38 +1,39 @@
-namespace OpenCMIS.Transport.Abstractions;
-
-/// <summary>
-/// Represents a canonical 7-bit I2C device address.
-/// </summary>
-public readonly record struct I2cDeviceAddress
+namespace OpenCMIS.Transport.Abstractions
 {
-    public I2cDeviceAddress(byte value)
+    /// <summary>
+    ///     Represents a canonical 7-bit I2C device address.
+    /// </summary>
+    public readonly record struct I2cDeviceAddress
     {
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(value, (byte)0x7F);
-        Value = value;
-    }
-
-    public byte Value { get; }
-
-    public static I2cDeviceAddress FromLegacy8Bit(byte value)
-    {
-        if ((value & 0x01) != 0)
+        public I2cDeviceAddress(byte value)
         {
-            throw new ArgumentOutOfRangeException(
-                nameof(value),
-                value,
-                "Expected an 8-bit I2C write address.");
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(value, (byte) 0x7F);
+            Value = value;
         }
 
-        return new I2cDeviceAddress((byte)(value >> 1));
-    }
+        public byte Value { get; }
 
-    public byte ToWriteAddress8Bit()
-    {
-        return (byte)(Value << 1);
-    }
+        public static I2cDeviceAddress FromLegacy8Bit(byte value)
+        {
+            if ((value & 0x01) != 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                        nameof(value),
+                        value,
+                        "Expected an 8-bit I2C write address.");
+            }
 
-    public override string ToString()
-    {
-        return $"0x{Value:X2}";
+            return new ((byte) (value >> 1));
+        }
+
+        public byte ToWriteAddress8Bit()
+        {
+            return (byte) (Value << 1);
+        }
+
+        public override string ToString()
+        {
+            return $"0x{Value:X2}";
+        }
     }
 }

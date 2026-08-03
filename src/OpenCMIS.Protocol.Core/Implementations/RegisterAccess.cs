@@ -1,4 +1,3 @@
-using OpenCMIS.Module.Core;
 using OpenCMIS.Module.Core.Msa;
 using OpenCMIS.Protocol.Abstractions;
 using OpenCMIS.Shared;
@@ -19,36 +18,34 @@ namespace OpenCMIS.Protocol.Core
         private readonly I2cDeviceAddress    _deviceAddress;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="RegisterAccess"/> class.
+        ///     Initializes a new instance of the <see cref="RegisterAccess" /> class.
         /// </summary>
         /// <param name="registerTransport">The register transport interface.</param>
         /// <param name="pageManager">The page manager.</param>
         /// <param name="addressingStrategy">The addressing strategy (defaults to standard CMIS).</param>
         [Obsolete(
-            "Use RegisterAccess(IMsaMemoryAccessor, I2cDeviceAddress, ...) " +
-            "for atomic MSA access.")]
-        public RegisterAccess(
-            IRegisterTransport registerTransport, 
-            IPageManager pageManager,
-            IAddressingStrategy? addressingStrategy = null)
+                "Use RegisterAccess(IMsaMemoryAccessor, I2cDeviceAddress, ...) " +
+                "for atomic MSA access.")]
+        public RegisterAccess(IRegisterTransport   registerTransport,
+                              IPageManager         pageManager,
+                              IAddressingStrategy? addressingStrategy = null)
         {
             _registerTransport  = registerTransport  ?? throw new CmisException(CmisErrorCode.InvalidParameterValue, nameof(registerTransport));
             _pageManager        = pageManager        ?? throw new CmisException(CmisErrorCode.InvalidParameterValue, nameof(pageManager));
             _addressingStrategy = addressingStrategy ?? new StandardAddressingStrategy();
         }
 
-        public RegisterAccess(
-            IMsaMemoryAccessor msaMemory,
-            I2cDeviceAddress deviceAddress,
-            IAddressingStrategy? addressingStrategy = null)
+        public RegisterAccess(IMsaMemoryAccessor   msaMemory,
+                              I2cDeviceAddress     deviceAddress,
+                              IAddressingStrategy? addressingStrategy = null)
         {
             _msaMemory = msaMemory ??
                          throw new CmisException(
-                             CmisErrorCode.InvalidParameterValue,
-                             nameof(msaMemory));
+                                 CmisErrorCode.InvalidParameterValue,
+                                 nameof(msaMemory));
             _deviceAddress = deviceAddress;
             _addressingStrategy =
-                addressingStrategy ?? new StandardAddressingStrategy();
+                    addressingStrategy ?? new StandardAddressingStrategy();
         }
 
         /// <inheritdoc />
@@ -59,10 +56,10 @@ namespace OpenCMIS.Protocol.Core
             if (_msaMemory is not null)
             {
                 var data = await _msaMemory.ReadAsync(
-                    _deviceAddress,
-                    new ModulePage(page),
-                    new RegisterOffset(address),
-                    1);
+                                   _deviceAddress,
+                                   new (page),
+                                   new (address),
+                                   1);
                 return data[0];
             }
 
@@ -79,10 +76,10 @@ namespace OpenCMIS.Protocol.Core
             if (_msaMemory is not null)
             {
                 await _msaMemory.WriteAsync(
-                    _deviceAddress,
-                    new ModulePage(page),
-                    new RegisterOffset(address),
-                    new byte[] { value });
+                        _deviceAddress,
+                        new (page),
+                        new (address),
+                        new[] {value});
                 return;
             }
 
@@ -92,38 +89,38 @@ namespace OpenCMIS.Protocol.Core
         }
 
         /// <inheritdoc />
-        public Task<byte[]> ReadBlockAsync(
-            byte page,
-            byte startAddress,
-            int length)
+        public Task<byte[]> ReadBlockAsync(byte page,
+                                           byte startAddress,
+                                           int  length)
         {
             return ReadBlockAsync(0, page, startAddress, length);
         }
 
         /// <inheritdoc />
-        public async Task<byte[]> ReadBlockAsync(
-            byte bank,
-            byte page,
-            byte startAddress,
-            int length)
+        public async Task<byte[]> ReadBlockAsync(byte bank,
+                                                 byte page,
+                                                 byte startAddress,
+                                                 int  length)
         {
-            if (length <= 0) throw new CmisException(CmisErrorCode.InvalidParameterValue, nameof(length));
-            
-            if (startAddress + length > 256) throw new CmisException(CmisErrorCode.InvalidRegister, startAddress, page);
+            if (length <= 0)
+                throw new CmisException(CmisErrorCode.InvalidParameterValue, nameof(length));
+
+            if (startAddress + length > 256)
+                throw new CmisException(CmisErrorCode.InvalidRegister, startAddress, page);
 
             if (_msaMemory is not null)
             {
                 return await _msaMemory.ReadAsync(
-                    _deviceAddress,
-                    new ModulePage(bank, page),
-                    new RegisterOffset(startAddress),
-                    length);
+                               _deviceAddress,
+                               new (bank, page),
+                               new (startAddress),
+                               length);
             }
 
             if (bank != 0)
             {
                 throw new NotSupportedException(
-                    "Legacy register access supports bank zero only.");
+                        "Legacy register access supports bank zero only.");
             }
 
             EnsureLegacyConnected();
@@ -132,39 +129,39 @@ namespace OpenCMIS.Protocol.Core
         }
 
         /// <inheritdoc />
-        public Task WriteBlockAsync(
-            byte page,
-            byte startAddress,
-            byte[] data)
+        public Task WriteBlockAsync(byte   page,
+                                    byte   startAddress,
+                                    byte[] data)
         {
             return WriteBlockAsync(0, page, startAddress, data);
         }
 
         /// <inheritdoc />
-        public async Task WriteBlockAsync(
-            byte bank,
-            byte page,
-            byte startAddress,
-            byte[] data)
+        public async Task WriteBlockAsync(byte   bank,
+                                          byte   page,
+                                          byte   startAddress,
+                                          byte[] data)
         {
-            if (data == null || data.Length == 0) throw new CmisException(CmisErrorCode.InvalidParameterValue, nameof(data));
-            
-            if (startAddress + data.Length > 256) throw new CmisException(CmisErrorCode.InvalidRegister, startAddress, page);
+            if (data == null || data.Length == 0)
+                throw new CmisException(CmisErrorCode.InvalidParameterValue, nameof(data));
+
+            if (startAddress + data.Length > 256)
+                throw new CmisException(CmisErrorCode.InvalidRegister, startAddress, page);
 
             if (_msaMemory is not null)
             {
                 await _msaMemory.WriteAsync(
-                    _deviceAddress,
-                    new ModulePage(bank, page),
-                    new RegisterOffset(startAddress),
-                    data);
+                        _deviceAddress,
+                        new (bank, page),
+                        new (startAddress),
+                        data);
                 return;
             }
 
             if (bank != 0)
             {
                 throw new NotSupportedException(
-                    "Legacy register access supports bank zero only.");
+                        "Legacy register access supports bank zero only.");
             }
 
             EnsureLegacyConnected();
@@ -175,16 +172,14 @@ namespace OpenCMIS.Protocol.Core
         private void EnsureLegacyConnected()
         {
             CmisException.ThrowIf(
-                _registerTransport?.IsConnected != true,
-                CmisErrorCode.DeviceNotConnected);
+                    _registerTransport?.IsConnected != true,
+                    CmisErrorCode.DeviceNotConnected);
         }
 
         private void ValidateAddress(byte page, byte address)
         {
             if (!_addressingStrategy.Validate(page, address))
-            {
                 throw new CmisException(CmisErrorCode.InvalidRegister, address, page);
-            }
         }
     }
 }

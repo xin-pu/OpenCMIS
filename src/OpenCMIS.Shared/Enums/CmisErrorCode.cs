@@ -7,7 +7,6 @@ namespace OpenCMIS.Shared
     public enum CmisErrorCode : ushort
     {
         #region System Core Errors - 0-99
-
         /// <summary>
         ///     Error type not defined.
         /// </summary>
@@ -25,11 +24,9 @@ namespace OpenCMIS.Shared
         /// </summary>
         [Info("Resource initialization failure", "资源初始化失败")]
         ResourceInitializationFailed = 20,
-
         #endregion
 
         #region Device Connection Errors - 100-199
-
         /// <summary>
         ///     Device is not connected.
         /// </summary>
@@ -65,11 +62,9 @@ namespace OpenCMIS.Shared
         /// </summary>
         [Info("Device not found", "设备未找到")]
         DeviceNotFound = 150,
-
         #endregion
 
         #region Protocol Errors - 200-299
-
         /// <summary>
         ///     Invalid register address or page.
         /// </summary>
@@ -111,11 +106,9 @@ namespace OpenCMIS.Shared
         /// </summary>
         [Info("Command execution failed", "命令执行失败")]
         CommandExecutionFailed = 260,
-
         #endregion
 
         #region CDB Errors - 300-399
-
         /// <summary>
         ///     CDB validation failed.
         /// </summary>
@@ -151,11 +144,9 @@ namespace OpenCMIS.Shared
         /// </summary>
         [Info("CDB checksum error", "CDB校验和错误")]
         CdbChecksumError = 350,
-
         #endregion
 
         #region Module State Errors - 400-499
-
         /// <summary>
         ///     Invalid module state transition.
         /// </summary>
@@ -179,11 +170,9 @@ namespace OpenCMIS.Shared
         /// </summary>
         [Info("Module power control failed", "模块电源控制失败")]
         ModulePowerControlFailed = 430,
-
         #endregion
 
         #region Data Validation Errors - 500-599
-
         /// <summary>
         ///     Invalid parameter value.
         /// </summary>
@@ -207,11 +196,9 @@ namespace OpenCMIS.Shared
         /// </summary>
         [Info("Data size mismatch", "数据大小不匹配")]
         DataSizeMismatch = 530,
-
         #endregion
 
         #region I2C Transport Errors - 600-699
-
         [Info("I2C adapter not found", "I2C adapter not found")]
         I2cAdapterNotFound = 600,
 
@@ -235,17 +222,14 @@ namespace OpenCMIS.Shared
 
         [Info("HCI command rejected", "HCI command rejected")]
         HciCommandRejected = 670,
-
         #endregion
 
         #region Unclassified Errors - 9990-9999
-
         /// <summary>
         ///     Generic unhandled exception wrapper.
         /// </summary>
         [Info("Unhandled exception occurred", "发生未处理的异常")]
         UnhandledExceptionWrapper = 9990,
-
         #endregion
     }
 }

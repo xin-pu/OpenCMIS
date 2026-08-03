@@ -12,7 +12,6 @@ namespace OpenCMIS.App.Core
     {
         private readonly ICmisDevice              _device;
         private          CancellationTokenSource? _cancellationTokenSource;
-        private          bool                     _isMonitoring;
         private          ModuleStatus?            _lastStatus;
 
         /// <summary>
@@ -25,6 +24,11 @@ namespace OpenCMIS.App.Core
         }
 
         /// <summary>
+        ///     Gets a value indicating whether monitoring is active.
+        /// </summary>
+        public bool IsMonitoring { get; private set; }
+
+        /// <summary>
         ///     Occurs when the device status changes.
         /// </summary>
         public event EventHandler<StatusChangedEventArgs>? StatusChanged;
@@ -35,21 +39,16 @@ namespace OpenCMIS.App.Core
         public event EventHandler<AlertEventArgs>? Alert;
 
         /// <summary>
-        ///     Gets a value indicating whether monitoring is active.
-        /// </summary>
-        public bool IsMonitoring => _isMonitoring;
-
-        /// <summary>
         ///     Starts monitoring the device with the specified interval.
         /// </summary>
         /// <param name="interval">The monitoring interval.</param>
         public Task StartMonitoringAsync(TimeSpan interval)
         {
-            if (_isMonitoring)
+            if (IsMonitoring)
                 return Task.CompletedTask;
 
-            _isMonitoring            = true;
-            _cancellationTokenSource = new CancellationTokenSource();
+            IsMonitoring             = true;
+            _cancellationTokenSource = new ();
 
             _ = Task.Run(() => MonitoringLoopAsync(interval, _cancellationTokenSource.Token));
 
@@ -61,10 +60,10 @@ namespace OpenCMIS.App.Core
         /// </summary>
         public async Task StopMonitoringAsync()
         {
-            if (!_isMonitoring)
+            if (!IsMonitoring)
                 return;
 
-            _isMonitoring = false;
+            IsMonitoring = false;
             _cancellationTokenSource?.Cancel();
 
             await Task.CompletedTask;
@@ -90,7 +89,7 @@ namespace OpenCMIS.App.Core
                     {
                         foreach (var alertMessage in currentStatus.ActiveAlerts)
                         {
-                            var alertArgs = new AlertEventArgs { AlertType = AlertType.Warning, Message = alertMessage };
+                            var alertArgs = new AlertEventArgs {AlertType = AlertType.Warning, Message = alertMessage};
                             Alert?.Invoke(this, alertArgs);
                         }
                     }
@@ -100,7 +99,7 @@ namespace OpenCMIS.App.Core
                 catch (Exception ex)
                 {
                     // Report communication errors as alerts
-                    var alertArgs = new AlertEventArgs { AlertType = AlertType.Error, Message = $"Monitor error: {ex.Message}" };
+                    var alertArgs = new AlertEventArgs {AlertType = AlertType.Error, Message = $"Monitor error: {ex.Message}"};
                     Alert?.Invoke(this, alertArgs);
                 }
 

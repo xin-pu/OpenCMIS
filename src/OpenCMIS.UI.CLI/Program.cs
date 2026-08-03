@@ -51,25 +51,20 @@ static async Task RunAsync(string[] args)
     }
 
     var portName = args[1];
-    var host = CreateHost();
+    var host     = CreateHost();
 
     switch (command)
     {
-        case "info":
-            await ShowModuleInfoAsync(host, portName);
-            break;
-        case "status":
-            await ShowStatusAsync(host, portName);
-            break;
-        case "monitor":
-            await MonitorDeviceAsync(host, portName);
-            break;
+        case "info":    await ShowModuleInfoAsync(host, portName); break;
+        case "status":  await ShowStatusAsync(host, portName); break;
+        case "monitor": await MonitorDeviceAsync(host, portName); break;
         case "set-state":
             if (args.Length < 3)
             {
                 Console.Error.WriteLine("Error: State parameter required.");
                 return;
             }
+
             await SetStateAsync(host, portName, args[2]);
             break;
         case "read":
@@ -78,6 +73,7 @@ static async Task RunAsync(string[] args)
                 Console.Error.WriteLine("Error: Page and address required.");
                 return;
             }
+
             await ReadRegisterAsync(host, portName, byte.Parse(args[2]), byte.Parse(args[3]));
             break;
         case "write":
@@ -86,14 +82,11 @@ static async Task RunAsync(string[] args)
                 Console.Error.WriteLine("Error: Page, address, and value required.");
                 return;
             }
+
             await WriteRegisterAsync(host, portName, byte.Parse(args[2]), byte.Parse(args[3]), byte.Parse(args[4]));
             break;
-        case "cdb":
-            await HandleCdbAsync(host, portName, args.Skip(2).ToArray());
-            break;
-        case "app":
-            await HandleAppAsync(host, portName, args.Skip(2).ToArray());
-            break;
+        case "cdb": await HandleCdbAsync(host, portName, args.Skip(2).ToArray()); break;
+        case "app": await HandleAppAsync(host, portName, args.Skip(2).ToArray()); break;
         default:
             Console.Error.WriteLine($"Unknown command: {command}");
             PrintUsage();
@@ -104,23 +97,23 @@ static async Task RunAsync(string[] args)
 static IHost CreateHost()
 {
     return Host.CreateDefaultBuilder()
-        .UseSerilog((context, config) =>
-        {
-            config.MinimumLevel.Warning()
-                  .WriteTo.Console();
-        })
-        .ConfigureServices(services =>
-        {
-            services.AddOpenCmisCore();
-            services.AddOpenCmisSerialAdapters();
-        })
-        .Build();
+               .UseSerilog((context, config) =>
+                               {
+                                   config.MinimumLevel.Warning()
+                                         .WriteTo.Console();
+                               })
+               .ConfigureServices(services =>
+                                      {
+                                          services.AddOpenCmisCore();
+                                          services.AddOpenCmisSerialAdapters();
+                                      })
+               .Build();
 }
 
 static async Task ListDevicesAsync()
 {
-    using var host = CreateHost();
-    var manager = host.Services.GetRequiredService<IDeviceManager>();
+    using var host    = CreateHost();
+    var       manager = host.Services.GetRequiredService<IDeviceManager>();
     Console.WriteLine("Scanning for CMIS devices...");
     var devices = await manager.EnumerateDevicesAsync();
 
@@ -135,9 +128,7 @@ static async Task ListDevicesAsync()
     {
         Console.WriteLine($"  [{device.ConnectionType}] {device.Name}");
         foreach (var param in device.ConnectionParameters)
-        {
             Console.WriteLine($"    {param.Key}: {param.Value}");
-        }
     }
 }
 
@@ -145,17 +136,17 @@ static async Task<ICmisDevice> ConnectDeviceAsync(IHost host, string portName)
 {
     var manager = host.Services.GetRequiredService<IDeviceManager>();
     var deviceInfo = new DeviceInfo
-    {
-        Id               = portName,
-        Name             = $"CMIS Module on {portName}",
-        ConnectionType   = ConnectionType.I2C,
-        ConnectionParameters = new Dictionary<string, string>
-        {
-            ["PortName"] = portName,
-            ["BaudRate"] = "115200",
-            ["SlaveAddress"] = "0xA0"
-        }
-    };
+                     {
+                         Id             = portName,
+                         Name           = $"CMIS Module on {portName}",
+                         ConnectionType = ConnectionType.I2C,
+                         ConnectionParameters = new()
+                                                {
+                                                    ["PortName"]     = portName,
+                                                    ["BaudRate"]     = "115200",
+                                                    ["SlaveAddress"] = "0xA0"
+                                                }
+                     };
 
     Console.WriteLine($"Connecting to {portName}...");
     var device = await manager.OpenDeviceAsync(deviceInfo);
@@ -169,7 +160,7 @@ static async Task ShowModuleInfoAsync(IHost host, string portName)
     try
     {
         var info = await device.GetModuleInfoAsync();
-        Console.WriteLine($"\nModule Information:");
+        Console.WriteLine("\nModule Information:");
         Console.WriteLine($"  Vendor:       {info.VendorName}");
         Console.WriteLine($"  Part Number:  {info.PartNumber}");
         Console.WriteLine($"  Serial Number:{info.SerialNumber}");
@@ -191,14 +182,12 @@ static async Task ShowStatusAsync(IHost host, string portName)
     try
     {
         var status = await device.GetStatusAsync();
-        Console.WriteLine($"\nModule Status:");
+        Console.WriteLine("\nModule Status:");
         Console.WriteLine($"  State:    {status.CurrentState}");
         Console.WriteLine($"  Is Ready: {status.IsReady}");
         Console.WriteLine($"  Alerts:   {(status.HasAlerts ? "YES" : "None")}");
         foreach (var alert in status.ActiveAlerts)
-        {
             Console.WriteLine($"    - {alert}");
-        }
     }
     finally
     {
@@ -213,13 +202,14 @@ static async Task MonitorDeviceAsync(IHost host, string portName)
     {
         var monitor = new DeviceMonitor(device);
         monitor.StatusChanged += (_, args) =>
-        {
-            Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] State: {args.OldStatus.CurrentState} -> {args.NewStatus.CurrentState}");
-        };
+                                     {
+                                         Console.WriteLine(
+                                                 $"[{DateTime.Now:HH:mm:ss}] State: {args.OldStatus.CurrentState} -> {args.NewStatus.CurrentState}");
+                                     };
         monitor.Alert += (_, args) =>
-        {
-            Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] ALERT [{args.AlertType}]: {args.Message}");
-        };
+                             {
+                                 Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] ALERT [{args.AlertType}]: {args.Message}");
+                             };
 
         Console.WriteLine("Monitoring started. Press Ctrl+C to stop.");
         await monitor.StartMonitoringAsync(TimeSpan.FromSeconds(1));
@@ -227,10 +217,10 @@ static async Task MonitorDeviceAsync(IHost host, string portName)
         // Wait for Ctrl+C
         var tcs = new TaskCompletionSource();
         Console.CancelKeyPress += (_, e) =>
-        {
-            e.Cancel = true;
-            tcs.TrySetResult();
-        };
+                                      {
+                                          e.Cancel = true;
+                                          tcs.TrySetResult();
+                                      };
         await tcs.Task;
 
         await monitor.StopMonitoringAsync();
@@ -310,14 +300,10 @@ static async Task HandleCdbAsync(IHost host, string portName, string[] args)
             var cdb = await cdbManager.ReadCdbAsync(device);
             Console.WriteLine($"CDB: {cdb.Fields.Count} fields, Checksum=0x{cdb.Checksum:X4}");
             foreach (var field in cdb.Fields)
-            {
                 Console.WriteLine($"  [{field.Type}] {field.Id} = {field.Value}");
-            }
         }
         else
-        {
             Console.WriteLine($"Unknown CDB sub-command: {subCommand}");
-        }
     }
     finally
     {
@@ -330,20 +316,18 @@ static async Task HandleAppAsync(IHost host, string portName, string[] args)
     var device = await ConnectDeviceAsync(host, portName);
     try
     {
-        var factory = new CmisApplicationFactory(device.RegisterAccess);
+        var factory    = new CmisApplicationFactory(device.RegisterAccess);
         var subCommand = args.Length > 0 ? args[0].ToLowerInvariant() : "list";
 
         switch (subCommand)
         {
             case "list":
-                var apps = await factory.GetSupportedApplicationsAsync();
+                var apps    = await factory.GetSupportedApplicationsAsync();
                 var current = await factory.GetCurrentApplicationAsync();
                 Console.WriteLine($"Current: {current?.ToString() ?? "Unknown"}");
                 Console.WriteLine("Supported:");
                 foreach (var app in apps)
-                {
                     Console.WriteLine($"  {app}");
-                }
                 break;
 
             case "switch":
@@ -352,15 +336,14 @@ static async Task HandleAppAsync(IHost host, string portName, string[] args)
                     Console.Error.WriteLine("App code required.");
                     return;
                 }
+
                 var code = Convert.ToByte(args[1], args[1].StartsWith("0x") ? 16 : 10);
                 Console.WriteLine($"Switching to application 0x{code:X2}...");
                 await factory.SwitchApplicationAsync(code);
                 Console.WriteLine("Switch successful.");
                 break;
 
-            default:
-                Console.WriteLine($"Unknown app sub-command: {subCommand}");
-                break;
+            default: Console.WriteLine($"Unknown app sub-command: {subCommand}"); break;
         }
     }
     finally

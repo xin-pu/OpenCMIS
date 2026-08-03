@@ -8,13 +8,12 @@ namespace OpenCMIS.Protocol.Core
     ///     Implements page management for CMIS protocol.
     /// </summary>
     [Obsolete(
-        "Use IMsaMemoryAccessor through OpticalModuleSession so page selection " +
-        "and transfer share one atomic gate.")]
+            "Use IMsaMemoryAccessor through OpticalModuleSession so page selection " +
+            "and transfer share one atomic gate.")]
     public class PageManager : IPageManager
     {
-        private const byte PageSelectRegister = CmisConstants.PageSelectRegister;
+        private const    byte               PageSelectRegister = CmisConstants.PageSelectRegister;
         private readonly IRegisterTransport _registerTransport;
-        private byte _currentPage = 0xFF; // Start with unknown state
 
         public PageManager(IRegisterTransport registerTransport)
         {
@@ -22,12 +21,12 @@ namespace OpenCMIS.Protocol.Core
         }
 
         /// <inheritdoc />
-        public byte CurrentPage => _currentPage;
+        public byte CurrentPage { get; private set; } = 0xFF;
 
         /// <inheritdoc />
         public async Task SwitchPageAsync(byte page)
         {
-            if (_currentPage == page)
+            if (CurrentPage == page)
                 return;
 
             CmisException.ThrowIf(!_registerTransport.IsConnected, CmisErrorCode.DeviceNotConnected);
@@ -35,7 +34,7 @@ namespace OpenCMIS.Protocol.Core
             try
             {
                 await _registerTransport.WriteRegisterAsync(PageSelectRegister, page);
-                _currentPage = page;
+                CurrentPage = page;
             }
             catch (Exception ex)
             {

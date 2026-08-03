@@ -25,12 +25,12 @@ namespace OpenCMIS.Cypress
         public static string AsciiStringToDecString(string asc, int offset)
         {
             var NumberChars = asc.Length;
-            var retDec = string.Empty;
+            var retDec      = string.Empty;
 
             for (var i = 0; i <= NumberChars - 1; i++)
             {
                 // OFFSET the serial number assigned which was ADDED with offset
-                var val = Convert.ToInt32(Convert.ToByte(asc[i])) - offset;
+                var val  = Convert.ToInt32(Convert.ToByte(asc[i])) - offset;
                 var temp = val.ToString("D2");
                 retDec = retDec + temp;
             }
@@ -47,7 +47,7 @@ namespace OpenCMIS.Cypress
         /// <returns></returns>
         public static byte[] AsciiStringToByteArray(string asc, int offset)
         {
-            var ba = new byte[asc.Length];
+            var ba          = new byte[asc.Length];
             var NumberChars = asc.Length;
 
             for (var i = 0; i <= NumberChars - 1; i++)
@@ -68,9 +68,11 @@ namespace OpenCMIS.Cypress
         public static string ByteToString(byte bytes)
         {
             var hexString = "";
+
             //for (int i = 0; i < bytes.Length; i++)
             //{
             hexString += bytes.ToString("X2");
+
             //}
             return hexString;
         }

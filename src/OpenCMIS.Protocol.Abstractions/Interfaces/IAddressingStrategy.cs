@@ -1,5 +1,3 @@
-using OpenCMIS.Shared;
-
 namespace OpenCMIS.Protocol.Abstractions
 {
     /// <summary>
@@ -8,6 +6,11 @@ namespace OpenCMIS.Protocol.Abstractions
     /// </summary>
     public interface IAddressingStrategy
     {
+        /// <summary>
+        ///     Gets the maximum addressable range for a single page.
+        /// </summary>
+        int MaxPageAddress { get; }
+
         /// <summary>
         ///     Gets the page and local address for a given absolute address.
         /// </summary>
@@ -23,10 +26,5 @@ namespace OpenCMIS.Protocol.Abstractions
         /// <param name="address">The register address.</param>
         /// <returns>True if valid; otherwise, false.</returns>
         bool Validate(byte page, byte address);
-
-        /// <summary>
-        ///     Gets the maximum addressable range for a single page.
-        /// </summary>
-        int MaxPageAddress { get; }
     }
 }

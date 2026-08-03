@@ -24,7 +24,7 @@ namespace OpenCMIS.Shared
         {
             hexString = hexString.Replace(" ", "").Replace("-", "");
             var length = hexString.Length;
-            var bytes = new byte[length / 2];
+            var bytes  = new byte[length / 2];
             for (var i = 0; i < length; i += 2)
                 bytes[i / 2] = Convert.ToByte(hexString.Substring(i, 2), 16);
 

@@ -1,6 +1,6 @@
 using OpenCMIS.Module.Core.Hci;
-using OpenCMIS.Shared;
 using OpenCMIS.Protocol.Abstractions.Models;
+using OpenCMIS.Shared;
 using OpenCMIS.Transport.Abstractions;
 
 namespace OpenCMIS.Protocol.Abstractions
@@ -21,6 +21,16 @@ namespace OpenCMIS.Protocol.Abstractions
         bool IsConnected { get; }
 
         /// <summary>
+        ///     Gets the register access interface for low-level operations.
+        /// </summary>
+        IRegisterAccess RegisterAccess { get; }
+
+        /// <summary>
+        ///     Gets vendor HCI table access when supported by the device session.
+        /// </summary>
+        IHciMemoryAccessor? HciAccess { get; }
+
+        /// <summary>
         ///     Gets the module information.
         /// </summary>
         /// <returns>The module information.</returns>
@@ -37,16 +47,6 @@ namespace OpenCMIS.Protocol.Abstractions
         /// </summary>
         /// <param name="state">The target module state.</param>
         Task SetStateAsync(ModuleState state);
-
-        /// <summary>
-        ///     Gets the register access interface for low-level operations.
-        /// </summary>
-        IRegisterAccess RegisterAccess { get; }
-
-        /// <summary>
-        ///     Gets vendor HCI table access when supported by the device session.
-        /// </summary>
-        IHciMemoryAccessor? HciAccess { get; }
 
         /// <summary>
         ///     Reads the full module identity information.

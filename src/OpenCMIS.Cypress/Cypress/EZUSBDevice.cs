@@ -21,50 +21,50 @@ namespace OpenCMIS.Cypress
             Manufacturer = _usbDevice.Manufacturer;
         }
 
-        public CyUSBEndPoint CyUsbEndPointIn  { protected set; get; } // IN from USB to HOST
-        public CyUSBEndPoint CyUsbEndPointOut { protected set; get; } // OUT to USB from HOST
-        public CyFX2Device   CyFX2Device      { get;           set; }
-        public USBDevice     _usbDevice       { protected set; get; }
+        public CyUSBEndPoint CyUsbEndPointIn  { get; protected set; } // IN from USB to HOST
+        public CyUSBEndPoint CyUsbEndPointOut { get; protected set; } // OUT to USB from HOST
+        public CyFX2Device   CyFX2Device      { get; set; }
+        public USBDevice     _usbDevice       { get; protected set; }
 
         /// <summary>
         ///     Get DeviceType
         /// </summary>
-        public DeviceType DeviceType { protected set; get; }
+        public DeviceType DeviceType { get; protected set; }
 
         /// <summary>
         ///     Gets the product id.
         /// </summary>
-        public int ProductID { protected set; get; }
+        public int ProductID { get; protected set; }
 
         /// <summary>
         ///     Gets the vendor id.
         /// </summary>
-        public int VendorID { protected set; get; }
+        public int VendorID { get; protected set; }
 
         /// <summary>
         ///     Gets the serial number.
         /// </summary>
-        public string SerialNumber { protected set; get; }
+        public string SerialNumber { get; protected set; }
 
         /// <summary>
         ///     Gets the name of the product.
         /// </summary>
-        public string ProductName { protected set; get; }
+        public string ProductName { get; protected set; }
 
         /// <summary>
         ///     Gets the name of the driver.
         /// </summary>
-        public string DriverName { protected set; get; }
+        public string DriverName { get; protected set; }
 
         /// <summary>
         ///     Gets the name of the friendly.
         /// </summary>
-        public string FriendlyName { protected set; get; }
+        public string FriendlyName { get; protected set; }
 
         /// <summary>
         ///     Gets the manufacturer.
         /// </summary>
-        public string Manufacturer { protected set; get; }
+        public string Manufacturer { get; protected set; }
 
         /// <summary>
         ///     Gets the cypress fw version.
@@ -76,7 +76,7 @@ namespace OpenCMIS.Cypress
         /// <summary>
         ///     Gets or sets the us b_timeout.
         /// </summary>
-        public uint USB_timeout { set; get; } = 1;
+        public uint USB_timeout { get; set; } = 1;
 
         public virtual string GetSerailNumber()
         {
@@ -101,8 +101,10 @@ namespace OpenCMIS.Cypress
         {
             var retValue = false;
             if (_usbDevice != null)
+
                     // this instance may not be not valid already, device detached
                     // do dummy read to confirm
+            {
                 try
                 {
                     var dum = ((CyUSBDevice) _usbDevice).EndPointCount;
@@ -110,10 +112,13 @@ namespace OpenCMIS.Cypress
                 catch (ObjectDisposedException ex)
                 {
                     Debug.WriteLine(ex.ToString());
+
                     // validated, device already plugged out
                     retValue = true;
                 }
-            else retValue = true;
+            }
+            else
+                retValue = true;
 
             return retValue;
         }
@@ -131,8 +136,11 @@ namespace OpenCMIS.Cypress
 
             if (CyUsbEndPointIn != null && CyUsbEndPointOut != null)
             {
-                if (!CyUsbEndPointOut.XferData(ref bufferOut, ref length)) return false;
-                if (CyUsbEndPointIn.XferData(ref bufferIn, ref length)) retValue = true;
+                if (!CyUsbEndPointOut.XferData(ref bufferOut, ref length))
+                    return false;
+
+                if (CyUsbEndPointIn.XferData(ref bufferIn, ref length))
+                    retValue = true;
             }
 
             return retValue;
@@ -152,8 +160,11 @@ namespace OpenCMIS.Cypress
 
             if (CyUsbEndPointIn != null && CyUsbEndPointOut != null)
             {
-                if (!CyUsbEndPointOut.XferData(ref bufferOut, ref Outlength)) return false;
-                if (CyUsbEndPointIn.XferData(ref bufferIn, ref InLength)) retValue = true;
+                if (!CyUsbEndPointOut.XferData(ref bufferOut, ref Outlength))
+                    return false;
+
+                if (CyUsbEndPointIn.XferData(ref bufferIn, ref InLength))
+                    retValue = true;
             }
 
             return retValue;
@@ -175,7 +186,7 @@ namespace OpenCMIS.Cypress
                 try
                 {
                     ref var local1 = ref CommandBuffer;
-                    var length = CommandBuffer.Length;
+                    var     length = CommandBuffer.Length;
                     ref var local2 = ref length;
                     if (!CyUsbEndPointOut.XferData(ref local1, ref local2))
                     {

@@ -1,13 +1,13 @@
 namespace OpenCMIS.Protocol.Abstractions.Models
 {
     /// <summary>
-    /// Decoded CMIS interrupt flag latches (registers 0x04-0x05, 2 bytes).
-    /// Each bit is a latched interrupt that is cleared on read.
+    ///     Decoded CMIS interrupt flag latches (registers 0x04-0x05, 2 bytes).
+    ///     Each bit is a latched interrupt that is cleared on read.
     /// </summary>
     public sealed class CmisInterruptFlags
     {
         /// <summary>
-        /// Raw interrupt flag bytes from registers 0x04-0x05 (MSB order).
+        ///     Raw interrupt flag bytes from registers 0x04-0x05 (MSB order).
         /// </summary>
         public byte[] RawBytes { get; init; } = [];
 
@@ -55,28 +55,29 @@ namespace OpenCMIS.Protocol.Abstractions.Models
         public byte Reserved { get; init; }
 
         /// <summary>
-        /// Returns human-readable alert names for bits that are set.
+        ///     Returns human-readable alert names for bits that are set.
         /// </summary>
         public IReadOnlyList<string> GetActiveFlags()
         {
             var flags = new List<string>();
-            AddIf(TempHighAlarm, "Temperature high alarm");
-            AddIf(TempLowAlarm, "Temperature low alarm");
-            AddIf(VccHighAlarm, "VCC high alarm");
-            AddIf(VccLowAlarm, "VCC low alarm");
+            AddIf(TempHighAlarm,    "Temperature high alarm");
+            AddIf(TempLowAlarm,     "Temperature low alarm");
+            AddIf(VccHighAlarm,     "VCC high alarm");
+            AddIf(VccLowAlarm,      "VCC low alarm");
             AddIf(TxPowerHighAlarm, "TX power high alarm");
-            AddIf(TxPowerLowAlarm, "TX power low alarm");
+            AddIf(TxPowerLowAlarm,  "TX power low alarm");
             AddIf(RxPowerHighAlarm, "RX power high alarm");
-            AddIf(RxPowerLowAlarm, "RX power low alarm");
-            AddIf(TxBiasHighAlarm, "TX bias high alarm");
-            AddIf(TxBiasLowAlarm, "TX bias low alarm");
-            AddIf(TxFault, "TX fault");
-            AddIf(RxLOS, "RX LOS");
+            AddIf(RxPowerLowAlarm,  "RX power low alarm");
+            AddIf(TxBiasHighAlarm,  "TX bias high alarm");
+            AddIf(TxBiasLowAlarm,   "TX bias low alarm");
+            AddIf(TxFault,          "TX fault");
+            AddIf(RxLOS,            "RX LOS");
             return flags;
 
             void AddIf(bool condition, string message)
             {
-                if (condition) flags.Add(message);
+                if (condition)
+                    flags.Add(message);
             }
         }
     }

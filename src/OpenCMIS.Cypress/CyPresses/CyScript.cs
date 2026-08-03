@@ -128,22 +128,26 @@ namespace OpenCMIS.Cypress
         public void ReadToBuffer(FileStream f, ref byte[] buffer, ref int len)
         {
             if (len > 0)
+            {
                 lock (TTLock.GlobalWriteLock)
                 {
                     var rd = new BinaryReader(f);
                     rd.Read(buffer, 0, len);
                 }
+            }
         }
 
         public void WriteFromBuffer(FileStream f, ref byte[] buffer, ref int len)
         {
             if (len > 0)
+            {
                 lock (TTLock.GlobalWriteLock)
                 {
                     var wr = new BinaryWriter(f);
                     wr.Write(buffer, 0, len);
                     Thread.Sleep(0);
                 }
+            }
         }
     }
 }

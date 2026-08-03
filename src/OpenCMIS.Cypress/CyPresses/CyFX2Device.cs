@@ -63,14 +63,17 @@ namespace OpenCMIS.Cypress
 
             set
             {
-                if (!File.Exists(value)) return;
+                if (!File.Exists(value))
+                    return;
 
                 VendAX.Clear();
 
                 string line;
 
                 var srcStream = new StreamReader(value);
-                if (srcStream == null) return;
+                if (srcStream == null)
+                    return;
+
                 while ((line = srcStream.ReadLine()) != null)
                     VendAX.Add(line);
 
@@ -127,6 +130,7 @@ namespace OpenCMIS.Cypress
         {
             if (fwFile.ToLower().Contains(".iic"))
                 return LoadRamIIC(fwFile);
+
             if (fwFile.ToLower().Contains(".hex"))
             {
                 if (!LoadRamHex("VendAX"))
@@ -150,13 +154,14 @@ namespace OpenCMIS.Cypress
                 return LoadRamIIC(fwFile);
             if (fwFile.ToLower().Contains(".hex") || fwFile.Equals("VendAX"))
                 return LoadRamHex(fwFile);
+
             return false;
         }
 
         public void Reset(int hold)
         {
             var m_FXaction = new TTransaction();
-            var dta = new byte[8];
+            var dta        = new byte[8];
 
             ControlEndPt.Target  = CyConst.TGT_DEVICE;
             ControlEndPt.ReqType = CyConst.REQ_VENDOR;
@@ -202,7 +207,7 @@ namespace OpenCMIS.Cypress
             list1.Clear();
 
             string line, sOffset, tmp;
-            int v;
+            int    v;
 
             var fs = new FileStream(fname, FileMode.Open, FileAccess.Read);
             var sr = new StreamReader(fs);
@@ -221,7 +226,8 @@ namespace OpenCMIS.Cypress
                 {
                     tmp = line.Substring(7, 2); // Get the Record Type into v
                     v   = (int) Util.HexToInt(tmp);
-                    if (v != 0) list.Remove(list[i]); // Data records are type == 0
+                    if (v != 0)
+                        list.Remove(list[i]); // Data records are type == 0
                 }
             }
 
@@ -249,16 +255,17 @@ namespace OpenCMIS.Cypress
                 }
             }
 
-            if (blow) Reset(1);
+            if (blow)
+                Reset(1);
 
-            var Reqcode = blow ? (byte) 0xA0 : (byte) 0xA3;
-            ushort windex = 0;
+            var    Reqcode = blow ? (byte) 0xA0 : (byte) 0xA3;
+            ushort windex  = 0;
 
-            var iindex = 0;
-            var Datastring = "";
-            var nxtoffset = 0;
-            var xferLen = 0;
-            ushort wvalue = 0;
+            var    iindex     = 0;
+            var    Datastring = "";
+            var    nxtoffset  = 0;
+            var    xferLen    = 0;
+            ushort wvalue     = 0;
 
             foreach (string lines in list1)
             {
@@ -284,7 +291,7 @@ namespace OpenCMIS.Cypress
                 //}
 
                 //if ((blow && (offset < Ramsize)) || (!blow && (offset >= Ramsize)))
-                if ((blow && lastaddr < Ramsize) || (!blow && lastaddr >= Ramsize))
+                if (blow && lastaddr < Ramsize || !blow && lastaddr >= Ramsize)
                 {
                     xferLen += no_bytes;
 
@@ -296,8 +303,8 @@ namespace OpenCMIS.Cypress
 
                         if (!len.Equals(0))
                         {
-                            var bufLen = len / 2;
-                            var buf = new byte[bufLen];
+                            var    bufLen = len / 2;
+                            var    buf    = new byte[bufLen];
                             string d;
 
                             for (var j = 0; j < bufLen; j++)
@@ -350,8 +357,8 @@ namespace OpenCMIS.Cypress
             var len1 = Datastring.Length;
             if (!len1.Equals(0))
             {
-                var bufLen = len1 / 2;
-                var buf1 = new byte[bufLen];
+                var    bufLen = len1 / 2;
+                var    buf1   = new byte[bufLen];
                 string d;
 
                 for (var j = 0; j < bufLen; j++)
@@ -391,18 +398,22 @@ namespace OpenCMIS.Cypress
                 }
             }
 
-            if (blow) Reset(0);
+            if (blow)
+                Reset(0);
 
             return true;
         }
 
         private bool ReadConfigData(string cfgFile)
         {
-            if (cfgFile.Equals("")) return false;
+            if (cfgFile.Equals(""))
+                return false;
 
             // Suck-in the data from the .iic file
             Stream fStream = new FileStream(cfgFile, FileMode.Open, FileAccess.Read);
-            if (fStream == null) return false;
+            if (fStream == null)
+                return false;
+
             ImageLen = (ushort) fStream.Length;
 
             if (ImageLen > Util.MaxFwSize)
@@ -420,6 +431,7 @@ namespace OpenCMIS.Cypress
         private bool LoadRamHex(string fileName)
         {
             var m_Xaction = new TTransaction();
+
             // A .hex file is already in the correct format for the FX2 RAM
             var rVal = false;
 
@@ -437,8 +449,8 @@ namespace OpenCMIS.Cypress
 
                 Reset(1); // Halt
 
-                ushort chunk = 2048;
-                var buffer = new byte[chunk];
+                ushort chunk  = 2048;
+                var    buffer = new byte[chunk];
 
                 for (var i = FwOffset; i < ImageLen; i += chunk)
                 {
@@ -481,7 +493,8 @@ namespace OpenCMIS.Cypress
         private bool LoadRamIIC(string fwFile)
         {
             // Need to do this here, since FwImage contains VendAX at this point.
-            for (var i = 0; i < Util.MaxFwSize; i++) FwImage[i] = 0xFF;
+            for (var i = 0; i < Util.MaxFwSize; i++)
+                FwImage[i] = 0xFF;
 
             ReadConfigData(fwFile);
 
@@ -489,7 +502,8 @@ namespace OpenCMIS.Cypress
             // Now, parse it into FwBuf, putting each record at the right offset,
             // suitable for the FX2 RAM
             var FwBuf = new byte[Util.MaxFwSize];
-            for (var i = 0; i < Util.MaxFwSize; i++) FwBuf[i] = 0xFF;
+            for (var i = 0; i < Util.MaxFwSize; i++)
+                FwBuf[i] = 0xFF;
             Util.ParseIICData(FwImage, FwBuf, ref ImageLen, ref FwOffset);
 
             ControlEndPt.Target  = CyConst.TGT_DEVICE;
@@ -499,8 +513,8 @@ namespace OpenCMIS.Cypress
 
             Reset(1); // Halt
 
-            ushort chunk = 2048;
-            var buffer = new byte[chunk];
+            ushort chunk  = 2048;
+            var    buffer = new byte[chunk];
 
             for (var i = FwOffset; i < ImageLen; i += chunk)
             {
@@ -520,7 +534,8 @@ namespace OpenCMIS.Cypress
         private bool LoadEpromIIC(string fwFile, bool isLargeEEprom)
         {
             // Need to do this here, since FwImage contains VendAX at this point.
-            for (var i = 0; i < Util.MaxFwSize; i++) FwImage[i] = 0xFF;
+            for (var i = 0; i < Util.MaxFwSize; i++)
+                FwImage[i] = 0xFF;
 
             if (!ReadConfigData(fwFile))
                 return false;
@@ -542,8 +557,8 @@ namespace OpenCMIS.Cypress
             var toTemp = ControlEndPt.TimeOut;
             ControlEndPt.TimeOut = 25000;
 
-            ushort chunk = 4096;
-            var buffer = new byte[chunk];
+            ushort chunk  = 4096;
+            var    buffer = new byte[chunk];
 
             for (ushort i = 0; i < ImageLen; i += chunk)
             {
@@ -575,8 +590,8 @@ namespace OpenCMIS.Cypress
             var toTemp = ControlEndPt.TimeOut;
             ControlEndPt.TimeOut = 25000;
 
-            ushort chunk = 4096;
-            var buffer = new byte[chunk];
+            ushort chunk  = 4096;
+            var    buffer = new byte[chunk];
 
             for (ushort i = 0; i < ImageLen; i += chunk)
             {

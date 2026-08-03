@@ -1,5 +1,3 @@
-using OpenCMIS.Shared;
-
 namespace OpenCMIS.Protocol.Abstractions
 {
     /// <summary>

@@ -17,6 +17,7 @@ namespace OpenCMIS.UI.WPF.Converters
                     return app?.TryFindResource("OpenCmisDangerBrush") ?? new SolidColorBrush(Colors.Red);
                 if (mv.HasWarning)
                     return app?.TryFindResource("OpenCmisWarningBrush") ?? new SolidColorBrush(Colors.Orange);
+
                 return app?.TryFindResource("OpenCmisSuccessBrush") ?? new SolidColorBrush(Colors.Green);
             }
 

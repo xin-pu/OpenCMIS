@@ -2,10 +2,10 @@ namespace OpenCMIS.Protocol.Abstractions.Models
 {
     public class LaneStatus
     {
-        public int LaneNumber { get; set; }
-        public double TxPower { get; set; }
-        public double RxPower { get; set; }
-        public double TxBias { get; set; }
+        public int    LaneNumber { get; set; }
+        public double TxPower    { get; set; }
+        public double RxPower    { get; set; }
+        public double TxBias     { get; set; }
 
         /// <summary>Raw lane status flags byte (0xA6) for debug.</summary>
         public byte RawFlags { get; set; }
@@ -35,10 +35,15 @@ namespace OpenCMIS.Protocol.Abstractions.Models
 
         public string GetStateText()
         {
-            if (HasFault) return "Fault";
-            if (!IsEnabled) return "Disabled";
-            if (TxLos || RxLos) return "LOS";
-            if (TxLol || RxLol) return "LOL";
+            if (HasFault)
+                return "Fault";
+            if (!IsEnabled)
+                return "Disabled";
+            if (TxLos || RxLos)
+                return "LOS";
+            if (TxLol || RxLol)
+                return "LOL";
+
             return "OK";
         }
     }

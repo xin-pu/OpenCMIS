@@ -1,10 +1,9 @@
-using DevExpress.Mvvm.CodeGenerators;
 using OpenCMIS.Protocol.Abstractions;
 
 namespace OpenCMIS.UI.WPF.ViewModels
 {
     [GenerateViewModel]
-    public partial class MainViewModel
+    public class MainViewModel
     {
         [GenerateProperty]
         private object? _activeView;
@@ -21,33 +20,32 @@ namespace OpenCMIS.UI.WPF.ViewModels
         [GenerateProperty]
         private bool _isNavigationPaneExpanded = true;
 
-        public DeviceConnectionViewModel DeviceConnectionVM { get; }
-        public DashboardViewModel DashboardVM { get; }
-        public ControlPanelViewModel ControlPanelVM { get; }
-        public CdbEditorViewModel CdbEditorVM { get; }
-        public ApplicationSwitchViewModel ApplicationSwitchVM { get; }
-        public PageEditorViewModel PageEditorVM { get; }
-        public ModuleHomeViewModel ModuleHomeVM { get; }
-
-        public MainViewModel(
-            DeviceConnectionViewModel deviceConnectionVM,
-            DashboardViewModel dashboardVM,
-            ControlPanelViewModel controlPanelVM,
-            CdbEditorViewModel cdbEditorVM,
-            ApplicationSwitchViewModel applicationSwitchVM,
-            PageEditorViewModel pageEditorVM,
-            ModuleHomeViewModel moduleHomeVM)
+        public MainViewModel(DeviceConnectionViewModel  deviceConnectionVM,
+                             DashboardViewModel         dashboardVM,
+                             ControlPanelViewModel      controlPanelVM,
+                             CdbEditorViewModel         cdbEditorVM,
+                             ApplicationSwitchViewModel applicationSwitchVM,
+                             PageEditorViewModel        pageEditorVM,
+                             ModuleHomeViewModel        moduleHomeVM)
         {
-            DeviceConnectionVM = deviceConnectionVM;
-            DashboardVM = dashboardVM;
-            ControlPanelVM = controlPanelVM;
-            CdbEditorVM = cdbEditorVM;
+            DeviceConnectionVM  = deviceConnectionVM;
+            DashboardVM         = dashboardVM;
+            ControlPanelVM      = controlPanelVM;
+            CdbEditorVM         = cdbEditorVM;
             ApplicationSwitchVM = applicationSwitchVM;
-            PageEditorVM = pageEditorVM;
-            ModuleHomeVM = moduleHomeVM;
+            PageEditorVM        = pageEditorVM;
+            ModuleHomeVM        = moduleHomeVM;
 
             ActiveView = DeviceConnectionVM;
         }
+
+        public DeviceConnectionViewModel  DeviceConnectionVM  { get; }
+        public DashboardViewModel         DashboardVM         { get; }
+        public ControlPanelViewModel      ControlPanelVM      { get; }
+        public CdbEditorViewModel         CdbEditorVM         { get; }
+        public ApplicationSwitchViewModel ApplicationSwitchVM { get; }
+        public PageEditorViewModel        PageEditorVM        { get; }
+        public ModuleHomeViewModel        ModuleHomeVM        { get; }
 
         public void SetDevice(ICmisDevice? device)
         {
@@ -59,32 +57,32 @@ namespace OpenCMIS.UI.WPF.ViewModels
             ModuleHomeVM.SetDevice(device);
         }
 
+        public void UpdateConnectionStatus(bool connected, string deviceName)
+        {
+            ConnectionStatus = connected ? "Connected" : "Disconnected";
+            DeviceName       = deviceName;
+        }
+
         [GenerateCommand]
         private void NavigateTo(string viewName)
         {
             SelectedViewName = viewName;
             ActiveView = viewName switch
-            {
-                "Dashboard"          => DashboardVM,
-                "ControlPanel"       => ControlPanelVM,
-                "CdbEditor"          => CdbEditorVM,
-                "ApplicationSwitch"  => ApplicationSwitchVM,
-                "PageEditor"         => PageEditorVM,
-                "ModuleHome"         => ModuleHomeVM,
-                _                    => DeviceConnectionVM
-            };
+                         {
+                             "Dashboard"         => DashboardVM,
+                             "ControlPanel"      => ControlPanelVM,
+                             "CdbEditor"         => CdbEditorVM,
+                             "ApplicationSwitch" => ApplicationSwitchVM,
+                             "PageEditor"        => PageEditorVM,
+                             "ModuleHome"        => ModuleHomeVM,
+                             _                   => DeviceConnectionVM
+                         };
         }
 
         [GenerateCommand]
         private void ToggleNavigation()
         {
             IsNavigationPaneExpanded = !IsNavigationPaneExpanded;
-        }
-
-        public void UpdateConnectionStatus(bool connected, string deviceName)
-        {
-            ConnectionStatus = connected ? "Connected" : "Disconnected";
-            DeviceName = deviceName;
         }
     }
 }

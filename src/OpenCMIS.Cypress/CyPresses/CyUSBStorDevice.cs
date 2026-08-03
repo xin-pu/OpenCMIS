@@ -49,24 +49,28 @@ namespace OpenCMIS.Cypress
             get
             {
                 string dPath;
-                uint i;
-                byte dCount = 0;
+                uint   i;
+                byte   dCount = 0;
 
                 i = 0;
                 do
                 {
                     dPath = PInvoke.GetDevicePath(CyConst.DiskGuid, i);
-                    if (dPath.IndexOf("\\usbstor#") > -1) dCount++;
+                    if (dPath.IndexOf("\\usbstor#") > -1)
+                        dCount++;
                     i++;
-                } while (dPath.Length > 0);
+                }
+                while (dPath.Length > 0);
 
                 i = 0;
                 do
                 {
                     dPath = PInvoke.GetDevicePath(CyConst.CdGuid, i);
-                    if (dPath.IndexOf("\\usbstor#") > -1) dCount++;
+                    if (dPath.IndexOf("\\usbstor#") > -1)
+                        dCount++;
                     i++;
-                } while (dPath.Length > 0);
+                }
+                while (dPath.Length > 0);
 
                 return dCount;
             }
@@ -74,7 +78,8 @@ namespace OpenCMIS.Cypress
 
         public override string ToString()
         {
-            if (_alreadyDisposed) throw new ObjectDisposedException("");
+            if (_alreadyDisposed)
+                throw new ObjectDisposedException("");
 
             var s = new StringBuilder("<MSC_DEVICE>\r\n");
 
@@ -97,7 +102,8 @@ namespace OpenCMIS.Cypress
         {
             if (IntPtr.Size == 8)
                 return SendScsiCmd64(cmd, op, lun, dirIn, bank, lba, bytes, data); //64bit process
-            return SendScsiCmd32(cmd, op, lun, dirIn, bank, lba, bytes, data);     //32 bit process
+
+            return SendScsiCmd32(cmd, op, lun, dirIn, bank, lba, bytes, data); //32 bit process
         }
 
         // Opens a handle to the devTH device attached the USBSTOR.SYS driver
@@ -108,12 +114,15 @@ namespace OpenCMIS.Cypress
                 Close();
 
             _devices = DeviceCount;
-            if (_devices == 0) return false;
-            if (dev      > _devices - 1) return false;
+            if (_devices == 0)
+                return false;
+            if (dev > _devices - 1)
+                return false;
 
             _path    = GetDevicePath(dev); // Also sets the DrvGuid to either CdGuid or DiskGuid.
             _hDevice = PInvoke.GetDeviceHandle(_path, true);
-            if (_hDevice == CyConst.INVALID_HANDLE) return false;
+            if (_hDevice == CyConst.INVALID_HANDLE)
+                return false;
 
             _devNum = dev;
             GetDeviceParameters();
@@ -125,18 +134,19 @@ namespace OpenCMIS.Cypress
 
         private void GetDeviceParameters()
         {
-            var a = Path.IndexOf("usbstor");
-            var len = Path.IndexOf("#{") - a;
-            var tmp = Path.Substring(a, len).Replace("#", "\\");
+            var a            = Path.IndexOf("usbstor");
+            var len          = Path.IndexOf("#{") - a;
+            var tmp          = Path.Substring(a, len).Replace("#", "\\");
             var DevKeyString = "SYSTEM\\CurrentControlSet\\Enum\\" + tmp; // Location in XP
 
             var LocalMachine = Registry.LocalMachine;
-            var DevKey = LocalMachine.OpenSubKey(DevKeyString);
+            var DevKey       = LocalMachine.OpenSubKey(DevKeyString);
             if (DevKey == null)
             {
                 DevKeyString = "Enum\\" + tmp; // Location in 98
                 DevKey       = LocalMachine.OpenSubKey(DevKeyString);
-                if (DevKey == null) return;
+                if (DevKey == null)
+                    return;
             }
 
             _friendlyName = (string) DevKey.GetValue("FriendlyName");
@@ -153,11 +163,12 @@ namespace OpenCMIS.Cypress
                 _serialNumber = _serialNumber.Substring(0, x);
             }
 
-            var lastAmpersand = _serialNumber.LastIndexOf("&");
+            var lastAmpersand  = _serialNumber.LastIndexOf("&");
             var ParentIDPrefix = lastAmpersand >= 0 ? _serialNumber.Substring(0, lastAmpersand) : "";
 
             DevKey = GetUSBDevKey(ParentIDPrefix);
-            if (DevKey == null) return;
+            if (DevKey == null)
+                return;
 
             _manufacturer = (string) DevKey.GetValue("Mfg");
             _name         = (string) DevKey.GetValue("DeviceDesc");
@@ -204,7 +215,7 @@ namespace OpenCMIS.Cypress
         private RegistryKey GetUSBDevKey(string ParentPrefix)
         {
             var LocalMachine = Registry.LocalMachine;
-            var DevKey = LocalMachine.OpenSubKey("SYSTEM\\CurrentControlSet\\Enum\\USB");
+            var DevKey       = LocalMachine.OpenSubKey("SYSTEM\\CurrentControlSet\\Enum\\USB");
             if (DevKey == null)
             {
                 //DevKey = LocalMachine.OpenSubKey("Enum\\USB"); // Location in 98
@@ -212,7 +223,7 @@ namespace OpenCMIS.Cypress
             }
 
             var usbKeys = DevKey.SubKeyCount;
-            var sUKeys = DevKey.GetSubKeyNames();
+            var sUKeys  = DevKey.GetSubKeyNames();
 
             for (var i = 0; i < usbKeys; i++)
             {
@@ -223,7 +234,7 @@ namespace OpenCMIS.Cypress
                 }
                 catch (SecurityException) { }
 
-                var dKeys = usbKey.SubKeyCount;
+                var dKeys  = usbKey.SubKeyCount;
                 var sDKeys = usbKey.GetSubKeyNames();
 
                 for (var j = 0; j < dKeys; j++)
@@ -248,11 +259,13 @@ namespace OpenCMIS.Cypress
 
                     var tmp = (string) itemKey.GetValue("ParentIdPrefix");
                     if (tmp != null)
+                    {
                         if (ParentPrefix.Equals(tmp.ToUpper()))
                         {
                             _serialNumber = "";
                             return itemKey;
                         }
+                    }
                 }
             }
 
@@ -262,7 +275,7 @@ namespace OpenCMIS.Cypress
         private string GetDevicePath(byte dev)
         {
             string dPath;
-            byte dCnt = 0;
+            byte   dCnt = 0;
 
             //string s = "USBSTOR";
             //byte[] sClass = new byte[s.Length+1];
@@ -288,7 +301,8 @@ namespace OpenCMIS.Cypress
                 }
 
                 i++;
-            } while (dPath.Length > 0);
+            }
+            while (dPath.Length > 0);
 
             // Next look for the devTH USBSTOR CD
             i = 0;
@@ -308,22 +322,23 @@ namespace OpenCMIS.Cypress
                 }
 
                 i++;
-            } while (dPath.Length > 0);
+            }
+            while (dPath.Length > 0);
 
             return "";
         }
 
         private unsafe bool SendScsiCmd64(byte cmd, byte op, byte lun, byte dirIn, int bank, int lba, int bytes, byte[] data)
         {
-            var sptB = new SCSI_PASS_THROUGH_WITH_BUFFERS();
-            var len = Marshal.SizeOf(sptB) + bytes; // total size of buffer
+            var sptB   = new SCSI_PASS_THROUGH_WITH_BUFFERS();
+            var len    = Marshal.SizeOf(sptB) + bytes; // total size of buffer
             var buffer = new byte[len];
 
             fixed (byte * buf = buffer)
             {
-                var sptBuf = (SCSI_PASS_THROUGH_WITH_BUFFERS *) buf;
-                var spt = (SCSI_PASS_THROUGH *) buf;
-                var cdb = (CDB10 *) &spt->Cdb;
+                var  sptBuf = (SCSI_PASS_THROUGH_WITH_BUFFERS *) buf;
+                var  spt    = (SCSI_PASS_THROUGH *) buf;
+                var  cdb    = (CDB10 *) &spt->Cdb;
                 bool bRetVal;
 
                 sptBuf->totalSize = (uint) len;
@@ -381,15 +396,15 @@ namespace OpenCMIS.Cypress
 
         private unsafe bool SendScsiCmd32(byte cmd, byte op, byte lun, byte dirIn, int bank, int lba, int bytes, byte[] data)
         {
-            var sptB = new SCSI_PASS_THROUGH_WITH_BUFFERS32();
-            var len = Marshal.SizeOf(sptB) + bytes; // total size of buffer
+            var sptB   = new SCSI_PASS_THROUGH_WITH_BUFFERS32();
+            var len    = Marshal.SizeOf(sptB) + bytes; // total size of buffer
             var buffer = new byte[len];
 
             fixed (byte * buf = buffer)
             {
-                var sptBuf = (SCSI_PASS_THROUGH_WITH_BUFFERS32 *) buf;
-                var spt = (SCSI_PASS_THROUGH32 *) buf;
-                var cdb = (CDB10 *) &spt->Cdb;
+                var  sptBuf = (SCSI_PASS_THROUGH_WITH_BUFFERS32 *) buf;
+                var  spt    = (SCSI_PASS_THROUGH32 *) buf;
+                var  cdb    = (CDB10 *) &spt->Cdb;
                 bool bRetVal;
 
                 sptBuf->totalSize = (uint) len;

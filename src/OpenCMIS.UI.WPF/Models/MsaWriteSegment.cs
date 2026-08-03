@@ -1,14 +1,15 @@
-namespace OpenCMIS.UI.WPF.Models;
-
-public sealed record MsaWriteSegment
+namespace OpenCMIS.UI.WPF.Models
 {
-    public MsaWriteSegment(byte startAddress, IEnumerable<byte> data)
+    public sealed record MsaWriteSegment
     {
-        ArgumentNullException.ThrowIfNull(data);
-        StartAddress = startAddress;
-        Data = data.ToArray();
-    }
+        public MsaWriteSegment(byte startAddress, IEnumerable<byte> data)
+        {
+            ArgumentNullException.ThrowIfNull(data);
+            StartAddress = startAddress;
+            Data         = data.ToArray();
+        }
 
-    public byte StartAddress { get; }
-    public byte[] Data { get; }
+        public byte   StartAddress { get; }
+        public byte[] Data         { get; }
+    }
 }

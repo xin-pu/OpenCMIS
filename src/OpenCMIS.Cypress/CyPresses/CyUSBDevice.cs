@@ -95,20 +95,21 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
 
                 if ((_bcdUSB & CyConst.bcdUSBJJMask) == CyConst.USB30MajorVer)
                 {
                     var NumberOftreeNode = _configs + 1; //+1 for the BOS descriptor
-                    var cfgTree = new TreeNode[NumberOftreeNode];
+                    var cfgTree          = new TreeNode[NumberOftreeNode];
                     cfgTree[0] = USBBos.Tree;
                     for (var i = 1; i < NumberOftreeNode; i++)
                         cfgTree[i] = USBCfgs[i - 1].Tree;
 
                     var t = new TreeNode(FriendlyName, cfgTree)
-                    {
-                            Tag = this
-                    };
+                            {
+                                Tag = this
+                            };
                     return t;
                 }
                 else
@@ -118,9 +119,9 @@ namespace OpenCMIS.Cypress
                         cfgTree[i] = USBCfgs[i].Tree;
 
                     var t = new TreeNode(FriendlyName, cfgTree)
-                    {
-                            Tag = this
-                    };
+                            {
+                                Tag = this
+                            };
                     return t;
                 }
             }
@@ -131,7 +132,9 @@ namespace OpenCMIS.Cypress
             // This variable tells , if device is fx2:true or fx3:false
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _IsFX2Device;
             }
         }
@@ -140,7 +143,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _strLangID;
             }
         }
@@ -149,7 +154,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _driverVersion;
             }
         }
@@ -158,7 +165,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _usbdiVersion;
             }
         }
@@ -167,7 +176,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _maxPacketSize; //note for usb3.0 device control endpoint the maximum packet size is 92^_maxPacketSize)
             }
         }
@@ -176,7 +187,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _bcdDevice;
             }
         }
@@ -185,7 +198,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _configValue;
             }
         }
@@ -194,7 +209,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _configAttrib;
             }
         }
@@ -203,7 +220,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _maxPower;
             }
         }
@@ -212,7 +231,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _intfcClass;
             }
         }
@@ -221,7 +242,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _intfcSubClass;
             }
         }
@@ -230,7 +253,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _intfcProtocol;
             }
         }
@@ -239,7 +264,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _bSuperSpeed;
             }
         }
@@ -248,7 +275,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _bHighSpeed;
             }
         }
@@ -257,7 +286,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _configs;
             }
         }
@@ -268,7 +299,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _interfaces;
             }
         }
@@ -277,7 +310,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _altInterfaces;
             }
         }
@@ -286,24 +321,31 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 var alt = new byte[1];
                 if (IoControl(CyConst.IOCTL_ADAPT_GET_ALT_INTERFACE_SETTING, alt, 1))
                     return alt[0];
+
                 return 0xFF;
             }
 
             set
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
 
-                if (value == AltIntfc) return;
+                if (value == AltIntfc)
+                    return;
 
                 /* This is a composite interface  so don't do Set/Select Interface calls */
-                if (IntfcCount > 1) return;
+                if (IntfcCount > 1)
+                    return;
 
                 // Find match of IntfcNum and alt in table of interfaces
                 if (USBCfgs[_cfgNum] != null)
+                {
                     for (var j = 0; j < USBCfgs[_cfgNum].AltInterfaces; j++)
                         if (USBCfgs[_cfgNum].Interfaces[j].bAlternateSetting == value)
                         {
@@ -322,6 +364,7 @@ namespace OpenCMIS.Cypress
 
                             SetEndPoints();
                         }
+                }
             }
         }
 
@@ -329,9 +372,11 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
 
-                if (_hDevice == CyConst.INVALID_HANDLE) return 0;
+                if (_hDevice == CyConst.INVALID_HANDLE)
+                    return 0;
 
                 if (USBCfgs[_cfgNum] != null)
                     return (byte) (USBCfgs[_cfgNum].Interfaces[_intfcIndex].bNumEndpoints + 1); // Include EndPt0
@@ -344,19 +389,25 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _cfgNum;
             }
 
             set
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
 
-                if (USBCfgs[0] == null) return;
+                if (USBCfgs[0] == null)
+                    return;
 
                 _cfgNum = 0;
-                if (USBCfgs[0] != null && USBCfgs[0].iConfiguration == value) _cfgNum = value;
-                if (USBCfgs[1] != null && USBCfgs[1].iConfiguration == value) _cfgNum = value;
+                if (USBCfgs[0] != null && USBCfgs[0].iConfiguration == value)
+                    _cfgNum = value;
+                if (USBCfgs[1] != null && USBCfgs[1].iConfiguration == value)
+                    _cfgNum = value;
 
                 _configValue   = USBCfgs[_cfgNum].bConfigurationValue;
                 _configAttrib  = USBCfgs[_cfgNum].bmAttributes;
@@ -383,7 +434,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _hDevice;
             }
         }
@@ -392,7 +445,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _hDevice != CyConst.INVALID_HANDLE;
             }
         }
@@ -402,7 +457,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _intfcNum;
             } // Usually 0
             // No set method since only 1 intfc per device (per Windows)
@@ -410,7 +467,8 @@ namespace OpenCMIS.Cypress
 
         public override string ToString()
         {
-            if (_alreadyDisposed) throw new ObjectDisposedException("");
+            if (_alreadyDisposed)
+                throw new ObjectDisposedException("");
 
             var s = new StringBuilder("<DEVICE>\r\n");
 
@@ -422,6 +480,7 @@ namespace OpenCMIS.Cypress
 
             //if ((_bcdUSB & CyConst.bcdUSBJJMask) == CyConst.USB20MajorVer)
             s.Append($"\tMaxPacketSize=\"{MaxPacketSize}\"\r\n");
+
             //else
             //  s.Append(string.Format("\tMaxPacketSize=\"{0}\"\r\n", powerof2(MaxPacketSize))); // USB3.0 EP0 packet size = 2^maximumpacketsize
 
@@ -446,9 +505,9 @@ namespace OpenCMIS.Cypress
         public static string UsbdStatusString(uint stat)
         {
             var status = stat & 0x0FFFFFFF;
-            var state = stat  & 0xF0000000;
+            var state  = stat & 0xF0000000;
 
-            var sState = "";
+            var sState  = "";
             var sStatus = "";
 
             if (status == 0)
@@ -510,9 +569,11 @@ namespace OpenCMIS.Cypress
 
         public CyUSBEndPoint EndPointOf(byte addr)
         {
-            if (_alreadyDisposed) throw new ObjectDisposedException("");
+            if (_alreadyDisposed)
+                throw new ObjectDisposedException("");
 
-            if (addr == 0) return ControlEndPt;
+            if (addr == 0)
+                return ControlEndPt;
 
             CyUSBEndPoint ept;
 
@@ -523,8 +584,10 @@ namespace OpenCMIS.Cypress
                 ept = USBCfgs[_cfgNum].Interfaces[_intfcIndex].EndPoints[i];
 
                 if (ept != null)
+                {
                     if (addr == ept.Address)
                         return ept;
+                }
             }
 
             return null; // Error
@@ -532,22 +595,29 @@ namespace OpenCMIS.Cypress
 
         public bool Reset()
         {
-            if (_alreadyDisposed) throw new ObjectDisposedException("");
+            if (_alreadyDisposed)
+                throw new ObjectDisposedException("");
+
             return IoControl(CyConst.IOCTL_ADAPT_RESET_PARENT_PORT, null, 0);
         }
 
         public bool ReConnect()
         {
-            if (_alreadyDisposed) throw new ObjectDisposedException("");
+            if (_alreadyDisposed)
+                throw new ObjectDisposedException("");
+
             return IoControl(CyConst.IOCTL_ADAPT_CYCLE_PORT, null, 0);
         }
 
         public bool GetBosDescriptor(ref USB_BOS_DESCRIPTOR descr)
         {
             // USB3.0 device specific descriptor, for USB2.0 device this function will return false
-            if (_alreadyDisposed) throw new ObjectDisposedException("");
+            if (_alreadyDisposed)
+                throw new ObjectDisposedException("");
+
             if ((_bcdUSB & CyConst.bcdUSBJJMask) != CyConst.USB30MajorVer)
                 return false;
+
             descr.bLength         = USBBos.Lenght;
             descr.bDescriptorType = USBBos.DescriptorType;
             descr.bNumDeviceCaps  = USBBos.NumDeviceCaps;
@@ -558,7 +628,9 @@ namespace OpenCMIS.Cypress
         public bool GetBosUSB20DeviceExtensionDescriptor(ref USB_BOS_USB20_DEVICE_EXTENSION descr)
         {
             // USB3.0 device specific descriptor, for USB2.0 device this function will return false
-            if (_alreadyDisposed) throw new ObjectDisposedException("");
+            if (_alreadyDisposed)
+                throw new ObjectDisposedException("");
+
             if ((_bcdUSB & CyConst.bcdUSBJJMask) != CyConst.USB30MajorVer)
                 return false;
             if (USBBos.USB20_DeviceExt != null)
@@ -578,7 +650,9 @@ namespace OpenCMIS.Cypress
         public bool GetBosContainedIDDescriptor(ref USB_BOS_CONTAINER_ID descr)
         {
             // USB3.0 device specific descriptor, for USB2.0 device this function will return false
-            if (_alreadyDisposed) throw new ObjectDisposedException("");
+            if (_alreadyDisposed)
+                throw new ObjectDisposedException("");
+
             if ((_bcdUSB & CyConst.bcdUSBJJMask) != CyConst.USB30MajorVer)
                 return false;
             if (USBBos.Container_ID != null)
@@ -587,6 +661,7 @@ namespace OpenCMIS.Cypress
                 descr.bDescriptorType    = USBBos.Container_ID.DescriptorType;
                 descr.bDevCapabilityType = USBBos.Container_ID.DevCapabilityType;
                 descr.bReserved          = USBBos.Container_ID.Reserved;
+
                 //for (int i = 0; i < CyConst.USB_BOS_CAPABILITY_TYPE_CONTAINER_ID_SIZE; i++)
                 //  descr.ContainerID[i] = 0;
             }
@@ -599,7 +674,9 @@ namespace OpenCMIS.Cypress
         public bool GetBosSSCapabilityDescriptor(ref USB_BOS_SS_DEVICE_CAPABILITY descr)
         {
             // USB3.0 device specific descriptor, for USB2.0 device this function will return false
-            if (_alreadyDisposed) throw new ObjectDisposedException("");
+            if (_alreadyDisposed)
+                throw new ObjectDisposedException("");
+
             if ((_bcdUSB & CyConst.bcdUSBJJMask) != CyConst.USB30MajorVer)
                 return false;
             if (USBBos.SS_DeviceCap != null)
@@ -621,13 +698,17 @@ namespace OpenCMIS.Cypress
 
         public void GetDeviceDescriptor(ref USB_DEVICE_DESCRIPTOR descr)
         {
-            if (_alreadyDisposed) throw new ObjectDisposedException("");
+            if (_alreadyDisposed)
+                throw new ObjectDisposedException("");
+
             descr = _usbDeviceDescriptor;
         }
 
         public void GetConfigDescriptor(ref USB_CONFIGURATION_DESCRIPTOR descr)
         {
-            if (_alreadyDisposed) throw new ObjectDisposedException("");
+            if (_alreadyDisposed)
+                throw new ObjectDisposedException("");
+
             descr.bLength             = USBCfgs[_cfgNum].bLength;
             descr.bDescriptorType     = USBCfgs[_cfgNum].bDescriptorType;
             descr.wTotalLength        = USBCfgs[_cfgNum].wTotalLength;
@@ -640,7 +721,9 @@ namespace OpenCMIS.Cypress
 
         public void GetIntfcDescriptor(ref USB_INTERFACE_DESCRIPTOR descr)
         {
-            if (_alreadyDisposed) throw new ObjectDisposedException("");
+            if (_alreadyDisposed)
+                throw new ObjectDisposedException("");
+
             var i = USBCfgs[_cfgNum].Interfaces[_intfcIndex];
 
             // Copy the internal private data to the passed parameter
@@ -658,8 +741,8 @@ namespace OpenCMIS.Cypress
         public unsafe bool CheckDeviceTypeFX3FX2()
         {
             //return value true : fx2, false:fx3
-            var len = 39; // total size of buffer
-            var buffer = new byte[len];
+            var  len    = 39; // total size of buffer
+            var  buffer = new byte[len];
             bool bRetVal;
 
             fixed (byte * buf = buffer)
@@ -714,12 +797,15 @@ namespace OpenCMIS.Cypress
                 Close();
 
             _devices = DeviceCount;
-            if (_devices == 0) return false;
-            if (dev      > _devices - 1) return false;
+            if (_devices == 0)
+                return false;
+            if (dev > _devices - 1)
+                return false;
 
             _path    = PInvoke.GetDevicePath(_drvGuid, dev);
             _hDevice = PInvoke.GetDeviceHandle(_path, true);
-            if (_hDevice == CyConst.INVALID_HANDLE) return false;
+            if (_hDevice == CyConst.INVALID_HANDLE)
+                return false;
 
             _devNum = dev;
             GetDevDescriptor();
@@ -791,9 +877,11 @@ namespace OpenCMIS.Cypress
             // we want to leave the hDevice intact, giving the user the opportunity
             // to call the Reset( ) method
 
-            if (USBCfgs[0] == null || USBCfgs[0].Interfaces[0] == null) return false;
+            if (USBCfgs[0] == null || USBCfgs[0].Interfaces[0] == null)
+                return false;
 
             if (!_nullEndpointFlag)
+            {
                 try
                 {
                     // This property assignment sets values for ConfigVal, ConfigAttrib, MaxPower, etc.
@@ -806,6 +894,7 @@ namespace OpenCMIS.Cypress
                     _nullEndpointFlag = true;
                     MessageBox.Show("Please Check the Device Configuration and try again.", "Invalid Firmware");
                 }
+            }
 
             if (_nullEndpointFlag)
                 return false;
@@ -815,7 +904,9 @@ namespace OpenCMIS.Cypress
 
         private byte powerof2(byte exponent)
         {
-            if (exponent <= 0) return 0; // we want a positive integer for the exponent
+            if (exponent <= 0)
+                return 0; // we want a positive integer for the exponent
+
             byte c = 1;
             for (byte i = 0; i < exponent; i++)
                 c *= 2;
@@ -823,7 +914,6 @@ namespace OpenCMIS.Cypress
         }
 
         #region Private members
-
         private USB_DEVICE_DESCRIPTOR _usbDeviceDescriptor;
 
         // USBConfigDescriptors contains the raw config descriptor data for
@@ -868,8 +958,8 @@ namespace OpenCMIS.Cypress
 
         private unsafe void GetDevDescriptor()
         {
-            var len = 56; // total size of buffer
-            var buffer = new byte[len];
+            var  len    = 56; // total size of buffer
+            var  buffer = new byte[len];
             bool bRetVal;
 
             fixed (byte * buf = buffer)
@@ -959,7 +1049,8 @@ namespace OpenCMIS.Cypress
                     // Get the entire descriptor
                     len = 38 + descriptor->wToatalLength;
 
-                    if (len > _MaxDescriptorBufferLength) return false;
+                    if (len > _MaxDescriptorBufferLength)
+                        return false;
 
                     transfer->SetupPacket.bmRequest = CyConst.TGT_DEVICE | CyConst.REQ_STD | CyConst.DIR_FROM_DEVICE;
                     transfer->SetupPacket.bRequest  = CyConst.USB_REQUEST_GET_DESCRIPTOR;
@@ -1040,7 +1131,8 @@ namespace OpenCMIS.Cypress
                         for (var i = 0; i < LangIDs; i++)
                         {
                             var id = IDs[i].bString;
-                            if (id == 0x0409) _strLangID = id;
+                            if (id == 0x0409)
+                                _strLangID = id;
                         }
                     } //if
                 }     //if
@@ -1050,7 +1142,8 @@ namespace OpenCMIS.Cypress
         //unsafe string GetString(ref string s, byte sIndex)
         private unsafe string GetString(byte sIndex)
         {
-            if (sIndex == 0) return "";
+            if (sIndex == 0)
+                return "";
 
             // Get the header to find-out the number of languages, size of lang ID list
             var len = 38 + 2; // size of SINGLE_TRANSFER) + USB_COMMON_DESCRIPTOR
@@ -1063,7 +1156,7 @@ namespace OpenCMIS.Cypress
                 var transfer = (SINGLE_TRANSFER *) buf;
                 transfer->SetupPacket.bmRequest = CyConst.TGT_DEVICE | CyConst.REQ_STD | CyConst.DIR_FROM_DEVICE;
                 transfer->SetupPacket.bRequest  = CyConst.USB_REQUEST_GET_DESCRIPTOR;
-                transfer->SetupPacket.wValue    = (ushort) ((CyConst.USB_STRING_DESCRIPTOR_TYPE << 8) | sIndex);
+                transfer->SetupPacket.wValue    = (ushort) (CyConst.USB_STRING_DESCRIPTOR_TYPE << 8 | sIndex);
                 transfer->SetupPacket.wIndex    = _strLangID;
                 transfer->SetupPacket.wLength   = 2; // size of the USB_COMMON_DESCRIPTOR part
                 transfer->SetupPacket.dwTimeOut = 5;
@@ -1083,7 +1176,7 @@ namespace OpenCMIS.Cypress
 
                     transfer->SetupPacket.bmRequest = CyConst.TGT_DEVICE | CyConst.REQ_STD | CyConst.DIR_FROM_DEVICE;
                     transfer->SetupPacket.bRequest  = CyConst.USB_REQUEST_GET_DESCRIPTOR;
-                    transfer->SetupPacket.wValue    = (ushort) ((CyConst.USB_STRING_DESCRIPTOR_TYPE << 8) | sIndex);
+                    transfer->SetupPacket.wValue    = (ushort) (CyConst.USB_STRING_DESCRIPTOR_TYPE << 8 | sIndex);
                     transfer->SetupPacket.wIndex    = _strLangID;
                     transfer->SetupPacket.wLength   = descriptor->bLength;
                     transfer->SetupPacket.dwTimeOut = 5;
@@ -1097,6 +1190,7 @@ namespace OpenCMIS.Cypress
                     if (bRetVal)
                     {
                         var sChars = (char *) (buf + 40);
+
                         //s = new string(sChars);
                         return new (sChars);
                     }
@@ -1111,8 +1205,7 @@ namespace OpenCMIS.Cypress
             _driverName = "CyUSB3.sys";
 
             #region OLD_DRIVER_NAME_SEARCH
-
-#if (FALSE)
+            #if FALSE
             // See if we can find it in the registry -- This violates security in Vista
             RegistryKey rkDriverNums =
  Registry.LocalMachine.OpenSubKey("SYSTEM\\CurrentControlSet\\Control\\Class\\{36FC9E60-C465-11CF-8056-444553540000}\\");
@@ -1148,87 +1241,101 @@ namespace OpenCMIS.Cypress
 
                 rkDriverNums.Close();
             }
-#endif
-
+            #endif
             #endregion OLD_DRIVER_NAME_SEARCH
         }
 
         private unsafe void GetDeviceName()
         {
             _name = "";
-            if (_hDevice == CyConst.INVALID_HANDLE) return;
+            if (_hDevice == CyConst.INVALID_HANDLE)
+                return;
 
-            var buffer = new byte[CyConst.USB_STRING_MAXLEN];
+            var buffer  = new byte[CyConst.USB_STRING_MAXLEN];
             var bRetVal = IoControl(CyConst.IOCTL_ADAPT_GET_DEVICE_NAME, buffer, CyConst.USB_STRING_MAXLEN);
 
             if (bRetVal && _bytesXfered[0] > 0)
+            {
                 fixed (byte * buf = buffer)
                 {
                     _name = new ((sbyte *) buf);
                 }
+            }
         }
 
         private unsafe void GetFriendlyName()
         {
             _friendlyName = "";
-            if (_hDevice == CyConst.INVALID_HANDLE) return;
+            if (_hDevice == CyConst.INVALID_HANDLE)
+                return;
 
-            var buffer = new byte[CyConst.USB_STRING_MAXLEN];
+            var buffer  = new byte[CyConst.USB_STRING_MAXLEN];
             var bRetVal = IoControl(CyConst.IOCTL_ADAPT_GET_FRIENDLY_NAME, buffer, CyConst.USB_STRING_MAXLEN);
 
             if (bRetVal && _bytesXfered[0] > 0)
+            {
                 fixed (byte * buf = buffer)
                 {
                     _friendlyName = new ((sbyte *) buf);
                 }
+            }
         }
 
         private unsafe void GetDriverVer()
         {
             _driverVersion = 0;
-            if (_hDevice == CyConst.INVALID_HANDLE) return;
+            if (_hDevice == CyConst.INVALID_HANDLE)
+                return;
 
-            var buffer = new byte[4];
+            var buffer  = new byte[4];
             var bRetVal = IoControl(CyConst.IOCTL_ADAPT_GET_DRIVER_VERSION, buffer, 4);
 
             if (bRetVal && _bytesXfered[0] == 4)
+            {
                 fixed (byte * buf = buffer)
                 {
                     var ver = (uint *) buf;
                     _driverVersion = *ver;
                 }
+            }
         }
 
         private unsafe void GetUSBDIVer()
         {
             _usbdiVersion = 0;
-            if (_hDevice == CyConst.INVALID_HANDLE) return;
+            if (_hDevice == CyConst.INVALID_HANDLE)
+                return;
 
-            var buffer = new byte[4];
+            var buffer  = new byte[4];
             var bRetVal = IoControl(CyConst.IOCTL_ADAPT_GET_USBDI_VERSION, buffer, 4);
 
             if (bRetVal && _bytesXfered[0] == 4)
+            {
                 fixed (byte * buf = buffer)
                 {
                     var ver = (uint *) buf;
                     _usbdiVersion = *ver;
                 }
+            }
         }
 
         private void GetUSBAddress()
         {
             _usbAddress = 0;
-            if (_hDevice == CyConst.INVALID_HANDLE) return;
+            if (_hDevice == CyConst.INVALID_HANDLE)
+                return;
 
-            var buf = new byte[1];
+            var buf     = new byte[1];
             var bRetVal = IoControl(CyConst.IOCTL_ADAPT_GET_ADDRESS, buf, 1);
 
-            if (bRetVal && _bytesXfered[0] == 1) _usbAddress = buf[0];
+            if (bRetVal && _bytesXfered[0] == 1)
+                _usbAddress = buf[0];
         }
 
         private void GetSpeed()
         {
-            if (_hDevice == CyConst.INVALID_HANDLE) return;
+            if (_hDevice == CyConst.INVALID_HANDLE)
+                return;
 
             var buf = new byte[4];
             _bHighSpeed  = false;
@@ -1246,6 +1353,7 @@ namespace OpenCMIS.Cypress
         {
             // Find match of IntfcNum and alt in table of interfaces
             if (USBCfgs[_cfgNum] != null)
+            {
                 for (var j = 0; j < USBCfgs[_cfgNum].AltInterfaces; j++)
                     if (USBCfgs[_cfgNum].Interfaces[j].bAlternateSetting == alt)
                     {
@@ -1259,13 +1367,15 @@ namespace OpenCMIS.Cypress
                         SetEndPoints();
                         return;
                     }
+            }
         }
 
         private unsafe void GetCfgDescriptor(int descIndex)
         {
             var _MaxDescriptorBufferLength = CyConst.MaxDescriptorBufferLength + 38; // size of SINGLE_TRANSFER = 38
 
-            if (descIndex > _configs) return;
+            if (descIndex > _configs)
+                return;
 
             var len = 38 + 9; // size of SINGLE_TRANSFER + USB_CONFIGURATION_DESCRIPTOR
 
@@ -1276,7 +1386,7 @@ namespace OpenCMIS.Cypress
                 var transfer = (SINGLE_TRANSFER *) buf;
                 transfer->SetupPacket.bmRequest = CyConst.TGT_DEVICE | CyConst.REQ_STD | CyConst.DIR_FROM_DEVICE;
                 transfer->SetupPacket.bRequest  = CyConst.USB_REQUEST_GET_DESCRIPTOR;
-                transfer->SetupPacket.wValue    = (ushort) ((CyConst.USB_CONFIGURATION_DESCRIPTOR_TYPE << 8) | descIndex);
+                transfer->SetupPacket.wValue    = (ushort) (CyConst.USB_CONFIGURATION_DESCRIPTOR_TYPE << 8 | descIndex);
                 transfer->SetupPacket.wLength   = 9; // size of the USB_COMMON_DESCRIPTOR part
                 transfer->SetupPacket.dwTimeOut = 5;
                 transfer->BufferOffset          = 38; // size of the SINGLE_TRANSFER part
@@ -1293,11 +1403,12 @@ namespace OpenCMIS.Cypress
                     // Get the entire descriptor
                     len = 38 + descriptor->wTotalLength;
 
-                    if (len > _MaxDescriptorBufferLength) return;
+                    if (len > _MaxDescriptorBufferLength)
+                        return;
 
                     transfer->SetupPacket.bmRequest = CyConst.TGT_DEVICE | CyConst.REQ_STD | CyConst.DIR_FROM_DEVICE;
                     transfer->SetupPacket.bRequest  = CyConst.USB_REQUEST_GET_DESCRIPTOR;
-                    transfer->SetupPacket.wValue    = (ushort) ((CyConst.USB_CONFIGURATION_DESCRIPTOR_TYPE << 8) | descIndex);
+                    transfer->SetupPacket.wValue    = (ushort) (CyConst.USB_CONFIGURATION_DESCRIPTOR_TYPE << 8 | descIndex);
                     transfer->SetupPacket.wLength   = descriptor->wTotalLength;
                     transfer->SetupPacket.dwTimeOut = 5;
                     transfer->BufferOffset          = 38; // size of the SINGLE_TRANSFER part
@@ -1319,8 +1430,10 @@ namespace OpenCMIS.Cypress
 
         private void SetEndPoints()
         {
-            if (_configs    == 0) return;
-            if (_interfaces == 0) return;
+            if (_configs == 0)
+                return;
+            if (_interfaces == 0)
+                return;
 
             EndPoints = USBCfgs[_cfgNum].Interfaces[_intfcIndex].EndPoints;
             int eptCount = EndPointCount;
@@ -1334,21 +1447,27 @@ namespace OpenCMIS.Cypress
 
             for (var i = 1; i < eptCount; i++)
             {
-                var bIn = (EndPoints[i].Address & 0x80) > 0;
+                var bIn    = (EndPoints[i].Address & 0x80) > 0;
                 var attrib = EndPoints[i].Attributes;
 
-                if (EndPoints[i] != null) EndPoints[i].XferMode = XMODE.DIRECT;
+                if (EndPoints[i] != null)
+                    EndPoints[i].XferMode = XMODE.DIRECT;
 
-                if (IsocInEndPt      == null && attrib == 1 && bIn) IsocInEndPt      = EndPoints[i] as CyIsocEndPoint;
-                if (BulkInEndPt      == null && attrib == 2 && bIn) BulkInEndPt      = EndPoints[i] as CyBulkEndPoint;
-                if (InterruptInEndPt == null && attrib == 3 && bIn) InterruptInEndPt = EndPoints[i] as CyInterruptEndPoint;
+                if (IsocInEndPt == null && attrib == 1 && bIn)
+                    IsocInEndPt = EndPoints[i] as CyIsocEndPoint;
+                if (BulkInEndPt == null && attrib == 2 && bIn)
+                    BulkInEndPt = EndPoints[i] as CyBulkEndPoint;
+                if (InterruptInEndPt == null && attrib == 3 && bIn)
+                    InterruptInEndPt = EndPoints[i] as CyInterruptEndPoint;
 
-                if (IsocOutEndPt      == null && attrib == 1 && !bIn) IsocOutEndPt      = EndPoints[i] as CyIsocEndPoint;
-                if (BulkOutEndPt      == null && attrib == 2 && !bIn) BulkOutEndPt      = EndPoints[i] as CyBulkEndPoint;
-                if (InterruptOutEndPt == null && attrib == 3 && !bIn) InterruptOutEndPt = EndPoints[i] as CyInterruptEndPoint;
+                if (IsocOutEndPt == null && attrib == 1 && !bIn)
+                    IsocOutEndPt = EndPoints[i] as CyIsocEndPoint;
+                if (BulkOutEndPt == null && attrib == 2 && !bIn)
+                    BulkOutEndPt = EndPoints[i] as CyBulkEndPoint;
+                if (InterruptOutEndPt == null && attrib == 3 && !bIn)
+                    InterruptOutEndPt = EndPoints[i] as CyInterruptEndPoint;
             }
         }
-
         #endregion Private members
     }
 }

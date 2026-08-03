@@ -27,12 +27,10 @@ namespace OpenCMIS.Cypress
     public static class PInvoke
     {
         #region cfgmgr32.dll
-
         [DllImport("cfgmgr32.dll", SetLastError = true)]
         internal static extern uint CM_Locate_DevNode([In] [Out] ref IntPtr DeviceInfoSet, // Handle passed back
-                                                      [In] byte[] DevicePath,
-                                                      [In] ulong Flags);
-
+                                                      [In]           byte[] DevicePath,
+                                                      [In]           ulong  Flags);
         #endregion cfgmgr32.dll
 
         internal static byte CountDevices(Guid g)
@@ -45,13 +43,14 @@ namespace OpenCMIS.Cypress
                 var devInterfaceData = new SP_DEVICE_INTERFACE_DATA();
 
                 devInterfaceData.cbSize = Marshal.SizeOf(devInterfaceData);
+
                 // if (IntPtr.Size == 8)
                 //devInterfaceData.cbSize = devInterfaceData.cbSize + 4;
 
                 //devInterfaceData.InterfaceClassGuid = g;
                 // Count the number of devices
-                uint i = 0;
-                var bDone = false;
+                uint i     = 0;
+                var  bDone = false;
 
                 while (!bDone)
                 {
@@ -61,7 +60,8 @@ namespace OpenCMIS.Cypress
                     else
                     {
                         var dwLastError = Marshal.GetLastWin32Error();
-                        if (dwLastError == CyConst.ERROR_NO_MORE_ITEMS) bDone = true;
+                        if (dwLastError == CyConst.ERROR_NO_MORE_ITEMS)
+                            bDone = true;
                     }
 
                     i++;
@@ -89,7 +89,8 @@ namespace OpenCMIS.Cypress
             var path = new byte[sLen + 1];
 
             // Move the chars of the DevicePath field to the front of the array.
-            for (var i = 0; i < sLen; i++) path[i] = (byte) devPath[i];
+            for (var i = 0; i < sLen; i++)
+                path[i] = (byte) devPath[i];
 
             // Try to get a handle, with decreasing read/write privileges.
             // (Some HID devices won't allow Read or Write access mode.)
@@ -144,7 +145,7 @@ namespace OpenCMIS.Cypress
             var hDevice = CyConst.INVALID_HANDLE;
 
             var predictedLength = 0;
-            var actualLength = 0;
+            var actualLength    = 0;
 
             var flags = CyConst.DIGCF_PRESENT | (enumer == null ? CyConst.DIGCF_INTERFACEDEVICE : CyConst.DIGCF_ALLCLASSES);
 
@@ -154,6 +155,7 @@ namespace OpenCMIS.Cypress
 
             var devInterfaceData = new SP_DEVICE_INTERFACE_DATA();
             devInterfaceData.cbSize = Marshal.SizeOf(devInterfaceData);
+
             //if (IntPtr.Size == 8)
             //devInterfaceData.cbSize = devInterfaceData.cbSize + 4;
 
@@ -165,6 +167,7 @@ namespace OpenCMIS.Cypress
             }
 
             SetupDiGetDeviceInterfaceDetail(hwDeviceInfo, devInterfaceData, null, 0, ref predictedLength, null);
+
             //predictedLength = predictedLength+5;
             var detailData = new byte[predictedLength];
 
@@ -207,7 +210,6 @@ namespace OpenCMIS.Cypress
         }
 
         #region Is handle Valid
-
         private static bool IsHandleValid(IntPtr handle)
         {
             var valid = false;
@@ -227,43 +229,41 @@ namespace OpenCMIS.Cypress
 
             return valid;
         }
-
         #endregion Is handle Valid
 
         #region kernel32.dll - DeviceIoControl, CreateFile, etc.
-
         [DllImport("kernel32.dll", SetLastError = true)]
-        internal static extern bool DeviceIoControl([In] IntPtr hDevice,
-                                                    [In] uint dwIoControlCode,
+        internal static extern bool DeviceIoControl([In]       IntPtr hDevice,
+                                                    [In]       uint   dwIoControlCode,
                                                     [In] [Out] IntPtr lpInBuffer,
-                                                    [In] int nInBufferSize,
+                                                    [In]       int    nInBufferSize,
                                                     [In] [Out] IntPtr lpOutBuffer,
-                                                    [In] int nOutBufferSize,
+                                                    [In]       int    nOutBufferSize,
                                                     [In] [Out] IntPtr lpBytesReturned,
-                                                    [Out] IntPtr lpOverlapped);
+                                                    [Out]      IntPtr lpOverlapped);
 
         [DllImport("Kernel32.dll")]
         internal static extern IntPtr CreateFile([In] byte[] filename,
-                                                 [In] int fileaccess,
-                                                 [In] int fileshare,
-                                                 [In] int lpSecurityattributes,
-                                                 [In] int creationdisposition,
-                                                 [In] int flags,
+                                                 [In] int    fileaccess,
+                                                 [In] int    fileshare,
+                                                 [In] int    lpSecurityattributes,
+                                                 [In] int    creationdisposition,
+                                                 [In] int    flags,
                                                  [In] IntPtr template);
 
         [DllImport("Kernel32.dll")]
-        internal static extern bool ReadFile([In] IntPtr hDevice,
-                                             [In] [Out] byte[] lpBuffer,
-                                             [In] int nNumberOfBytesToRead,
-                                             [In] [Out] ref int lpNumberOfBytesRead,
-                                             [Out] IntPtr lpOverlapped);
+        internal static extern bool ReadFile([In]           IntPtr hDevice,
+                                             [In] [Out]     byte[] lpBuffer,
+                                             [In]           int    nNumberOfBytesToRead,
+                                             [In] [Out] ref int    lpNumberOfBytesRead,
+                                             [Out]          IntPtr lpOverlapped);
 
         [DllImport("Kernel32.dll")]
-        internal static extern bool WriteFile([In] IntPtr hDevice,
-                                              [In] byte[] lpBuffer,
-                                              [In] int nNumberOfBytesToWrite,
-                                              [In] [Out] ref int lpNumberOfBytesWritten,
-                                              [Out] IntPtr lpOverlapped);
+        internal static extern bool WriteFile([In]           IntPtr hDevice,
+                                              [In]           byte[] lpBuffer,
+                                              [In]           int    nNumberOfBytesToWrite,
+                                              [In] [Out] ref int    lpNumberOfBytesWritten,
+                                              [Out]          IntPtr lpOverlapped);
 
         [DllImport("Kernel32.dll")]
         public static extern IntPtr CreateEvent([In] uint lpEventAttributes,
@@ -276,167 +276,160 @@ namespace OpenCMIS.Cypress
 
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern int WaitForSingleObject([In] IntPtr h,
-                                                     [In] uint milliseconds);
+                                                     [In] uint   milliseconds);
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        internal static extern bool GetOverlappedResult([In] IntPtr h,
-                                                        [In] byte[] lpOverlapped,
-                                                        [In] [Out] ref uint bytesXferred,
-                                                        [In] uint bWait);
+        internal static extern bool GetOverlappedResult([In]           IntPtr h,
+                                                        [In]           byte[] lpOverlapped,
+                                                        [In] [Out] ref uint   bytesXferred,
+                                                        [In]           uint   bWait);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         internal static extern uint GetLastError();
-
         #endregion kernel32.dll - DeviceIoControl, CreateFile, etc.
 
         #region setupapi.dll
+        [DllImport("setupapi.dll", SetLastError = true)]
+        internal static extern IntPtr SetupDiGetClassDevs([In] ref Guid   ClassGuid,
+                                                          [In]     byte[] Enumerator,
+                                                          [In]     IntPtr hwndParent,
+                                                          [In]     uint   Flags);
 
         [DllImport("setupapi.dll", SetLastError = true)]
-        internal static extern IntPtr SetupDiGetClassDevs([In] ref Guid ClassGuid,
-                                                          [In] byte[] Enumerator,
-                                                          [In] IntPtr hwndParent,
-                                                          [In] uint Flags);
+        internal static extern bool SetupDiEnumDeviceInterfaces([In]     IntPtr                   DeviceInfoSet,
+                                                                [In]     uint                     DeviceInfoData,
+                                                                [In] ref Guid                     InterfaceClassGuid,
+                                                                [In]     uint                     MemberIndex,
+                                                                [Out]    SP_DEVICE_INTERFACE_DATA DeviceInterfaceData);
 
         [DllImport("setupapi.dll", SetLastError = true)]
-        internal static extern bool SetupDiEnumDeviceInterfaces([In] IntPtr DeviceInfoSet,
-                                                                [In] uint DeviceInfoData,
-                                                                [In] ref Guid InterfaceClassGuid,
-                                                                [In] uint MemberIndex,
-                                                                [Out] SP_DEVICE_INTERFACE_DATA DeviceInterfaceData);
-
-        [DllImport("setupapi.dll", SetLastError = true)]
-        internal static extern bool SetupDiGetDeviceInterfaceDetail([In] IntPtr DeviceInfoSet, // Handle passed in
-                                                                    [In] SP_DEVICE_INTERFACE_DATA DeviceInterfaceData, // Ptr passed in
-                                                                    [Out] byte[] DeviceInterfaceDetailData, // null passed in
-                                                                    [In] int DeviceInterfaceDetailDataSize, // 0 passed in
+        internal static extern bool SetupDiGetDeviceInterfaceDetail([In]           IntPtr DeviceInfoSet, // Handle passed in
+                                                                    [In]           SP_DEVICE_INTERFACE_DATA DeviceInterfaceData, // Ptr passed in
+                                                                    [Out]          byte[] DeviceInterfaceDetailData, // null passed in
+                                                                    [In]           int DeviceInterfaceDetailDataSize, // 0 passed in
                                                                     [In] [Out] ref int RequiredSize, // size passed back
-                                                                    [Out] SP_DEVINFO_DATA DeviceInfoData); // null - we don't want this data
+                                                                    [Out]          SP_DEVINFO_DATA DeviceInfoData); // null - we don't want this data
 
         [DllImport("setupapi.dll")]
         internal static extern bool
                 SetupDiDestroyDeviceInfoList([In] IntPtr DeviceInfoSet);
-
         #endregion setupapi.dll
 
         #region user32.dll - Register Device Notification
-
         [DllImport("user32.dll", SetLastError = true)]
-        internal static extern IntPtr RegisterDeviceNotification([In] IntPtr h,
+        internal static extern IntPtr RegisterDeviceNotification([In] IntPtr                        h,
                                                                  [In] DEV_BROADCAST_DEVICEINTERFACE dFilter,
-                                                                 [In] uint flags);
+                                                                 [In] uint                          flags);
 
         [DllImport("user32.dll", SetLastError = true)]
-        internal static extern IntPtr RegisterDeviceNotification([In] IntPtr h,
+        internal static extern IntPtr RegisterDeviceNotification([In] IntPtr               h,
                                                                  [In] DEV_BROADCAST_HANDLE dFilter,
-                                                                 [In] uint flags);
+                                                                 [In] uint                 flags);
 
         [DllImport("user32.dll", SetLastError = true)]
         internal static extern IntPtr UnregisterDeviceNotification([In] IntPtr h);
-
         #endregion user32.dll - Register Device Notification
 
         #region Hid.dll Functions
-
         [DllImport("hid.dll", SetLastError = true)]
         internal static extern void HidD_GetHidGuid([In] [Out] ref Guid HidGuid);
 
         [DllImport("hid.dll", SetLastError = true)]
-        internal static extern bool HidD_GetManufacturerString([In] IntPtr h,
+        internal static extern bool HidD_GetManufacturerString([In]  IntPtr h,
                                                                [Out] byte[] Mfg,
-                                                               [In] uint slen);
+                                                               [In]  uint   slen);
 
         [DllImport("hid.dll", SetLastError = true)]
-        internal static extern bool HidD_GetProductString([In] IntPtr h,
+        internal static extern bool HidD_GetProductString([In]  IntPtr h,
                                                           [Out] byte[] Mfg,
-                                                          [In] uint slen);
+                                                          [In]  uint   slen);
 
         [DllImport("hid.dll", SetLastError = true)]
-        internal static extern bool HidD_GetSerialNumberString([In] IntPtr h,
+        internal static extern bool HidD_GetSerialNumberString([In]  IntPtr h,
                                                                [Out] byte[] SerialNum,
-                                                               [In] uint slen);
+                                                               [In]  uint   slen);
 
         [DllImport("hid.dll", SetLastError = true)]
-        internal static extern unsafe bool HidD_GetPreparsedData([In] IntPtr h,
+        internal static extern unsafe bool HidD_GetPreparsedData([In]           IntPtr h,
                                                                  [In] [Out] ref byte * data);
 
         [DllImport("hid.dll", SetLastError = true)]
-        internal static extern bool HidD_GetAttributes([In] IntPtr h,
+        internal static extern bool HidD_GetAttributes([In]           IntPtr          h,
                                                        [In] [Out] ref HIDD_ATTRIBUTES attr);
 
         [DllImport("hid.dll", SetLastError = true)]
-        internal static extern bool HidD_GetFeature([In] IntPtr h,
+        internal static extern bool HidD_GetFeature([In]       IntPtr h,
                                                     [In] [Out] byte[] lpFeatureData,
-                                                    [In] int bufLen);
+                                                    [In]       int    bufLen);
 
         [DllImport("hid.dll", SetLastError = true)]
         internal static extern bool HidD_GetInputReport([In] IntPtr h,
                                                         [In] byte[] lpReportData,
-                                                        [In] int bufLen);
+                                                        [In] int    bufLen);
 
         [DllImport("hid.dll", SetLastError = true)]
         internal static extern bool HidD_SetFeature([In] IntPtr h,
                                                     [In] byte[] lpFeatureData,
-                                                    [In] int bufLen);
+                                                    [In] int    bufLen);
 
         [DllImport("hid.dll", SetLastError = true)]
         internal static extern bool HidD_SetOutputReport([In] IntPtr h,
                                                          [In] byte[] lpFeatureData,
-                                                         [In] int bufLen);
+                                                         [In] int    bufLen);
 
         [DllImport("hid.dll", SetLastError = true)]
-        internal static extern unsafe uint HidP_SetUsageValue([In] HIDP_REPORT_TYPE RptType,
-                                                              [In] ushort usagePage,
-                                                              [In] ushort linkCollection,
-                                                              [In] ushort usage,
-                                                              [In] uint usageValue,
-                                                              [In] byte * preparsedData,
-                                                              [In] ref byte lpReportData,
-                                                              [In] uint bufLen);
+        internal static extern unsafe uint HidP_SetUsageValue([In]     HIDP_REPORT_TYPE RptType,
+                                                              [In]     ushort           usagePage,
+                                                              [In]     ushort           linkCollection,
+                                                              [In]     ushort           usage,
+                                                              [In]     uint             usageValue,
+                                                              [In]     byte *           preparsedData,
+                                                              [In] ref byte             lpReportData,
+                                                              [In]     uint             bufLen);
 
         [DllImport("hid.dll", SetLastError = true)]
-        internal static extern unsafe uint HidP_SetUsages([In] HIDP_REPORT_TYPE RptType,
-                                                          [In] ushort usagePage,
-                                                          [In] ushort linkCollection,
-                                                          [In] ref ushort usages,
-                                                          [In] ref uint numUsages,
-                                                          [In] byte * preparsedData,
-                                                          [In] ref byte lpReportData,
-                                                          [In] uint bufLen);
+        internal static extern unsafe uint HidP_SetUsages([In]     HIDP_REPORT_TYPE RptType,
+                                                          [In]     ushort           usagePage,
+                                                          [In]     ushort           linkCollection,
+                                                          [In] ref ushort           usages,
+                                                          [In] ref uint             numUsages,
+                                                          [In]     byte *           preparsedData,
+                                                          [In] ref byte             lpReportData,
+                                                          [In]     uint             bufLen);
 
         [DllImport("hid.dll", SetLastError = true)]
-        internal static extern unsafe uint HidP_UnsetUsages([In] HIDP_REPORT_TYPE RptType,
-                                                            [In] ushort usagePage,
-                                                            [In] ushort linkCollection,
-                                                            [In] ref ushort usages,
-                                                            [In] ref uint numUsages,
-                                                            [In] byte * preparsedData,
-                                                            [In] ref byte lpReportData,
-                                                            [In] uint bufLen);
+        internal static extern unsafe uint HidP_UnsetUsages([In]     HIDP_REPORT_TYPE RptType,
+                                                            [In]     ushort           usagePage,
+                                                            [In]     ushort           linkCollection,
+                                                            [In] ref ushort           usages,
+                                                            [In] ref uint             numUsages,
+                                                            [In]     byte *           preparsedData,
+                                                            [In] ref byte             lpReportData,
+                                                            [In]     uint             bufLen);
 
         [DllImport("hid.dll", SetLastError = true)]
-        internal static extern unsafe bool HidP_GetCaps([In] byte * preparsedData,
+        internal static extern unsafe bool HidP_GetCaps([In]           byte *    preparsedData,
                                                         [In] [Out] ref HIDP_CAPS caps);
 
         [DllImport("hid.dll", SetLastError = true)]
-        internal static extern unsafe bool HidP_GetButtonCaps([In] HIDP_REPORT_TYPE RptType,
-                                                              [Out] byte * ButtonCaps,
-                                                              [In] ref int numCaps,
-                                                              [In] byte * preparsedData);
+        internal static extern unsafe bool HidP_GetButtonCaps([In]     HIDP_REPORT_TYPE RptType,
+                                                              [Out]    byte *           ButtonCaps,
+                                                              [In] ref int              numCaps,
+                                                              [In]     byte *           preparsedData);
 
         [DllImport("hid.dll", SetLastError = true)]
-        internal static extern unsafe bool HidP_GetValueCaps([In] HIDP_REPORT_TYPE RptType,
-                                                             [Out] byte * ValueCaps,
-                                                             [In] ref int numCaps,
-                                                             [In] byte * preparsedData);
+        internal static extern unsafe bool HidP_GetValueCaps([In]     HIDP_REPORT_TYPE RptType,
+                                                             [Out]    byte *           ValueCaps,
+                                                             [In] ref int              numCaps,
+                                                             [In]     byte *           preparsedData);
 
         [DllImport("hid.dll", SetLastError = true)]
         internal static extern unsafe uint HidP_MaxUsageListLength([In] HIDP_REPORT_TYPE RptType,
-                                                                   [In] ushort numCaps,
-                                                                   [In] byte * preparsedData);
+                                                                   [In] ushort           numCaps,
+                                                                   [In] byte *           preparsedData);
 
         [DllImport("hid.dll", SetLastError = true)]
         internal static extern unsafe bool HidD_FreePreparsedData(byte * data);
-
         #endregion Hid.dll Functions
     }
 }

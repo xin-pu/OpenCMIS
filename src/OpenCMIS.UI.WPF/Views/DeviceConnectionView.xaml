@@ -13,16 +13,16 @@
                 <TextBlock Text="Adapter:" Style="{StaticResource SectionLabelStyle}"
                            Margin="0,0,0,4" />
                 <dxe:ComboBoxEdit ItemsSource="{Binding AvailableAdapters}"
-                                   EditValue="{Binding SelectedAdapter}"
-                                   IsEnabled="{Binding IsConnected, Converter={StaticResource BoolInvertConverter}}"
-                                   Margin="0,0,0,10" />
+                                  EditValue="{Binding SelectedAdapter}"
+                                  IsEnabled="{Binding IsConnected, Converter={StaticResource BoolInvertConverter}}"
+                                  Margin="0,0,0,10" />
 
                 <TextBlock Text="Port:" Style="{StaticResource SectionLabelStyle}"
                            Margin="0,0,0,4" />
                 <dxe:ComboBoxEdit ItemsSource="{Binding AvailablePorts}"
-                                   EditValue="{Binding SelectedPort}"
-                                   IsEnabled="{Binding IsConnected, Converter={StaticResource BoolInvertConverter}}"
-                                   Margin="0,0,0,10" />
+                                  EditValue="{Binding SelectedPort}"
+                                  IsEnabled="{Binding IsConnected, Converter={StaticResource BoolInvertConverter}}"
+                                  Margin="0,0,0,10" />
 
                 <Grid>
                     <Grid.ColumnDefinitions>

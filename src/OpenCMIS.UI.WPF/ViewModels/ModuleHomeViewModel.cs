@@ -8,7 +8,7 @@ namespace OpenCMIS.UI.WPF.ViewModels
 {
     public partial class ModuleHomeViewModel : ObservableObject
     {
-        private ICmisDevice? _device;
+        private ICmisDevice?             _device;
         private CancellationTokenSource? _cts;
 
         [ObservableProperty]
@@ -33,8 +33,8 @@ namespace OpenCMIS.UI.WPF.ViewModels
 
         public void SetDevice(ICmisDevice? device)
         {
-            _ = StopMonitoringAsync();
-            _device = device;
+            _                 = StopMonitoringAsync();
+            _device           = device;
             IsDeviceAvailable = device != null;
 
             if (device != null)
@@ -54,10 +54,10 @@ namespace OpenCMIS.UI.WPF.ViewModels
 
             try
             {
-                StatusText = "Loading...";
-                DashData = await _device.ReadModuleDashDataAsync();
+                StatusText       = "Loading...";
+                DashData         = await _device.ReadModuleDashDataAsync();
                 CurrentStateText = DashData.CurrentState.ToString();
-                StatusText = $"Last refresh: {DateTime.Now:HH:mm:ss}";
+                StatusText       = $"Last refresh: {DateTime.Now:HH:mm:ss}";
             }
             catch (Exception ex)
             {
@@ -68,12 +68,13 @@ namespace OpenCMIS.UI.WPF.ViewModels
         [RelayCommand]
         private async Task RefreshIdentityAsync()
         {
-            if (_device == null || DashData == null) return;
+            if (_device == null || DashData == null)
+                return;
 
             try
             {
                 DashData.Identity = await _device.ReadModuleIdentityAsync();
-                StatusText = $"Identity refreshed at {DateTime.Now:HH:mm:ss}";
+                StatusText        = $"Identity refreshed at {DateTime.Now:HH:mm:ss}";
             }
             catch (Exception ex)
             {
@@ -84,11 +85,12 @@ namespace OpenCMIS.UI.WPF.ViewModels
         [RelayCommand]
         private async Task StartMonitoringAsync()
         {
-            if (_device == null) return;
+            if (_device == null)
+                return;
 
             IsMonitoring = true;
-            _cts = new CancellationTokenSource();
-            var token = _cts.Token;
+            _cts         = new ();
+            var token   = _cts.Token;
             var delayMs = RefreshInterval * 1000;
 
             StatusText = $"Monitoring every {RefreshInterval}s";
@@ -99,34 +101,37 @@ namespace OpenCMIS.UI.WPF.ViewModels
                 {
                     await Task.Delay(delayMs, token);
 
-                    if (_device == null) break;
+                    if (_device == null)
+                        break;
 
                     try
                     {
-                        var monitors = await _device.ReadModuleMonitorsAsync();
-                        var lanes = await _device.ReadLaneStatusAsync();
+                        var monitors  = await _device.ReadModuleMonitorsAsync();
+                        var lanes     = await _device.ReadLaneStatusAsync();
                         var modStatus = await _device.GetStatusAsync();
 
                         Application.Current.Dispatcher.Invoke(() =>
-                        {
-                            if (DashData == null) return;
+                                                                  {
+                                                                      if (DashData == null)
+                                                                          return;
 
-                            // Replace the whole DashData object: ModuleDashData and its nested
-                            // monitor models are plain POCOs without INotifyPropertyChanged, so
-                            // mutating nested properties would never refresh the bound gauges.
-                            DashData = new ModuleDashData
-                            {
-                                Identity = DashData.Identity,
-                                Monitors = monitors,
-                                Lanes = lanes,
-                                CurrentState = modStatus.CurrentState,
-                                IsReady = modStatus.IsReady,
-                                Status = DashData.Status,
-                                StatusTimestamp = DateTime.Now
-                            };
-                            CurrentStateText = modStatus.CurrentState.ToString();
-                            StatusText = $"Monitoring every {RefreshInterval}s — Last: {DateTime.Now:HH:mm:ss}";
-                        });
+                                                                      // Replace the whole DashData object: ModuleDashData and its nested
+                                                                      // monitor models are plain POCOs without INotifyPropertyChanged, so
+                                                                      // mutating nested properties would never refresh the bound gauges.
+                                                                      DashData = new ModuleDashData
+                                                                                 {
+                                                                                     Identity        = DashData.Identity,
+                                                                                     Monitors        = monitors,
+                                                                                     Lanes           = lanes,
+                                                                                     CurrentState    = modStatus.CurrentState,
+                                                                                     IsReady         = modStatus.IsReady,
+                                                                                     Status          = DashData.Status,
+                                                                                     StatusTimestamp = DateTime.Now
+                                                                                 };
+                                                                      CurrentStateText = modStatus.CurrentState.ToString();
+                                                                      StatusText =
+                                                                              $"Monitoring every {RefreshInterval}s — Last: {DateTime.Now:HH:mm:ss}";
+                                                                  });
                     }
                     catch
                     {
@@ -141,7 +146,7 @@ namespace OpenCMIS.UI.WPF.ViewModels
             finally
             {
                 IsMonitoring = false;
-                StatusText = "Monitoring stopped.";
+                StatusText   = "Monitoring stopped.";
             }
         }
 

@@ -13,7 +13,7 @@ namespace OpenCMIS.Protocol.Core
             // In flat mode, we treat everything as one continuous space.
             // The actual paging is handled under the hood or disabled if the device supports it.
             // Here we assume it maps to page 0 if it's a 256-byte flat device.
-            return (0, (byte)(absoluteAddress & 0xFF));
+            return (0, (byte) (absoluteAddress & 0xFF));
         }
 
         /// <inheritdoc />

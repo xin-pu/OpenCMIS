@@ -25,7 +25,8 @@
                 </TextBlock>
                 <TextBlock Margin="0,5,0,0">
                     <Run Text="Has Alerts: " FontWeight="Bold" />
-                    <Run Text="{Binding HasAlerts}" Foreground="{Binding HasAlerts, Converter={StaticResource ModuleStateToColorConverter}}" />
+                    <Run Text="{Binding HasAlerts}"
+                         Foreground="{Binding HasAlerts, Converter={StaticResource ModuleStateToColorConverter}}" />
                 </TextBlock>
             </StackPanel>
         </GroupBox>
@@ -37,16 +38,16 @@
 
         <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
             <dx:SimpleButton Content="Refresh Status"
-                    Command="{Binding RefreshStatusCommand}"
-                    IsEnabled="{Binding IsMonitoring, Converter={StaticResource BoolInvertConverter}}"
-                    Margin="0,0,10,0" />
+                             Command="{Binding RefreshStatusCommand}"
+                             IsEnabled="{Binding IsMonitoring, Converter={StaticResource BoolInvertConverter}}"
+                             Margin="0,0,10,0" />
             <dx:SimpleButton Content="Start Monitor"
-                    Command="{Binding StartMonitoringCommand}"
-                    IsEnabled="{Binding IsMonitoring, Converter={StaticResource BoolInvertConverter}}"
-                    Margin="0,0,10,0" />
+                             Command="{Binding StartMonitoringCommand}"
+                             IsEnabled="{Binding IsMonitoring, Converter={StaticResource BoolInvertConverter}}"
+                             Margin="0,0,10,0" />
             <dx:SimpleButton Content="Stop Monitor"
-                    Command="{Binding StopMonitoringCommand}"
-                    Visibility="{Binding IsMonitoring, Converter={StaticResource BoolToVisibilityConverter}}" />
+                             Command="{Binding StopMonitoringCommand}"
+                             Visibility="{Binding IsMonitoring, Converter={StaticResource BoolToVisibilityConverter}}" />
         </StackPanel>
 
         <TextBlock Text="{Binding StatusText}" Style="{StaticResource StatusTextStyle}" />

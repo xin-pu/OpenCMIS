@@ -1,12 +1,12 @@
 using OpenCMIS.Protocol.Abstractions;
 using OpenCMIS.Transport.Abstractions;
 
-namespace OpenCMIS.App.Core;
-
-public interface IOpticalModuleFactory
+namespace OpenCMIS.App.Core
 {
-    ValueTask<ICmisDevice> CreateAsync(
-        DeviceInfo deviceInfo,
-        II2cRegisterBus bus,
-        CancellationToken cancellationToken = default);
+    public interface IOpticalModuleFactory
+    {
+        ValueTask<ICmisDevice> CreateAsync(DeviceInfo        deviceInfo,
+                                           II2cRegisterBus   bus,
+                                           CancellationToken cancellationToken = default);
+    }
 }

@@ -35,12 +35,12 @@ namespace OpenCMIS.Protocol.Abstractions.Models
         /// <summary>
         ///     Gets or sets the decoded interrupt flags.
         /// </summary>
-        public CmisInterruptFlags InterruptFlags { get; set; } = new();
+        public CmisInterruptFlags InterruptFlags { get; set; } = new ();
 
         /// <summary>
         ///     Gets or sets the decoded module flags.
         /// </summary>
-        public CmisModuleFlags ModuleFlags { get; set; } = new();
+        public CmisModuleFlags ModuleFlags { get; set; } = new ();
 
         /// <summary>
         ///     Gets or sets a value indicating whether there are any active alerts.
@@ -50,7 +50,7 @@ namespace OpenCMIS.Protocol.Abstractions.Models
         /// <summary>
         ///     Gets or sets the list of active alerts.
         /// </summary>
-        public List<string> ActiveAlerts { get; set; } = new();
+        public List<string> ActiveAlerts { get; set; } = new ();
 
         /// <summary>
         ///     Gets or sets whether the temperature alarm is active.

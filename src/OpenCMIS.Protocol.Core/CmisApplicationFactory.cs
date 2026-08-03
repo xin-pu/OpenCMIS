@@ -1,6 +1,5 @@
 using OpenCMIS.Protocol.Abstractions;
 using OpenCMIS.Shared;
-using OpenCMIS.Transport.Abstractions;
 
 namespace OpenCMIS.Protocol.Core
 {
@@ -9,23 +8,37 @@ namespace OpenCMIS.Protocol.Core
     /// </summary>
     public class CmisApplicationFactory
     {
-        private const byte AppSelectPage    = 0x01;
-        private const byte AppSelectReg     = 0x80;
-        private const byte AppSupportedReg  = 0x84;
-
-        private readonly IRegisterAccess _registerAccess;
+        private const byte AppSelectPage   = 0x01;
+        private const byte AppSelectReg    = 0x80;
+        private const byte AppSupportedReg = 0x84;
 
         // Predefined CMIS 5.2 Applications
-        private static readonly Dictionary<byte, CmisApplication> KnownApplications = new()
-        {
-            [0x01] = new CmisApplication(0x01, "Application 1", "Standard application for 100G modules (SR4, CWDM4, LR4)"),
-            [0x02] = new CmisApplication(0x02, "Application 2", "Standard application for 200G modules (FR4, LR4)"),
-            [0x03] = new CmisApplication(0x03, "Application 3", "Standard application for 400G modules (FR4, LR4, SR8)"),
-            [0x04] = new CmisApplication(0x04, "Application 4", "Standard application for 800G modules"),
-            [0x10] = new CmisApplication(0x10, "Custom App 1", "Vendor-specific custom application 1"),
-            [0x11] = new CmisApplication(0x11, "Custom App 2", "Vendor-specific custom application 2"),
-            [0x12] = new CmisApplication(0x12, "Custom App 3", "Vendor-specific custom application 3"),
-        };
+        private static readonly Dictionary<byte, CmisApplication> KnownApplications = new ()
+                                                                                      {
+                                                                                          [0x01] = new (0x01,
+                                                                                              "Application 1",
+                                                                                              "Standard application for 100G modules (SR4, CWDM4, LR4)"),
+                                                                                          [0x02] = new (0x02,
+                                                                                              "Application 2",
+                                                                                              "Standard application for 200G modules (FR4, LR4)"),
+                                                                                          [0x03] = new (0x03,
+                                                                                              "Application 3",
+                                                                                              "Standard application for 400G modules (FR4, LR4, SR8)"),
+                                                                                          [0x04] = new (0x04,
+                                                                                              "Application 4",
+                                                                                              "Standard application for 800G modules"),
+                                                                                          [0x10] = new (0x10,
+                                                                                              "Custom App 1",
+                                                                                              "Vendor-specific custom application 1"),
+                                                                                          [0x11] = new (0x11,
+                                                                                              "Custom App 2",
+                                                                                              "Vendor-specific custom application 2"),
+                                                                                          [0x12] = new (0x12,
+                                                                                              "Custom App 3",
+                                                                                              "Vendor-specific custom application 3")
+                                                                                      };
+
+        private readonly IRegisterAccess _registerAccess;
 
         /// <summary>
         ///     Initializes a new instance of the CmisApplicationFactory class.
@@ -65,14 +78,12 @@ namespace OpenCMIS.Protocol.Core
             {
                 // Read supported applications bitmask (4 bytes)
                 var maskBytes = await _registerAccess.ReadBlockAsync(AppSelectPage, AppSupportedReg, 4);
-                var mask = (uint)(maskBytes[0] | (maskBytes[1] << 8) | (maskBytes[2] << 16) | (maskBytes[3] << 24));
+                var mask      = (uint) (maskBytes[0] | maskBytes[1] << 8 | maskBytes[2] << 16 | maskBytes[3] << 24);
 
                 // Check each known application against the mask
                 foreach (var app in KnownApplications.Values)
-                {
-                    if (app.AppCode < 32 && (mask & (1U << app.AppCode)) != 0)
+                    if (app.AppCode < 32 && (mask & 1U << app.AppCode) != 0)
                         supported.Add(app);
-                }
 
                 // If no known apps found, try reading the current app at least
                 if (supported.Count == 0)

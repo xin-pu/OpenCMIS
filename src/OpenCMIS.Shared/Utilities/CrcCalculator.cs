@@ -5,7 +5,7 @@ namespace OpenCMIS.Shared
     /// </summary>
     public static class CrcCalculator
     {
-        private const ushort Polynomial = 0x1021;
+        private const ushort Polynomial   = 0x1021;
         private const ushort InitialValue = 0xFFFF;
 
         /// <summary>
@@ -18,19 +18,17 @@ namespace OpenCMIS.Shared
             if (data == null || data.Length == 0)
                 return 0;
 
-            ushort crc = InitialValue;
+            var crc = InitialValue;
 
             foreach (var b in data)
             {
-                crc ^= (ushort)(b << 8);
+                crc ^= (ushort) (b << 8);
 
                 for (var i = 0; i < 8; i++)
-                {
                     if ((crc & 0x8000) != 0)
-                        crc = (ushort)((crc << 1) ^ Polynomial);
+                        crc = (ushort) (crc << 1 ^ Polynomial);
                     else
                         crc <<= 1;
-                }
             }
 
             return crc;

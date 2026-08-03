@@ -4,8 +4,8 @@ using OpenCMIS.CDB.Abstractions;
 using OpenCMIS.CDB.Core;
 using OpenCMIS.Protocol.Abstractions;
 using OpenCMIS.Protocol.Core;
-using OpenCMIS.Transport.Abstractions;
 using Serilog;
+using Serilog.Events;
 
 namespace OpenCMIS.App.Core
 {
@@ -46,15 +46,15 @@ namespace OpenCMIS.App.Core
         public static IHostBuilder UseOpenCmisLogging(this IHostBuilder builder)
         {
             return builder.UseSerilog((context, configuration) =>
-            {
-                configuration
-                    .MinimumLevel.Information()
-                    .MinimumLevel.Override("OpenCMIS", Serilog.Events.LogEventLevel.Debug)
-                    .WriteTo.Console()
-                    .WriteTo.File("logs/cmis-.log",
-                        rollingInterval: RollingInterval.Day,
-                        retainedFileCountLimit: 7);
-            });
+                                          {
+                                              configuration
+                                                     .MinimumLevel.Information()
+                                                     .MinimumLevel.Override("OpenCMIS", LogEventLevel.Debug)
+                                                     .WriteTo.Console()
+                                                     .WriteTo.File("logs/cmis-.log",
+                                                                   rollingInterval: RollingInterval.Day,
+                                                                   retainedFileCountLimit: 7);
+                                          });
         }
     }
 }

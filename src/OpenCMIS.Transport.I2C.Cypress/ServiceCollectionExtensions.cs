@@ -1,15 +1,15 @@
 using Microsoft.Extensions.DependencyInjection;
 using OpenCMIS.Transport.Abstractions;
 
-namespace OpenCMIS.Transport.I2C.Cypress;
-
-public static class ServiceCollectionExtensions
+namespace OpenCMIS.Transport.I2C.Cypress
 {
-    public static IServiceCollection AddOpenCmisCypressAdapters(
-        this IServiceCollection services)
+    public static class ServiceCollectionExtensions
     {
-        services.AddSingleton<ICypressDeviceApiFactory, CypressDeviceApiFactory>();
-        services.AddSingleton<II2cAdapterProvider, CypressI2cAdapterProvider>();
-        return services;
+        public static IServiceCollection AddOpenCmisCypressAdapters(this IServiceCollection services)
+        {
+            services.AddSingleton<ICypressDeviceApiFactory, CypressDeviceApiFactory>();
+            services.AddSingleton<II2cAdapterProvider, CypressI2cAdapterProvider>();
+            return services;
+        }
     }
 }

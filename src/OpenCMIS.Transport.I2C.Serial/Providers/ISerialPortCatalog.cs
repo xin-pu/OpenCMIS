@@ -1,18 +1,19 @@
 using System.IO.Ports;
 
-namespace OpenCMIS.Transport.I2C.Serial.Providers;
-
-public interface ISerialPortCatalog
+namespace OpenCMIS.Transport.I2C.Serial.Providers
 {
-    IReadOnlyList<string> GetPortNames();
-}
-
-public sealed class SystemSerialPortCatalog : ISerialPortCatalog
-{
-    public IReadOnlyList<string> GetPortNames()
+    public interface ISerialPortCatalog
     {
-        return SerialPort.GetPortNames()
-            .Order(StringComparer.OrdinalIgnoreCase)
-            .ToArray();
+        IReadOnlyList<string> GetPortNames();
+    }
+
+    public sealed class SystemSerialPortCatalog : ISerialPortCatalog
+    {
+        public IReadOnlyList<string> GetPortNames()
+        {
+            return SerialPort.GetPortNames()
+                             .Order(StringComparer.OrdinalIgnoreCase)
+                             .ToArray();
+        }
     }
 }

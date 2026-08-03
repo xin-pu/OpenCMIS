@@ -14,30 +14,30 @@ namespace OpenCMIS.UI.WPF.Converters
             if (value is string stateStr && Enum.TryParse<ModuleState>(stateStr, out var state))
             {
                 var key = state switch
-                {
-                    ModuleState.Ready         => "OpenCmisSuccessBrush",
-                    ModuleState.LowPwr        => "OpenCmisWarningBrush",
-                    ModuleState.PwrUp         => "OpenCmisAccentBrush",
-                    ModuleState.PwrDn         => "OpenCmisMutedTextBrush",
-                    ModuleState.Initialization => "OpenCmisWarningBrush",
-                    ModuleState.Fault         => "OpenCmisDangerBrush",
-                    _                         => "OpenCmisMutedTextBrush"
-                };
+                          {
+                              ModuleState.Ready          => "OpenCmisSuccessBrush",
+                              ModuleState.LowPwr         => "OpenCmisWarningBrush",
+                              ModuleState.PwrUp          => "OpenCmisAccentBrush",
+                              ModuleState.PwrDn          => "OpenCmisMutedTextBrush",
+                              ModuleState.Initialization => "OpenCmisWarningBrush",
+                              ModuleState.Fault          => "OpenCmisDangerBrush",
+                              _                          => "OpenCmisMutedTextBrush"
+                          };
                 return app?.TryFindResource(key) ?? new SolidColorBrush(Colors.Gray);
             }
 
             if (value is ModuleState modState)
             {
                 var key = modState switch
-                {
-                    ModuleState.Ready         => "OpenCmisSuccessBrush",
-                    ModuleState.LowPwr        => "OpenCmisWarningBrush",
-                    ModuleState.PwrUp         => "OpenCmisAccentBrush",
-                    ModuleState.PwrDn         => "OpenCmisMutedTextBrush",
-                    ModuleState.Initialization => "OpenCmisWarningBrush",
-                    ModuleState.Fault         => "OpenCmisDangerBrush",
-                    _                         => "OpenCmisMutedTextBrush"
-                };
+                          {
+                              ModuleState.Ready          => "OpenCmisSuccessBrush",
+                              ModuleState.LowPwr         => "OpenCmisWarningBrush",
+                              ModuleState.PwrUp          => "OpenCmisAccentBrush",
+                              ModuleState.PwrDn          => "OpenCmisMutedTextBrush",
+                              ModuleState.Initialization => "OpenCmisWarningBrush",
+                              ModuleState.Fault          => "OpenCmisDangerBrush",
+                              _                          => "OpenCmisMutedTextBrush"
+                          };
                 return app?.TryFindResource(key) ?? new SolidColorBrush(Colors.Gray);
             }
 

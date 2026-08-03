@@ -15,11 +15,6 @@
             <Setter Property="VerticalContentAlignment" Value="Center" />
         </Style>
 
-        <Style x:Key="ModifiedHexTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource HexTextBoxStyle}">
-            <Setter Property="Background" Value="#FFFFF3CD" />
-            <Setter Property="BorderBrush" Value="#FFD39E00" />
-        </Style>
-
         <Style x:Key="OffsetTextStyle" TargetType="TextBlock">
             <Setter Property="FontFamily" Value="Consolas, Courier New" />
             <Setter Property="FontSize" Value="12" />
@@ -98,11 +93,11 @@
                 <StackPanel Grid.Row="1" Grid.Column="8" Orientation="Horizontal"
                             HorizontalAlignment="Right" Margin="16,4,0,0">
                     <dx:SimpleButton Content="Fill 00" Command="{Binding FillAllCommand}"
-                            Style="{StaticResource OpenCmisFlatButtonStyle}"
-                            FontSize="11" Padding="8,4" />
+                                     Style="{StaticResource OpenCmisFlatButtonStyle}"
+                                     FontSize="11" Padding="8,4" />
                     <dx:SimpleButton Content="Fill FF" Command="{Binding FillAllFFCommand}"
-                            Style="{StaticResource OpenCmisFlatButtonStyle}"
-                            FontSize="11" Padding="8,4" />
+                                     Style="{StaticResource OpenCmisFlatButtonStyle}"
+                                     FontSize="11" Padding="8,4" />
                 </StackPanel>
             </Grid>
 

@@ -57,9 +57,12 @@ namespace OpenCMIS.Cypress
             get
             {
                 var nodes = 0;
-                if (Features.NumItems > 0) nodes++;
-                if (Inputs.NumItems   > 0) nodes++;
-                if (Outputs.NumItems  > 0) nodes++;
+                if (Features.NumItems > 0)
+                    nodes++;
+                if (Inputs.NumItems > 0)
+                    nodes++;
+                if (Outputs.NumItems > 0)
+                    nodes++;
 
                 var n = 0;
 
@@ -72,9 +75,9 @@ namespace OpenCMIS.Cypress
                     hidTree[n++] = Outputs.Tree;
 
                 var t = new TreeNode(Product, hidTree)
-                {
-                        Tag = this
-                };
+                        {
+                            Tag = this
+                        };
 
                 return t;
             }
@@ -94,7 +97,8 @@ namespace OpenCMIS.Cypress
 
         public override string ToString()
         {
-            if (_alreadyDisposed) throw new ObjectDisposedException("");
+            if (_alreadyDisposed)
+                throw new ObjectDisposedException("");
 
             var s = new StringBuilder("<HID_DEVICE>\r\n");
 
@@ -102,6 +106,7 @@ namespace OpenCMIS.Cypress
             s.Append($"\tManufacturer=\"{Manufacturer}\"\r\n");
             s.Append($"\tProduct=\"{Product}\"\r\n");
             s.Append($"\tSerialNumber=\"{SerialNumber}\"\r\n");
+
             //s.Append(string.Format("\tVendorID=\"{0:X4}\"\r\n", VendorID));
             s.Append($"\tVendorID=\"{Util.byteStr(VendorID)}\"\r\n");
             s.Append($"\tProductID=\"{Util.byteStr(ProductID)}\"\r\n");
@@ -128,7 +133,9 @@ namespace OpenCMIS.Cypress
 
         public bool GetFeature(int rptID)
         {
-            if (Features.RptByteLen == 0) return false;
+            if (Features.RptByteLen == 0)
+                return false;
+
             //if (!RwAccessible) return false;
 
             Features.Clear();
@@ -138,12 +145,15 @@ namespace OpenCMIS.Cypress
             {
                 return PInvoke.HidD_GetFeature(_hDevice, Features.DataBuf, Features.RptByteLen);
             }
+
             //return PInvoke.HidD_GetFeature(_hDevice, ref _Features.DataBuf[0], _Features.RptByteLen);
         }
 
         public bool SetFeature(int rptID)
         {
-            if (Features.RptByteLen == 0) return false;
+            if (Features.RptByteLen == 0)
+                return false;
+
             //if (!RwAccessible) return false;
 
             Features.DataBuf[0] = (byte) rptID;
@@ -152,13 +162,16 @@ namespace OpenCMIS.Cypress
             {
                 return PInvoke.HidD_SetFeature(_hDevice, Features.DataBuf, Features.RptByteLen);
             }
+
             //return PInvoke.HidD_SetFeature(_hDevice, ref _Features.DataBuf[0], _Features.RptByteLen);
         }
 
         public bool GetInput(int rptID)
         {
-            if (Inputs.RptByteLen == 0) return false;
-            if (!RwAccessible) return false;
+            if (Inputs.RptByteLen == 0)
+                return false;
+            if (!RwAccessible)
+                return false;
 
             Inputs.Clear();
             Inputs.DataBuf[0] = (byte) rptID;
@@ -172,13 +185,16 @@ namespace OpenCMIS.Cypress
             {
                 return PInvoke.HidD_GetInputReport(_hDevice, Inputs.DataBuf, Inputs.RptByteLen);
             }
+
             //return PInvoke.HidD_GetInputReport(_hDevice, ref _Inputs.DataBuf[0], _Inputs.RptByteLen);
         }
 
         public bool SetOutput(int rptID)
         {
-            if (Outputs.RptByteLen == 0) return false;
-            if (!RwAccessible) return false;
+            if (Outputs.RptByteLen == 0)
+                return false;
+            if (!RwAccessible)
+                return false;
 
             Outputs.DataBuf[0] = (byte) rptID;
 
@@ -186,6 +202,7 @@ namespace OpenCMIS.Cypress
             {
                 return PInvoke.HidD_SetOutputReport(_hDevice, Outputs.DataBuf, Outputs.RptByteLen);
             }
+
             //return PInvoke.HidD_SetOutputReport(_hDevice, ref _Outputs.DataBuf[0], _Outputs.RptByteLen);
         }
 
@@ -193,8 +210,10 @@ namespace OpenCMIS.Cypress
         {
             var bytesWritten = 0;
 
-            if (Outputs.RptByteLen == 0) return false;
-            if (!RwAccessible) return false;
+            if (Outputs.RptByteLen == 0)
+                return false;
+            if (!RwAccessible)
+                return false;
 
             Outputs.DataBuf[0] = Outputs.ID;
 
@@ -202,13 +221,16 @@ namespace OpenCMIS.Cypress
             {
                 return PInvoke.WriteFile(_hDevice, Outputs.DataBuf, Outputs.RptByteLen, ref bytesWritten, IntPtr.Zero);
             }
+
             //return PInvoke.WriteFile(_hDevice, ref _Outputs.DataBuf[0], _Outputs.RptByteLen, ref bytesWritten, IntPtr.Zero);
         }
 
         public bool ReadInput()
         {
-            if (Inputs.RptByteLen == 0) return false;
-            if (!RwAccessible) return false;
+            if (Inputs.RptByteLen == 0)
+                return false;
+            if (!RwAccessible)
+                return false;
 
             if (CyConst.Hibernate_first_call)
             {
@@ -225,6 +247,7 @@ namespace OpenCMIS.Cypress
             {
                 return PInvoke.ReadFile(_hDevice, Inputs.DataBuf, Inputs.RptByteLen, ref bytesRead, IntPtr.Zero);
             }
+
             //return PInvoke.ReadFile(_hDevice, ref _Inputs.DataBuf[0], _Inputs.RptByteLen, ref bytesRead, IntPtr.Zero);
         }
 
@@ -236,16 +259,20 @@ namespace OpenCMIS.Cypress
                 Close();
 
             int Devices = DeviceCount;
-            if (Devices == 0) return false;
-            if (dev     > Devices - 1) return false;
+            if (Devices == 0)
+                return false;
+            if (dev > Devices - 1)
+                return false;
 
             string pathDetect;
             _path      = PInvoke.GetDevicePath(_drvGuid, dev);
             pathDetect = _path;
             if (pathDetect.Contains("&mi_00#"))
                 return false;
+
             _hDevice = PInvoke.GetDeviceHandle(_path, false, ref _Access);
-            if (_hDevice == CyConst.INVALID_HANDLE) return false;
+            if (_hDevice == CyConst.INVALID_HANDLE)
+                return false;
 
             _devNum = dev;
 

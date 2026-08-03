@@ -8,9 +8,9 @@ namespace OpenCMIS.CDB.Core
     /// </summary>
     public class CdbValidator : ICdbValidator
     {
-        private const int MaxCdbSize  = 2048;
-        private const int MinCdbSize  = 10;
-        private const int MaxFieldIdLength = 64;
+        private const int MaxCdbSize          = 2048;
+        private const int MinCdbSize          = 10;
+        private const int MaxFieldIdLength    = 64;
         private const int MaxFieldValueLength = 256;
 
         /// <inheritdoc />
@@ -32,10 +32,8 @@ namespace OpenCMIS.CDB.Core
 
             // Validate fields
             foreach (var field in cdb.Fields)
-            {
                 if (!ValidateField(field))
                     return false;
-            }
 
             // Validate checksum
             if (!ValidateChecksum(cdb))

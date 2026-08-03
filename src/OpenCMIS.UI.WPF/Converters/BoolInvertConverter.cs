@@ -12,7 +12,7 @@ namespace OpenCMIS.UI.WPF.Converters
         {
             return value is bool b ? !b : Binding.DoNothing;
         }
-        
+
         public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             return value is bool b ? !b : Binding.DoNothing;

@@ -56,52 +56,63 @@
                     <!-- Row 1 -->
                     <StackPanel>
                         <TextBlock Text="Vendor Name" Style="{StaticResource IdentityLabelStyle}" />
-                        <TextBlock Text="{Binding DashData.Identity.VendorName}" Style="{StaticResource IdentityValueStyle}" />
+                        <TextBlock Text="{Binding DashData.Identity.VendorName}"
+                                   Style="{StaticResource IdentityValueStyle}" />
                     </StackPanel>
                     <StackPanel>
                         <TextBlock Text="Vendor OUI" Style="{StaticResource IdentityLabelStyle}" />
-                        <TextBlock Text="{Binding DashData.Identity.VendorOUI}" Style="{StaticResource IdentityValueStyle}" />
+                        <TextBlock Text="{Binding DashData.Identity.VendorOUI}"
+                                   Style="{StaticResource IdentityValueStyle}" />
                     </StackPanel>
                     <!-- Row 2 -->
                     <StackPanel>
                         <TextBlock Text="Part Number" Style="{StaticResource IdentityLabelStyle}" />
-                        <TextBlock Text="{Binding DashData.Identity.PartNumber}" Style="{StaticResource IdentityValueStyle}" />
+                        <TextBlock Text="{Binding DashData.Identity.PartNumber}"
+                                   Style="{StaticResource IdentityValueStyle}" />
                     </StackPanel>
                     <StackPanel>
                         <TextBlock Text="Serial Number" Style="{StaticResource IdentityLabelStyle}" />
-                        <TextBlock Text="{Binding DashData.Identity.SerialNumber}" Style="{StaticResource IdentityValueStyle}" />
+                        <TextBlock Text="{Binding DashData.Identity.SerialNumber}"
+                                   Style="{StaticResource IdentityValueStyle}" />
                     </StackPanel>
                     <!-- Row 3 -->
                     <StackPanel>
                         <TextBlock Text="Hardware Revision" Style="{StaticResource IdentityLabelStyle}" />
-                        <TextBlock Text="{Binding DashData.Identity.HardwareRevision}" Style="{StaticResource IdentityValueStyle}" />
+                        <TextBlock Text="{Binding DashData.Identity.HardwareRevision}"
+                                   Style="{StaticResource IdentityValueStyle}" />
                     </StackPanel>
                     <StackPanel>
                         <TextBlock Text="Firmware Revision" Style="{StaticResource IdentityLabelStyle}" />
-                        <TextBlock Text="{Binding DashData.Identity.FirmwareRevision}" Style="{StaticResource IdentityValueStyle}" />
+                        <TextBlock Text="{Binding DashData.Identity.FirmwareRevision}"
+                                   Style="{StaticResource IdentityValueStyle}" />
                     </StackPanel>
                     <!-- Row 4 -->
                     <StackPanel>
                         <TextBlock Text="Date Code" Style="{StaticResource IdentityLabelStyle}" />
-                        <TextBlock Text="{Binding DashData.Identity.DateCode}" Style="{StaticResource IdentityValueStyle}" />
+                        <TextBlock Text="{Binding DashData.Identity.DateCode}"
+                                   Style="{StaticResource IdentityValueStyle}" />
                     </StackPanel>
                     <StackPanel>
                         <TextBlock Text="Module Type" Style="{StaticResource IdentityLabelStyle}" />
-                        <TextBlock Text="{Binding DashData.Identity.ModuleType}" Style="{StaticResource IdentityValueStyle}" />
+                        <TextBlock Text="{Binding DashData.Identity.ModuleType}"
+                                   Style="{StaticResource IdentityValueStyle}" />
                     </StackPanel>
                     <!-- Row 5 -->
                     <StackPanel>
                         <TextBlock Text="Connector Type" Style="{StaticResource IdentityLabelStyle}" />
-                        <TextBlock Text="{Binding DashData.Identity.ConnectorType}" Style="{StaticResource IdentityValueStyle}" />
+                        <TextBlock Text="{Binding DashData.Identity.ConnectorType}"
+                                   Style="{StaticResource IdentityValueStyle}" />
                     </StackPanel>
                     <StackPanel>
                         <TextBlock Text="CMIS Version" Style="{StaticResource IdentityLabelStyle}" />
-                        <TextBlock Text="{Binding DashData.Identity.CmisVersion}" Style="{StaticResource IdentityValueStyle}" />
+                        <TextBlock Text="{Binding DashData.Identity.CmisVersion}"
+                                   Style="{StaticResource IdentityValueStyle}" />
                     </StackPanel>
                     <!-- Row 6 -->
                     <StackPanel>
                         <TextBlock Text="CLEI Code" Style="{StaticResource IdentityLabelStyle}" />
-                        <TextBlock Text="{Binding DashData.Identity.CLEICode}" Style="{StaticResource IdentityValueStyle}" />
+                        <TextBlock Text="{Binding DashData.Identity.CLEICode}"
+                                   Style="{StaticResource IdentityValueStyle}" />
                     </StackPanel>
                     <StackPanel />
                 </UniformGrid>
@@ -113,7 +124,8 @@
                     <!-- Temperature -->
                     <Border Style="{StaticResource GaugeCardBorderStyle}">
                         <Border.BorderBrush>
-                            <Binding Path="DashData.Monitors.Temperature" Converter="{StaticResource MonitorValueToColorConverter}" />
+                            <Binding Path="DashData.Monitors.Temperature"
+                                     Converter="{StaticResource MonitorValueToColorConverter}" />
                         </Border.BorderBrush>
                         <Border.BorderThickness>
                             <Binding Path="DashData.Monitors.Temperature.HasAlarm" FallbackValue="1">
@@ -123,11 +135,13 @@
                             </Binding>
                         </Border.BorderThickness>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="TEMPERATURE" FontSize="10" Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                            <TextBlock Text="TEMPERATURE" FontSize="10"
+                                       Foreground="{StaticResource OpenCmisMutedTextBrush}" />
                             <TextBlock FontSize="24" FontWeight="Bold" Margin="0,4,0,0">
                                 <Run Text="{Binding DashData.Monitors.Temperature.Value, StringFormat=F2}" />
                                 <Run Text=" " FontSize="14" />
-                                <Run Text="{Binding DashData.Monitors.Temperature.Unit}" FontSize="14" Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                                <Run Text="{Binding DashData.Monitors.Temperature.Unit}" FontSize="14"
+                                     Foreground="{StaticResource OpenCmisMutedTextBrush}" />
                             </TextBlock>
                             <TextBlock FontSize="11" Margin="0,2,0,0"
                                        Foreground="{Binding DashData.Monitors.Temperature, Converter={StaticResource MonitorValueToColorConverter}}">
@@ -153,15 +167,20 @@
                                 </Grid.RowDefinitions>
                                 <TextBlock FontSize="9" Foreground="{StaticResource OpenCmisMutedTextBrush}">
                                     <Run Text="ALM H:" />
-                                    <Run Text="{Binding DashData.Monitors.Temperature.AlarmHigh, StringFormat=F1}" Foreground="{StaticResource OpenCmisDangerBrush}" />
+                                    <Run Text="{Binding DashData.Monitors.Temperature.AlarmHigh, StringFormat=F1}"
+                                         Foreground="{StaticResource OpenCmisDangerBrush}" />
                                     <Run Text="  WRN H:" />
-                                    <Run Text="{Binding DashData.Monitors.Temperature.WarnHigh, StringFormat=F1}" Foreground="{StaticResource OpenCmisWarningBrush}" />
+                                    <Run Text="{Binding DashData.Monitors.Temperature.WarnHigh, StringFormat=F1}"
+                                         Foreground="{StaticResource OpenCmisWarningBrush}" />
                                 </TextBlock>
-                                <TextBlock Grid.Row="1" FontSize="9" Foreground="{StaticResource OpenCmisMutedTextBrush}">
+                                <TextBlock Grid.Row="1" FontSize="9"
+                                           Foreground="{StaticResource OpenCmisMutedTextBrush}">
                                     <Run Text="WRN L:" />
-                                    <Run Text="{Binding DashData.Monitors.Temperature.WarnLow, StringFormat=F1}" Foreground="{StaticResource OpenCmisWarningBrush}" />
+                                    <Run Text="{Binding DashData.Monitors.Temperature.WarnLow, StringFormat=F1}"
+                                         Foreground="{StaticResource OpenCmisWarningBrush}" />
                                     <Run Text="  ALM L:" />
-                                    <Run Text="{Binding DashData.Monitors.Temperature.AlarmLow, StringFormat=F1}" Foreground="{StaticResource OpenCmisDangerBrush}" />
+                                    <Run Text="{Binding DashData.Monitors.Temperature.AlarmLow, StringFormat=F1}"
+                                         Foreground="{StaticResource OpenCmisDangerBrush}" />
                                 </TextBlock>
                             </Grid>
                         </StackPanel>
@@ -172,11 +191,13 @@
                             BorderBrush="{Binding DashData.Monitors.VCC, Converter={StaticResource MonitorValueToColorConverter}}"
                             BorderThickness="1">
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="SUPPLY VOLTAGE" FontSize="10" Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                            <TextBlock Text="SUPPLY VOLTAGE" FontSize="10"
+                                       Foreground="{StaticResource OpenCmisMutedTextBrush}" />
                             <TextBlock FontSize="24" FontWeight="Bold" Margin="0,4,0,0">
                                 <Run Text="{Binding DashData.Monitors.VCC.Value, StringFormat=F3}" />
                                 <Run Text=" " FontSize="14" />
-                                <Run Text="{Binding DashData.Monitors.VCC.Unit}" FontSize="14" Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                                <Run Text="{Binding DashData.Monitors.VCC.Unit}" FontSize="14"
+                                     Foreground="{StaticResource OpenCmisMutedTextBrush}" />
                             </TextBlock>
                             <TextBlock FontSize="11" Margin="0,2,0,0"
                                        Foreground="{Binding DashData.Monitors.VCC, Converter={StaticResource MonitorValueToColorConverter}}">
@@ -202,13 +223,17 @@
                                 </Grid.RowDefinitions>
                                 <TextBlock FontSize="9" Foreground="{StaticResource OpenCmisMutedTextBrush}">
                                     <Run Text="ALM H:" />
-                                    <Run Text="{Binding DashData.Monitors.VCC.AlarmHigh, StringFormat=F3}" Foreground="{StaticResource OpenCmisDangerBrush}" />
+                                    <Run Text="{Binding DashData.Monitors.VCC.AlarmHigh, StringFormat=F3}"
+                                         Foreground="{StaticResource OpenCmisDangerBrush}" />
                                     <Run Text="  WRN H:" />
-                                    <Run Text="{Binding DashData.Monitors.VCC.WarnHigh, StringFormat=F3}" Foreground="{StaticResource OpenCmisWarningBrush}" />
+                                    <Run Text="{Binding DashData.Monitors.VCC.WarnHigh, StringFormat=F3}"
+                                         Foreground="{StaticResource OpenCmisWarningBrush}" />
                                 </TextBlock>
-                                <TextBlock Grid.Row="1" FontSize="9" Foreground="{StaticResource OpenCmisMutedTextBrush}">
+                                <TextBlock Grid.Row="1" FontSize="9"
+                                           Foreground="{StaticResource OpenCmisMutedTextBrush}">
                                     <Run Text="ALM L:" />
-                                    <Run Text="{Binding DashData.Monitors.VCC.AlarmLow, StringFormat=F3}" Foreground="{StaticResource OpenCmisDangerBrush}" />
+                                    <Run Text="{Binding DashData.Monitors.VCC.AlarmLow, StringFormat=F3}"
+                                         Foreground="{StaticResource OpenCmisDangerBrush}" />
                                     <Run Text="  (no low warn)" FontStyle="Italic" />
                                 </TextBlock>
                             </Grid>
@@ -219,12 +244,14 @@
                     <Border Style="{StaticResource GaugeCardBorderStyle}" BorderThickness="1"
                             BorderBrush="{StaticResource OpenCmisBorderBrush}">
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="TX POWER TOTAL" FontSize="10" Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                            <TextBlock Text="TX POWER TOTAL" FontSize="10"
+                                       Foreground="{StaticResource OpenCmisMutedTextBrush}" />
                             <TextBlock FontSize="24" FontWeight="Bold" Margin="0,4,0,0">
                                 <Run Text="{Binding DashData.Monitors.TotalTxPower, StringFormat=F3}" />
                                 <Run Text=" mW" FontSize="14" Foreground="{StaticResource OpenCmisMutedTextBrush}" />
                             </TextBlock>
-                            <TextBlock Text="AGGREGATE" FontSize="11" Foreground="{StaticResource OpenCmisMutedTextBrush}" Margin="0,2,0,0" />
+                            <TextBlock Text="AGGREGATE" FontSize="11"
+                                       Foreground="{StaticResource OpenCmisMutedTextBrush}" Margin="0,2,0,0" />
                         </StackPanel>
                     </Border>
 
@@ -232,12 +259,14 @@
                     <Border Style="{StaticResource GaugeCardBorderStyle}" BorderThickness="1"
                             BorderBrush="{StaticResource OpenCmisBorderBrush}">
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="RX POWER TOTAL" FontSize="10" Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                            <TextBlock Text="RX POWER TOTAL" FontSize="10"
+                                       Foreground="{StaticResource OpenCmisMutedTextBrush}" />
                             <TextBlock FontSize="24" FontWeight="Bold" Margin="0,4,0,0">
                                 <Run Text="{Binding DashData.Monitors.TotalRxPower, StringFormat=F3}" />
                                 <Run Text=" mW" FontSize="14" Foreground="{StaticResource OpenCmisMutedTextBrush}" />
                             </TextBlock>
-                            <TextBlock Text="AGGREGATE" FontSize="11" Foreground="{StaticResource OpenCmisMutedTextBrush}" Margin="0,2,0,0" />
+                            <TextBlock Text="AGGREGATE" FontSize="11"
+                                       Foreground="{StaticResource OpenCmisMutedTextBrush}" Margin="0,2,0,0" />
                         </StackPanel>
                     </Border>
 
@@ -245,12 +274,14 @@
                     <Border Style="{StaticResource GaugeCardBorderStyle}" BorderThickness="1"
                             BorderBrush="{StaticResource OpenCmisBorderBrush}">
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="TX BIAS MAX" FontSize="10" Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                            <TextBlock Text="TX BIAS MAX" FontSize="10"
+                                       Foreground="{StaticResource OpenCmisMutedTextBrush}" />
                             <TextBlock FontSize="24" FontWeight="Bold" Margin="0,4,0,0">
                                 <Run Text="{Binding DashData.Monitors.MaxTxBias, StringFormat=F2}" />
                                 <Run Text=" mA" FontSize="14" Foreground="{StaticResource OpenCmisMutedTextBrush}" />
                             </TextBlock>
-                            <TextBlock Text="MAX ACROSS LANES" FontSize="11" Foreground="{StaticResource OpenCmisMutedTextBrush}" Margin="0,2,0,0" />
+                            <TextBlock Text="MAX ACROSS LANES" FontSize="11"
+                                       Foreground="{StaticResource OpenCmisMutedTextBrush}" Margin="0,2,0,0" />
                         </StackPanel>
                     </Border>
 
@@ -265,7 +296,8 @@
                                 <TextBlock Text="{Binding DashData.CurrentState}" FontSize="16" FontWeight="Bold"
                                            Margin="8,0,0,0" VerticalAlignment="Center" />
                             </StackPanel>
-                            <TextBlock FontSize="11" Margin="0,4,0,0" Foreground="{StaticResource OpenCmisMutedTextBrush}">
+                            <TextBlock FontSize="11" Margin="0,4,0,0"
+                                       Foreground="{StaticResource OpenCmisMutedTextBrush}">
                                 <Run Text="{Binding DashData.Lanes.Count, Mode=OneWay, StringFormat={}{0} lanes}" />
                             </TextBlock>
                         </StackPanel>
@@ -276,8 +308,8 @@
             <!-- Lane Details Table -->
             <GroupBox Header="Lane Details" Padding="10" Margin="0,0,0,15">
                 <dxg:GridControl ItemsSource="{Binding DashData.Lanes}"
-                                  AutoGenerateColumns="None"
-                                  MaxHeight="250">
+                                 AutoGenerateColumns="None"
+                                 MaxHeight="250">
                     <dxg:GridControl.View>
                         <dxg:TableView ShowGroupPanel="False"
                                        ShowSearchPanelMode="Never"
@@ -309,14 +341,17 @@
                                     <TextBlock Text="{Binding Value}">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="Foreground" Value="{StaticResource OpenCmisSuccessBrush}" />
+                                                <Setter Property="Foreground"
+                                                        Value="{StaticResource OpenCmisSuccessBrush}" />
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding Row.HasFault}" Value="True">
-                                                        <Setter Property="Foreground" Value="{StaticResource OpenCmisDangerBrush}" />
+                                                        <Setter Property="Foreground"
+                                                                Value="{StaticResource OpenCmisDangerBrush}" />
                                                         <Setter Property="FontWeight" Value="Bold" />
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding Row.IsEnabled}" Value="False">
-                                                        <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
+                                                        <Setter Property="Foreground"
+                                                                Value="{StaticResource OpenCmisMutedTextBrush}" />
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -332,11 +367,13 @@
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Text" Value="—" />
-                                                <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
+                                                <Setter Property="Foreground"
+                                                        Value="{StaticResource OpenCmisMutedTextBrush}" />
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding Value}" Value="True">
                                                         <Setter Property="Text" Value="LOS" />
-                                                        <Setter Property="Foreground" Value="{StaticResource OpenCmisDangerBrush}" />
+                                                        <Setter Property="Foreground"
+                                                                Value="{StaticResource OpenCmisDangerBrush}" />
                                                         <Setter Property="FontWeight" Value="Bold" />
                                                     </DataTrigger>
                                                 </Style.Triggers>
@@ -353,11 +390,13 @@
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Text" Value="—" />
-                                                <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
+                                                <Setter Property="Foreground"
+                                                        Value="{StaticResource OpenCmisMutedTextBrush}" />
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding Value}" Value="True">
                                                         <Setter Property="Text" Value="LOS" />
-                                                        <Setter Property="Foreground" Value="{StaticResource OpenCmisDangerBrush}" />
+                                                        <Setter Property="Foreground"
+                                                                Value="{StaticResource OpenCmisDangerBrush}" />
                                                         <Setter Property="FontWeight" Value="Bold" />
                                                     </DataTrigger>
                                                 </Style.Triggers>
@@ -374,11 +413,13 @@
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Text" Value="—" />
-                                                <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
+                                                <Setter Property="Foreground"
+                                                        Value="{StaticResource OpenCmisMutedTextBrush}" />
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding Value}" Value="True">
                                                         <Setter Property="Text" Value="LOL" />
-                                                        <Setter Property="Foreground" Value="{StaticResource OpenCmisDangerBrush}" />
+                                                        <Setter Property="Foreground"
+                                                                Value="{StaticResource OpenCmisDangerBrush}" />
                                                         <Setter Property="FontWeight" Value="Bold" />
                                                     </DataTrigger>
                                                 </Style.Triggers>
@@ -395,11 +436,13 @@
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Text" Value="—" />
-                                                <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
+                                                <Setter Property="Foreground"
+                                                        Value="{StaticResource OpenCmisMutedTextBrush}" />
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding Value}" Value="True">
                                                         <Setter Property="Text" Value="LOL" />
-                                                        <Setter Property="Foreground" Value="{StaticResource OpenCmisDangerBrush}" />
+                                                        <Setter Property="Foreground"
+                                                                Value="{StaticResource OpenCmisDangerBrush}" />
                                                         <Setter Property="FontWeight" Value="Bold" />
                                                     </DataTrigger>
                                                 </Style.Triggers>
@@ -416,11 +459,13 @@
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Text" Value="—" />
-                                                <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
+                                                <Setter Property="Foreground"
+                                                        Value="{StaticResource OpenCmisMutedTextBrush}" />
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding Value}" Value="True">
                                                         <Setter Property="Text" Value="FAULT" />
-                                                        <Setter Property="Foreground" Value="{StaticResource OpenCmisDangerBrush}" />
+                                                        <Setter Property="Foreground"
+                                                                Value="{StaticResource OpenCmisDangerBrush}" />
                                                         <Setter Property="FontWeight" Value="Bold" />
                                                     </DataTrigger>
                                                 </Style.Triggers>
@@ -439,9 +484,9 @@
                 <TextBlock Text="Refresh:" VerticalAlignment="Center" Margin="0,0,8,0"
                            Style="{StaticResource SectionLabelStyle}" />
                 <dxe:ComboBoxEdit ItemsSource="{Binding RefreshIntervalOptions}"
-                                   EditValue="{Binding RefreshInterval}"
-                                   Width="60"
-                                   IsEnabled="{Binding IsMonitoring, Converter={StaticResource BoolInvertConverter}}" />
+                                  EditValue="{Binding RefreshInterval}"
+                                  Width="60"
+                                  IsEnabled="{Binding IsMonitoring, Converter={StaticResource BoolInvertConverter}}" />
                 <TextBlock Text="s" VerticalAlignment="Center" Margin="2,0,12,0"
                            Foreground="{StaticResource OpenCmisMutedTextBrush}" />
 

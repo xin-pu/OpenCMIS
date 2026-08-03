@@ -81,7 +81,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _name;
             }
         }
@@ -90,7 +92,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _friendlyName;
             }
         }
@@ -99,7 +103,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _manufacturer;
             }
         }
@@ -108,7 +114,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _product;
             }
         }
@@ -117,7 +125,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _serialNumber;
             }
         }
@@ -126,7 +136,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _vendorID;
             }
         }
@@ -135,7 +147,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _productID;
             }
         }
@@ -144,7 +158,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _path;
             }
         }
@@ -153,7 +169,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _usbAddress;
             }
         }
@@ -162,7 +180,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _bcdUSB;
             }
         }
@@ -171,7 +191,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _devClass;
             }
         }
@@ -180,7 +202,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _devSubClass;
             }
         }
@@ -189,7 +213,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return _devProtocol;
             }
         }
@@ -198,12 +224,13 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
 
                 var t = new TreeNode(FriendlyName)
-                {
-                        Tag = this
-                };
+                        {
+                            Tag = this
+                        };
 
                 return t;
             }
@@ -215,7 +242,9 @@ namespace OpenCMIS.Cypress
         {
             get
             {
-                if (_alreadyDisposed) throw new ObjectDisposedException("");
+                if (_alreadyDisposed)
+                    throw new ObjectDisposedException("");
+
                 return PInvoke.CountDevices(_drvGuid);
             }
         }
@@ -229,11 +258,14 @@ namespace OpenCMIS.Cypress
 
         public override bool Equals(object right)
         {
-            if (right == null) return false;
+            if (right == null)
+                return false;
 
-            if (ReferenceEquals(this, right)) return true;
+            if (ReferenceEquals(this, right))
+                return true;
 
-            if (GetType() != right.GetType()) return false;
+            if (GetType() != right.GetType())
+                return false;
 
             var dev = right as USBDevice;
 
@@ -243,7 +275,7 @@ namespace OpenCMIS.Cypress
 
         public override int GetHashCode()
         {
-            var rnd = new Random();
+            var rnd     = new Random();
             var nRandom = rnd.Next(int.MinValue, int.MaxValue);
 
             return nRandom ^ GetType().ToString().GetHashCode();
@@ -251,7 +283,8 @@ namespace OpenCMIS.Cypress
 
         protected virtual void Dispose(bool isDisposing)
         {
-            if (_alreadyDisposed) return;
+            if (_alreadyDisposed)
+                return;
 
             if (isDisposing)
             {
@@ -268,9 +301,11 @@ namespace OpenCMIS.Cypress
 
         internal void Close()
         {
-            if (_alreadyDisposed) throw new ObjectDisposedException("");
+            if (_alreadyDisposed)
+                throw new ObjectDisposedException("");
 
-            if (_hDevice != CyConst.INVALID_HANDLE) PInvoke.CloseHandle(_hDevice);
+            if (_hDevice != CyConst.INVALID_HANDLE)
+                PInvoke.CloseHandle(_hDevice);
             _hDevice = CyConst.INVALID_HANDLE;
 
             if (_hHndNotification != IntPtr.Zero)
@@ -279,7 +314,8 @@ namespace OpenCMIS.Cypress
 
         internal bool RegisterForPnPEvents(IntPtr hWnd)
         {
-            if (_alreadyDisposed) throw new ObjectDisposedException("");
+            if (_alreadyDisposed)
+                throw new ObjectDisposedException("");
 
             var hFilter = new DEV_BROADCAST_HANDLE();
             hFilter.dbch_size       = Marshal.SizeOf(hFilter);
@@ -287,7 +323,8 @@ namespace OpenCMIS.Cypress
             hFilter.dbch_handle     = _hDevice;
 
             _hHndNotification = PInvoke.RegisterDeviceNotification(hWnd, hFilter, CyConst.DEVICE_NOTIFY_WINDOW_HANDLE);
-            if (_hHndNotification == IntPtr.Zero) return false;
+            if (_hHndNotification == IntPtr.Zero)
+                return false;
 
             return true;
         }

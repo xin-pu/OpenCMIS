@@ -5,7 +5,7 @@ using OpenCMIS.Shared;
 
 namespace OpenCMIS.UI.WPF.ViewModels
 {
-    public partial class ControlPanelViewModel : ObservableObject
+    public class ControlPanelViewModel : ObservableObject
     {
         private ICmisDevice? _device;
 
@@ -47,7 +47,8 @@ namespace OpenCMIS.UI.WPF.ViewModels
         [RelayCommand]
         private async Task SetStateAsync(string stateName)
         {
-            if (_device == null) return;
+            if (_device == null)
+                return;
 
             if (!Enum.TryParse<ModuleState>(stateName, true, out var targetState))
                 return;
@@ -66,12 +67,13 @@ namespace OpenCMIS.UI.WPF.ViewModels
         [RelayCommand]
         private async Task ReadRegisterAsync()
         {
-            if (_device == null) return;
+            if (_device == null)
+                return;
 
             try
             {
-                var page = byte.Parse(RegPage);
-                var addr = byte.Parse(RegAddress);
+                var page  = byte.Parse(RegPage);
+                var addr  = byte.Parse(RegAddress);
                 var value = await _device.RegisterAccess.ReadByteAsync(page, addr);
                 RegReadResult = $"0x{value:X2} ({value})";
             }
@@ -84,12 +86,13 @@ namespace OpenCMIS.UI.WPF.ViewModels
         [RelayCommand]
         private async Task WriteRegisterAsync()
         {
-            if (_device == null) return;
+            if (_device == null)
+                return;
 
             try
             {
-                var page = byte.Parse(RegPage);
-                var addr = byte.Parse(RegAddress);
+                var page  = byte.Parse(RegPage);
+                var addr  = byte.Parse(RegAddress);
                 var value = byte.Parse(RegValue);
                 await _device.RegisterAccess.WriteByteAsync(page, addr, value);
                 RegReadResult = $"Written 0x{value:X2} to Page 0x{page:X2}, Reg 0x{addr:X2}";
@@ -102,7 +105,8 @@ namespace OpenCMIS.UI.WPF.ViewModels
 
         private async Task RefreshStateAsync()
         {
-            if (_device == null) return;
+            if (_device == null)
+                return;
 
             try
             {
@@ -110,9 +114,9 @@ namespace OpenCMIS.UI.WPF.ViewModels
                 CurrentState = status.CurrentState.ToString();
 
                 CanSetLowPwr = status.CurrentState == ModuleState.Initialization;
-                CanSetPwrUp = status.CurrentState is ModuleState.LowPwr or ModuleState.Ready;
-                CanSetReady = status.CurrentState == ModuleState.PwrUp;
-                CanSetPwrDn = status.CurrentState == ModuleState.Ready;
+                CanSetPwrUp  = status.CurrentState is ModuleState.LowPwr or ModuleState.Ready;
+                CanSetReady  = status.CurrentState == ModuleState.PwrUp;
+                CanSetPwrDn  = status.CurrentState == ModuleState.Ready;
             }
             catch
             {
