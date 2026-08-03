@@ -111,11 +111,19 @@ namespace OpenCMIS.UI.WPF.ViewModels
                         {
                             if (DashData == null) return;
 
-                            DashData.Monitors = monitors;
-                            DashData.Lanes = lanes;
-                            DashData.CurrentState = modStatus.CurrentState;
-                            DashData.IsReady = modStatus.IsReady;
-                            DashData.StatusTimestamp = DateTime.Now;
+                            // Replace the whole DashData object: ModuleDashData and its nested
+                            // monitor models are plain POCOs without INotifyPropertyChanged, so
+                            // mutating nested properties would never refresh the bound gauges.
+                            DashData = new ModuleDashData
+                            {
+                                Identity = DashData.Identity,
+                                Monitors = monitors,
+                                Lanes = lanes,
+                                CurrentState = modStatus.CurrentState,
+                                IsReady = modStatus.IsReady,
+                                Status = DashData.Status,
+                                StatusTimestamp = DateTime.Now
+                            };
                             CurrentStateText = modStatus.CurrentState.ToString();
                             StatusText = $"Monitoring every {RefreshInterval}s — Last: {DateTime.Now:HH:mm:ss}";
                         });

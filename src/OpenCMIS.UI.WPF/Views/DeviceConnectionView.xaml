@@ -40,12 +40,14 @@
                                      Command="{Binding ConnectCommand}"
                                      Visibility="{Binding IsConnected, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}"
                                      Margin="5,0,0,0" />
-                </Grid>
 
-                <dx:SimpleButton Content="Disconnect"
-                                 Command="{Binding DisconnectCommand}"
-                                 Visibility="{Binding IsConnected, Converter={StaticResource BoolToVisibilityConverter}}"
-                                 Margin="0,10,0,0" />
+                    <!-- Shares the right column with Connect so the row stays single-line after connecting. -->
+                    <dx:SimpleButton Grid.Column="1"
+                                     Content="Disconnect"
+                                     Command="{Binding DisconnectCommand}"
+                                     Visibility="{Binding IsConnected, Converter={StaticResource BoolToVisibilityConverter}}"
+                                     Margin="5,0,0,0" />
+                </Grid>
             </StackPanel>
         </GroupBox>
 

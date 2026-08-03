@@ -82,6 +82,29 @@ public sealed class DeviceConnectionViewModelTests
     }
 
     [Fact]
+    public async Task Changing_port_syncs_the_selected_device_to_the_matching_profile()
+    {
+        var com3Ch1 = CreateMultiChannel("COM3", 1);
+        var com8Ch3 = CreateMultiChannel("COM8", 3);
+        var manager = new FakeDeviceManager(com3Ch1, com8Ch3);
+        var viewModel = new DeviceConnectionViewModel(manager, new DeviceSession());
+
+        await viewModel.RefreshAsync();
+        viewModel.SelectedAdapter = viewModel.AvailableAdapters.Single();
+
+        // Scan auto-selects the first device (COM3 / CH1).
+        Assert.Same(com3Ch1, viewModel.SelectedDevice);
+
+        // Picking "COM8 / CH3" must select the matching device, not keep the first one.
+        viewModel.SelectedPort = "COM8 / CH3";
+
+        Assert.Same(com8Ch3, viewModel.SelectedDevice);
+        Assert.Equal("COM8 / CH3", viewModel.SelectedPort);
+        await viewModel.ConnectAsync();
+        Assert.Same(com8Ch3, manager.OpenedDeviceInfo);
+    }
+
+    [Fact]
     public async Task Connection_failure_preserves_selection_and_resets_session()
     {
         var info = CreateSerial("linktel", "COM7");
@@ -147,6 +170,19 @@ public sealed class DeviceConnectionViewModelTests
                 adapterId,
                 portName,
                 115200,
+                new I2cDeviceAddress(0x50))
+        };
+
+    private static DeviceInfo CreateMultiChannel(string portName, byte channel) =>
+        new()
+        {
+            Id = $"hm-multichannel:{portName}:{channel}",
+            Name = $"HM I2C {portName} channel {channel}",
+            Profile = new HmMultiChannelConnectionProfile(
+                "hm-multichannel",
+                portName,
+                1500000,
+                channel,
                 new I2cDeviceAddress(0x50))
         };
 }

@@ -213,13 +213,17 @@ public partial class DeviceConnectionViewModel
         }
     }
 
-    private void OnSelectedPortChanged(string? port)
+    private void OnSelectedPortChanged()
     {
         if (_isSynchronizingSelection)
         {
             return;
         }
 
+        // Note: the generated setter invokes this method without arguments,
+        // so the current (new) value must be read from the property itself.
+        // Passing a parameter would receive the OLD value and break selection.
+        var port = SelectedPort;
         if (SelectedDevice is not null
             && string.Equals(
                 GetDeviceLabel(SelectedDevice),
