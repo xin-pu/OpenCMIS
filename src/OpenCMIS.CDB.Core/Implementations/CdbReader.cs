@@ -11,8 +11,10 @@ namespace OpenCMIS.CDB.Core
     public class CdbReader : ICdbReader
     {
         private const byte CdbPage         = 0x9F;
+        private const byte CdbExtPageStart = 0xA0;
         private const byte CdbHeaderOffset = 0x80;
-        private const int  MaxCdbSize      = 2048;
+        private const int  UpperPageSize   = 128;
+        private const int  MaxCdbSize      = 4096;
 
         /// <inheritdoc />
         public async Task<ConfigurationDataBlock> ReadAsync(ICmisDevice device)
@@ -35,8 +37,8 @@ namespace OpenCMIS.CDB.Core
                 if (totalLength < 8 || totalLength > MaxCdbSize)
                     throw new CmisException(CmisErrorCode.CdbFormatError, totalLength);
 
-                // Read the complete CDB (header + body + checksum)
-                var cdbBytes = await device.RegisterAccess.ReadBlockAsync(CdbPage, CdbHeaderOffset, totalLength);
+                // Read the complete CDB (header + body + checksum) across pages
+                var cdbBytes = await ReadCdbAcrossPagesAsync(device, totalLength);
 
                 // Parse header
                 var cdb = new ConfigurationDataBlock
@@ -128,6 +130,33 @@ namespace OpenCMIS.CDB.Core
                        CdbFieldType.String => Encoding.ASCII.GetString(value).TrimEnd('\0'),
                        _                   => value
                    };
+        }
+
+        private static async Task<byte[]> ReadCdbAcrossPagesAsync(ICmisDevice device, int totalLength)
+        {
+            var result    = new byte[totalLength];
+            var bytesRead = 0;
+
+            // First chunk: page 9Fh at offset 0x80 (up to UpperPageSize bytes)
+            var firstChunkSize = Math.Min(totalLength, UpperPageSize);
+            var firstChunk     = await device.RegisterAccess.ReadBlockAsync(
+                                         CdbPage, CdbHeaderOffset, firstChunkSize);
+            Array.Copy(firstChunk, 0, result, 0, firstChunk.Length);
+            bytesRead += firstChunk.Length;
+
+            // Extended payload pages: A0h, A1h, ... AFh (CMIS 5.3)
+            var extPage = CdbExtPageStart;
+            while (bytesRead < totalLength)
+            {
+                var chunkSize = Math.Min(totalLength - bytesRead, UpperPageSize);
+                var chunk     = await device.RegisterAccess.ReadBlockAsync(
+                                        extPage, CdbHeaderOffset, chunkSize);
+                Array.Copy(chunk, 0, result, bytesRead, chunk.Length);
+                bytesRead += chunk.Length;
+                extPage++;
+            }
+
+            return result;
         }
     }
 }
