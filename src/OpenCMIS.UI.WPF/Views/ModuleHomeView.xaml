@@ -4,570 +4,1005 @@
              xmlns:converters="clr-namespace:OpenCMIS.UI.WPF.Converters"
              xmlns:dx="http://schemas.devexpress.com/winfx/2008/xaml/core"
              xmlns:dxg="http://schemas.devexpress.com/winfx/2008/xaml/grid"
-             xmlns:dxe="http://schemas.devexpress.com/winfx/2008/xaml/editors">
+             xmlns:dxe="http://schemas.devexpress.com/winfx/2008/xaml/editors"
+             xmlns:dxa="http://schemas.devexpress.com/winfx/2008/xaml/accordion">
     <UserControl.Resources>
         <converters:ModuleStateToColorConverter x:Key="ModuleStateToColorConverter" />
         <converters:MonitorValueToColorConverter x:Key="MonitorValueToColorConverter" />
         <converters:ThresholdWidthConverter x:Key="ThresholdWidthConverter" />
 
-        <Style x:Key="GaugeCardBorderStyle" TargetType="Border">
+        <!-- ===== Summary Dashboard Card ===== -->
+        <Style x:Key="SummaryCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource OpenCmisSurfaceBrush}" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Padding" Value="10,7" />
+            <Setter Property="Margin" Value="3" />
+            <Setter Property="MinWidth" Value="130" />
+            <Setter Property="Height" Value="60" />
+        </Style>
+
+        <!-- ===== Gauge Card ===== -->
+        <Style x:Key="GaugeCardStyle" TargetType="Border">
             <Setter Property="Background" Value="{StaticResource OpenCmisSurfaceBrush}" />
             <Setter Property="CornerRadius" Value="8" />
-            <Setter Property="Padding" Value="12" />
+            <Setter Property="Padding" Value="10" />
             <Setter Property="Margin" Value="4" />
-            <Setter Property="Width" Value="200" />
-            <Setter Property="Height" Value="180" />
+            <Setter Property="Width" Value="156" />
+            <Setter Property="Height" Value="122" />
         </Style>
 
+        <!-- ===== Identity Property Row ===== -->
         <Style x:Key="IdentityLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontSize" Value="9" />
             <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
-            <Setter Property="Margin" Value="0,3" />
+            <Setter Property="Margin" Value="0,1" />
         </Style>
-
         <Style x:Key="IdentityValueStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="10" />
             <Setter Property="FontFamily" Value="Consolas, Courier New" />
-            <Setter Property="Margin" Value="0,3" />
+            <Setter Property="Foreground" Value="{StaticResource OpenCmisTextBrush}" />
+            <Setter Property="Margin" Value="0,1" />
         </Style>
 
+        <!-- ===== Interrupt Chip with LED ===== -->
         <Style x:Key="InterruptChipStyle" TargetType="Border">
             <Setter Property="CornerRadius" Value="4" />
-            <Setter Property="Padding" Value="8,4" />
-            <Setter Property="MinWidth" Value="80" />
+            <Setter Property="Padding" Value="6,3" />
+            <Setter Property="MinWidth" Value="76" />
+            <Setter Property="Height" Value="26" />
+            <Setter Property="Margin" Value="2" />
             <Setter Property="Background" Value="{StaticResource OpenCmisInputBackgroundBrush}" />
         </Style>
 
+        <!-- ===== Lane Row ===== -->
+        <Style x:Key="LaneRowStyle" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource OpenCmisSurfaceBrush}" />
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Padding" Value="8,4" />
+            <Setter Property="Margin" Value="0,1" />
+        </Style>
+
+        <!-- ===== Identity Row alternating ===== -->
+        <Style x:Key="IdentityRowStyle" TargetType="Border">
+            <Setter Property="Padding" Value="6,2" />
+            <Setter Property="CornerRadius" Value="2" />
+            <Setter Property="Margin" Value="0,1" />
+        </Style>
+
+        <!-- ===== Alert Item ===== -->
         <Style x:Key="AlertItemStyle" TargetType="ListBoxItem">
             <Setter Property="Foreground" Value="{StaticResource OpenCmisDangerBrush}" />
             <Setter Property="FontWeight" Value="Bold" />
             <Setter Property="Padding" Value="4,2" />
         </Style>
+
+        <!-- ===== Accordion item style ===== -->
+        <Style TargetType="dxa:AccordionItem">
+            <Setter Property="Margin" Value="0,2" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Background" Value="{StaticResource OpenCmisSurfaceBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource OpenCmisTextBrush}" />
+        </Style>
     </UserControl.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel>
-            <!-- Header -->
-            <StackPanel Margin="0,0,0,15">
-                <StackPanel Orientation="Horizontal">
-                    <Ellipse Width="18" Height="18" Margin="0,0,10,0" VerticalAlignment="Center"
-                             Fill="{Binding CurrentStateText, Converter={StaticResource ModuleStateToColorConverter}}" />
-                    <TextBlock Text="Module Home" Style="{StaticResource PageTitleStyle}"
-                               Margin="0,0,0,0" />
-                </StackPanel>
-                <TextBlock Margin="28,2,0,0" FontSize="13">
-                    <Run Text="State: " Foreground="{StaticResource OpenCmisMutedTextBrush}" />
-                    <Run Text="{Binding CurrentStateText}" FontWeight="Bold" />
-                    <Run Text=" | " Foreground="{StaticResource OpenCmisMutedTextBrush}" />
-                    <Run Text="Ready: " Foreground="{StaticResource OpenCmisMutedTextBrush}" />
-                    <Run Text="{Binding DashData.IsReady}" FontWeight="Bold" />
-                </TextBlock>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- ===== Row 0: Header ===== -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,8">
+            <StackPanel Orientation="Horizontal">
+                <Ellipse Width="18" Height="18" Margin="0,0,10,0" VerticalAlignment="Center"
+                         Fill="{Binding CurrentStateText, Converter={StaticResource ModuleStateToColorConverter}}" />
+                <TextBlock Text="Module Home" Style="{StaticResource PageTitleStyle}"
+                           Margin="0,0,0,0" />
+                <!-- Toggle Identity Panel -->
+                <dx:SimpleButton Content="&#xE16E;" FontFamily="Segoe MDL2 Assets"
+                                 FontSize="12" Width="26" Height="26" Padding="0"
+                                 Margin="12,0,0,0" VerticalAlignment="Center"
+                                 Command="{Binding ToggleIdentityPanelCommand}"
+                                 ToolTip="Toggle Product Identity Panel" />
             </StackPanel>
+            <TextBlock Margin="28,2,0,0" FontSize="12">
+                <Run Text="State: " Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                <Run Text="{Binding CurrentStateText}" FontWeight="Bold" />
+                <Run Text="  |  Ready: " Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                <Run Text="{Binding DashData.IsReady}" FontWeight="Bold" />
+                <Run Text="  |  LANE(s): " Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                <Run Text="{Binding DashData.Lanes.Count, Mode=OneWay}" FontWeight="Bold"
+                     Foreground="{StaticResource OpenCmisAccentBrush}" />
+                <Run Text="  |  Updated: " Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                <Run Text="{Binding DashData.StatusTimestamp, StringFormat={}{0:HH:mm:ss}}" FontWeight="Bold"
+                     Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+            </TextBlock>
+        </StackPanel>
 
-            <!-- Module Identity Card -->
-            <GroupBox Header="Module Identity" Padding="10" Margin="0,0,0,15">
-                <UniformGrid Columns="2" Rows="6">
-                    <!-- Row 1 -->
-                    <StackPanel>
-                        <TextBlock Text="Vendor Name" Style="{StaticResource IdentityLabelStyle}" />
-                        <TextBlock Text="{Binding DashData.Identity.VendorName}"
-                                   Style="{StaticResource IdentityValueStyle}" />
+        <!-- ===== Row 1: Summary Dashboard ===== -->
+        <Border Grid.Row="1" Background="{StaticResource OpenCmisSurfaceAltBrush}"
+                CornerRadius="8" Padding="8,6" Margin="0,0,0,12">
+            <WrapPanel>
+                <!-- State Card -->
+                <Border Style="{StaticResource SummaryCardStyle}" Width="140">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="MODULE STATE" FontSize="9"
+                                   Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <Ellipse Width="14" Height="14"
+                                     Fill="{Binding CurrentStateText, Converter={StaticResource ModuleStateToColorConverter}}">
+                                <Ellipse.Effect>
+                                    <DropShadowEffect Color="{Binding CurrentStateText, Converter={StaticResource ModuleStateToColorConverter}}"
+                                                      BlurRadius="6" ShadowDepth="0" Opacity="0.7" />
+                                </Ellipse.Effect>
+                            </Ellipse>
+                            <TextBlock Text="{Binding CurrentStateText}" FontSize="16" FontWeight="Bold"
+                                       Margin="8,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
                     </StackPanel>
-                    <StackPanel>
-                        <TextBlock Text="Vendor OUI" Style="{StaticResource IdentityLabelStyle}" />
-                        <TextBlock Text="{Binding DashData.Identity.VendorOUI}"
-                                   Style="{StaticResource IdentityValueStyle}" />
-                    </StackPanel>
-                    <!-- Row 2 -->
-                    <StackPanel>
-                        <TextBlock Text="Part Number" Style="{StaticResource IdentityLabelStyle}" />
-                        <TextBlock Text="{Binding DashData.Identity.PartNumber}"
-                                   Style="{StaticResource IdentityValueStyle}" />
-                    </StackPanel>
-                    <StackPanel>
-                        <TextBlock Text="Serial Number" Style="{StaticResource IdentityLabelStyle}" />
-                        <TextBlock Text="{Binding DashData.Identity.SerialNumber}"
-                                   Style="{StaticResource IdentityValueStyle}" />
-                    </StackPanel>
-                    <!-- Row 3 -->
-                    <StackPanel>
-                        <TextBlock Text="Hardware Revision" Style="{StaticResource IdentityLabelStyle}" />
-                        <TextBlock Text="{Binding DashData.Identity.HardwareRevision}"
-                                   Style="{StaticResource IdentityValueStyle}" />
-                    </StackPanel>
-                    <StackPanel>
-                        <TextBlock Text="Firmware Revision" Style="{StaticResource IdentityLabelStyle}" />
-                        <TextBlock Text="{Binding DashData.Identity.FirmwareRevision}"
-                                   Style="{StaticResource IdentityValueStyle}" />
-                    </StackPanel>
-                    <!-- Row 4 -->
-                    <StackPanel>
-                        <TextBlock Text="Date Code" Style="{StaticResource IdentityLabelStyle}" />
-                        <TextBlock Text="{Binding DashData.Identity.DateCode}"
-                                   Style="{StaticResource IdentityValueStyle}" />
-                    </StackPanel>
-                    <StackPanel>
-                        <TextBlock Text="Module Type" Style="{StaticResource IdentityLabelStyle}" />
-                        <TextBlock Text="{Binding DashData.Identity.ModuleType}"
-                                   Style="{StaticResource IdentityValueStyle}" />
-                    </StackPanel>
-                    <!-- Row 5 -->
-                    <StackPanel>
-                        <TextBlock Text="Connector Type" Style="{StaticResource IdentityLabelStyle}" />
-                        <TextBlock Text="{Binding DashData.Identity.ConnectorType}"
-                                   Style="{StaticResource IdentityValueStyle}" />
-                    </StackPanel>
-                    <StackPanel>
-                        <TextBlock Text="CMIS Version" Style="{StaticResource IdentityLabelStyle}" />
-                        <TextBlock Text="{Binding DashData.Identity.CmisVersion}"
-                                   Style="{StaticResource IdentityValueStyle}" />
-                    </StackPanel>
-                    <!-- Row 6 -->
-                    <StackPanel>
-                        <TextBlock Text="CLEI Code" Style="{StaticResource IdentityLabelStyle}" />
-                        <TextBlock Text="{Binding DashData.Identity.CLEICode}"
-                                   Style="{StaticResource IdentityValueStyle}" />
-                    </StackPanel>
-                    <StackPanel />
-                </UniformGrid>
-            </GroupBox>
+                </Border>
 
-            <!-- Real-Time Monitor Gauges -->
-            <GroupBox Header="Real-Time Monitors" Padding="10" Margin="0,0,0,15">
-                <WrapPanel>
-                    <!-- Temperature -->
-                    <Border Style="{StaticResource GaugeCardBorderStyle}">
-                        <Border.BorderBrush>
-                            <Binding Path="DashData.Monitors.Temperature"
-                                     Converter="{StaticResource MonitorValueToColorConverter}" />
-                        </Border.BorderBrush>
-                        <Border.BorderThickness>
-                            <Binding Path="DashData.Monitors.Temperature.HasAlarm" FallbackValue="1">
-                                <Binding.Converter>
-                                    <converters:BoolToVisibilityConverter />
-                                </Binding.Converter>
-                            </Binding>
-                        </Border.BorderThickness>
+                <!-- Temperature Card -->
+                <Border Style="{StaticResource SummaryCardStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="TEMPERATURE" FontSize="10"
+                            <TextBlock Text="TEMPERATURE" FontSize="9"
                                        Foreground="{StaticResource OpenCmisMutedTextBrush}" />
-                            <TextBlock FontSize="24" FontWeight="Bold" Margin="0,4,0,0">
-                                <Run Text="{Binding DashData.Monitors.Temperature.Value, StringFormat=F2}" />
-                                <Run Text=" " FontSize="14" />
-                                <Run Text="{Binding DashData.Monitors.Temperature.Unit}" FontSize="14"
+                            <TextBlock FontSize="18" FontWeight="Bold" Margin="0,2,0,0">
+                                <Run Text="{Binding DashData.Monitors.Temperature.Value, StringFormat=F1}" />
+                                <Run Text=" " FontSize="11" />
+                                <Run Text="{Binding DashData.Monitors.Temperature.Unit}" FontSize="11"
                                      Foreground="{StaticResource OpenCmisMutedTextBrush}" />
                             </TextBlock>
-                            <TextBlock FontSize="11" Margin="0,2,0,0"
-                                       Foreground="{Binding DashData.Monitors.Temperature, Converter={StaticResource MonitorValueToColorConverter}}">
-                                <Run Text="{Binding DashData.Monitors.Temperature.StatusText, Mode=OneWay}" />
-                            </TextBlock>
-                            <!-- Threshold Range Bar -->
-                            <Grid Height="8" Margin="0,4,0,0">
-                                <Rectangle Fill="{StaticResource OpenCmisInputBackgroundBrush}" RadiusX="4" RadiusY="4" />
-                                <Rectangle HorizontalAlignment="Left" RadiusX="4" RadiusY="4"
+                            <!-- Mini threshold bar -->
+                            <Grid Height="4" Margin="0,6,0,0">
+                                <Rectangle Fill="{StaticResource OpenCmisInputBackgroundBrush}" RadiusX="2" RadiusY="2" />
+                                <Rectangle HorizontalAlignment="Left" RadiusX="2" RadiusY="2"
                                            Fill="{Binding DashData.Monitors.Temperature, Converter={StaticResource MonitorValueToColorConverter}}">
                                     <Rectangle.Width>
                                         <Binding Path="DashData.Monitors.Temperature"
                                                  Converter="{StaticResource ThresholdWidthConverter}"
-                                                 ConverterParameter="176" />
+                                                 ConverterParameter="110" />
                                     </Rectangle.Width>
                                 </Rectangle>
                             </Grid>
-                            <!-- Threshold Values -->
-                            <Grid Margin="0,3,0,0">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-                                <TextBlock FontSize="9" Foreground="{StaticResource OpenCmisMutedTextBrush}">
-                                    <Run Text="ALM H:" />
-                                    <Run Text="{Binding DashData.Monitors.Temperature.AlarmHigh, StringFormat=F1}"
-                                         Foreground="{StaticResource OpenCmisDangerBrush}" />
-                                    <Run Text="  WRN H:" />
-                                    <Run Text="{Binding DashData.Monitors.Temperature.WarnHigh, StringFormat=F1}"
-                                         Foreground="{StaticResource OpenCmisWarningBrush}" />
-                                </TextBlock>
-                                <TextBlock Grid.Row="1" FontSize="9"
-                                           Foreground="{StaticResource OpenCmisMutedTextBrush}">
-                                    <Run Text="WRN L:" />
-                                    <Run Text="{Binding DashData.Monitors.Temperature.WarnLow, StringFormat=F1}"
-                                         Foreground="{StaticResource OpenCmisWarningBrush}" />
-                                    <Run Text="  ALM L:" />
-                                    <Run Text="{Binding DashData.Monitors.Temperature.AlarmLow, StringFormat=F1}"
-                                         Foreground="{StaticResource OpenCmisDangerBrush}" />
-                                </TextBlock>
-                            </Grid>
                         </StackPanel>
-                    </Border>
+                        <Ellipse Grid.Column="1" Width="10" Height="10" VerticalAlignment="Center" Margin="6,0,0,0"
+                                 Fill="{Binding DashData.Monitors.Temperature, Converter={StaticResource MonitorValueToColorConverter}}">
+                            <Ellipse.Effect>
+                                <DropShadowEffect Color="{Binding DashData.Monitors.Temperature, Converter={StaticResource MonitorValueToColorConverter}}"
+                                                  BlurRadius="5" ShadowDepth="0" Opacity="0.6" />
+                            </Ellipse.Effect>
+                        </Ellipse>
+                    </Grid>
+                </Border>
 
-                    <!-- VCC -->
-                    <Border Style="{StaticResource GaugeCardBorderStyle}"
-                            BorderBrush="{Binding DashData.Monitors.VCC, Converter={StaticResource MonitorValueToColorConverter}}"
-                            BorderThickness="1">
+                <!-- VCC Card -->
+                <Border Style="{StaticResource SummaryCardStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="SUPPLY VOLTAGE" FontSize="10"
+                            <TextBlock Text="SUPPLY VOLTAGE" FontSize="9"
                                        Foreground="{StaticResource OpenCmisMutedTextBrush}" />
-                            <TextBlock FontSize="24" FontWeight="Bold" Margin="0,4,0,0">
+                            <TextBlock FontSize="18" FontWeight="Bold" Margin="0,2,0,0">
                                 <Run Text="{Binding DashData.Monitors.VCC.Value, StringFormat=F3}" />
-                                <Run Text=" " FontSize="14" />
-                                <Run Text="{Binding DashData.Monitors.VCC.Unit}" FontSize="14"
+                                <Run Text=" " FontSize="11" />
+                                <Run Text="{Binding DashData.Monitors.VCC.Unit}" FontSize="11"
                                      Foreground="{StaticResource OpenCmisMutedTextBrush}" />
                             </TextBlock>
-                            <TextBlock FontSize="11" Margin="0,2,0,0"
-                                       Foreground="{Binding DashData.Monitors.VCC, Converter={StaticResource MonitorValueToColorConverter}}">
-                                <Run Text="{Binding DashData.Monitors.VCC.StatusText, Mode=OneWay}" />
-                            </TextBlock>
-                            <!-- Threshold Range Bar -->
-                            <Grid Height="8" Margin="0,4,0,0">
-                                <Rectangle Fill="{StaticResource OpenCmisInputBackgroundBrush}" RadiusX="4" RadiusY="4" />
-                                <Rectangle HorizontalAlignment="Left" RadiusX="4" RadiusY="4"
+                            <!-- Mini threshold bar -->
+                            <Grid Height="4" Margin="0,6,0,0">
+                                <Rectangle Fill="{StaticResource OpenCmisInputBackgroundBrush}" RadiusX="2" RadiusY="2" />
+                                <Rectangle HorizontalAlignment="Left" RadiusX="2" RadiusY="2"
                                            Fill="{Binding DashData.Monitors.VCC, Converter={StaticResource MonitorValueToColorConverter}}">
                                     <Rectangle.Width>
                                         <Binding Path="DashData.Monitors.VCC"
                                                  Converter="{StaticResource ThresholdWidthConverter}"
-                                                 ConverterParameter="176" />
+                                                 ConverterParameter="110" />
                                     </Rectangle.Width>
                                 </Rectangle>
                             </Grid>
-                            <!-- Threshold Values (no low warning per CMIS 5.2) -->
-                            <Grid Margin="0,3,0,0">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-                                <TextBlock FontSize="9" Foreground="{StaticResource OpenCmisMutedTextBrush}">
-                                    <Run Text="ALM H:" />
-                                    <Run Text="{Binding DashData.Monitors.VCC.AlarmHigh, StringFormat=F3}"
-                                         Foreground="{StaticResource OpenCmisDangerBrush}" />
-                                    <Run Text="  WRN H:" />
-                                    <Run Text="{Binding DashData.Monitors.VCC.WarnHigh, StringFormat=F3}"
-                                         Foreground="{StaticResource OpenCmisWarningBrush}" />
-                                </TextBlock>
-                                <TextBlock Grid.Row="1" FontSize="9"
-                                           Foreground="{StaticResource OpenCmisMutedTextBrush}">
-                                    <Run Text="ALM L:" />
-                                    <Run Text="{Binding DashData.Monitors.VCC.AlarmLow, StringFormat=F3}"
-                                         Foreground="{StaticResource OpenCmisDangerBrush}" />
-                                    <Run Text="  (no low warn)" FontStyle="Italic" />
-                                </TextBlock>
-                            </Grid>
                         </StackPanel>
-                    </Border>
+                        <Ellipse Grid.Column="1" Width="10" Height="10" VerticalAlignment="Center" Margin="6,0,0,0"
+                                 Fill="{Binding DashData.Monitors.VCC, Converter={StaticResource MonitorValueToColorConverter}}">
+                            <Ellipse.Effect>
+                                <DropShadowEffect Color="{Binding DashData.Monitors.VCC, Converter={StaticResource MonitorValueToColorConverter}}"
+                                                  BlurRadius="5" ShadowDepth="0" Opacity="0.6" />
+                            </Ellipse.Effect>
+                        </Ellipse>
+                    </Grid>
+                </Border>
 
-                    <!-- TX Power Total -->
-                    <Border Style="{StaticResource GaugeCardBorderStyle}" BorderThickness="1"
-                            BorderBrush="{StaticResource OpenCmisBorderBrush}">
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="TX POWER TOTAL" FontSize="10"
-                                       Foreground="{StaticResource OpenCmisMutedTextBrush}" />
-                            <TextBlock FontSize="24" FontWeight="Bold" Margin="0,4,0,0">
-                                <Run Text="{Binding DashData.Monitors.TotalTxPower, StringFormat=F3}" />
-                                <Run Text=" mW" FontSize="14" Foreground="{StaticResource OpenCmisMutedTextBrush}" />
-                            </TextBlock>
-                            <TextBlock Text="AGGREGATE" FontSize="11"
-                                       Foreground="{StaticResource OpenCmisMutedTextBrush}" Margin="0,2,0,0" />
-                        </StackPanel>
-                    </Border>
-
-                    <!-- RX Power Total -->
-                    <Border Style="{StaticResource GaugeCardBorderStyle}" BorderThickness="1"
-                            BorderBrush="{StaticResource OpenCmisBorderBrush}">
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="RX POWER TOTAL" FontSize="10"
-                                       Foreground="{StaticResource OpenCmisMutedTextBrush}" />
-                            <TextBlock FontSize="24" FontWeight="Bold" Margin="0,4,0,0">
-                                <Run Text="{Binding DashData.Monitors.TotalRxPower, StringFormat=F3}" />
-                                <Run Text=" mW" FontSize="14" Foreground="{StaticResource OpenCmisMutedTextBrush}" />
-                            </TextBlock>
-                            <TextBlock Text="AGGREGATE" FontSize="11"
-                                       Foreground="{StaticResource OpenCmisMutedTextBrush}" Margin="0,2,0,0" />
-                        </StackPanel>
-                    </Border>
-
-                    <!-- TX Bias Max -->
-                    <Border Style="{StaticResource GaugeCardBorderStyle}" BorderThickness="1"
-                            BorderBrush="{StaticResource OpenCmisBorderBrush}">
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="TX BIAS MAX" FontSize="10"
-                                       Foreground="{StaticResource OpenCmisMutedTextBrush}" />
-                            <TextBlock FontSize="24" FontWeight="Bold" Margin="0,4,0,0">
-                                <Run Text="{Binding DashData.Monitors.MaxTxBias, StringFormat=F2}" />
-                                <Run Text=" mA" FontSize="14" Foreground="{StaticResource OpenCmisMutedTextBrush}" />
-                            </TextBlock>
-                            <TextBlock Text="MAX ACROSS LANES" FontSize="11"
-                                       Foreground="{StaticResource OpenCmisMutedTextBrush}" Margin="0,2,0,0" />
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Summary -->
-                    <Border Style="{StaticResource GaugeCardBorderStyle}" BorderThickness="1"
-                            BorderBrush="{StaticResource OpenCmisBorderBrush}">
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="STATUS" FontSize="10" Foreground="{StaticResource OpenCmisMutedTextBrush}" />
-                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                <Ellipse Width="14" Height="14"
-                                         Fill="{Binding DashData.CurrentState, Converter={StaticResource ModuleStateToColorConverter}}" />
-                                <TextBlock Text="{Binding DashData.CurrentState}" FontSize="16" FontWeight="Bold"
-                                           Margin="8,0,0,0" VerticalAlignment="Center" />
-                            </StackPanel>
-                            <TextBlock FontSize="11" Margin="0,4,0,0"
-                                       Foreground="{StaticResource OpenCmisMutedTextBrush}">
-                                <Run Text="{Binding DashData.Lanes.Count, Mode=OneWay, StringFormat={}{0} lanes}" />
-                            </TextBlock>
-                        </StackPanel>
-                    </Border>
-                </WrapPanel>
-            </GroupBox>
-
-            <!-- Interrupt Flags -->
-            <GroupBox Header="Interrupt Flags" Padding="10" Margin="0,0,0,15">
-                <ItemsControl ItemsSource="{Binding InterruptFlagItems}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border CornerRadius="4" Padding="8,4" MinWidth="80" Margin="3">
-                                <Border.Style>
-                                    <Style TargetType="Border">
-                                        <Setter Property="Background" Value="{StaticResource OpenCmisInputBackgroundBrush}" />
+                <!-- Alerts Badge -->
+                <Border Style="{StaticResource SummaryCardStyle}" Width="120">
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <TextBlock Text="ALERTS" FontSize="9"
+                                   Foreground="{StaticResource OpenCmisMutedTextBrush}"
+                                   HorizontalAlignment="Center" />
+                        <Border CornerRadius="12" Padding="8,2" Margin="0,6,0,0"
+                                HorizontalAlignment="Center" MinWidth="36">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="{StaticResource OpenCmisInputBackgroundBrush}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasAlerts}" Value="True">
+                                            <Setter Property="Background" Value="{StaticResource OpenCmisDangerBrush}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock HorizontalAlignment="Center" FontSize="16" FontWeight="Bold">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                                <Setter Property="Background" Value="{StaticResource OpenCmisDangerBrush}" />
+                                            <DataTrigger Binding="{Binding HasAlerts}" Value="True">
+                                                <Setter Property="Foreground" Value="{StaticResource OpenCmisTextBrush}" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
-                                </Border.Style>
-                                <TextBlock>
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
-                                            <Setter Property="FontSize" Value="11" />
+                                </TextBlock.Style>
+                                <Run Text="{Binding ActiveAlerts.Count, Mode=OneWay}" />
+                            </TextBlock>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- Interrupts Badge -->
+                <Border Style="{StaticResource SummaryCardStyle}" Width="120">
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <TextBlock Text="INTERRUPTS" FontSize="9"
+                                   Foreground="{StaticResource OpenCmisMutedTextBrush}"
+                                   HorizontalAlignment="Center" />
+                        <Border CornerRadius="12" Padding="8,2" Margin="0,6,0,0"
+                                HorizontalAlignment="Center" MinWidth="36">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="{StaticResource OpenCmisDangerBrush}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ActiveInterruptCount}" Value="0">
+                                            <Setter Property="Background" Value="{StaticResource OpenCmisInputBackgroundBrush}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock HorizontalAlignment="Center" FontSize="16" FontWeight="Bold">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{StaticResource OpenCmisTextBrush}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ActiveInterruptCount}" Value="0">
+                                                <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                                <Run Text="{Binding ActiveInterruptCount, Mode=OneWay}" />
+                            </TextBlock>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </WrapPanel>
+        </Border>
+
+        <!-- ===== Row 2: Main Content ===== -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- ===== Left: Identity Property Panel ===== -->
+            <Border Grid.Column="0" Width="250"
+                    Background="{StaticResource OpenCmisSidebarBrush}"
+                    CornerRadius="6" Padding="0" Margin="0,0,8,0"
+                    Visibility="{Binding IsIdentityPanelVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Identity Header -->
+                    <Border Grid.Row="0" Padding="10,8"
+                            BorderBrush="{StaticResource OpenCmisBorderBrush}"
+                            BorderThickness="0,0,0,1">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                       Text="&#xE946;" VerticalAlignment="Center"
+                                       Foreground="{StaticResource OpenCmisAccentBrush}" Margin="0,0,6,0" />
+                            <TextBlock Text="PRODUCT IDENTITY" FontSize="11" FontWeight="Bold"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Identity Properties -->
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding IdentityProperties}" Margin="4">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border>
+                                        <Border.Style>
+                                            <Style TargetType="Border" BasedOn="{StaticResource IdentityRowStyle}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource PreviousData}}"
+                                                                 Value="{x:Null}">
+                                                        <Setter Property="Background"
+                                                                Value="{StaticResource OpenCmisSurfaceAltBrush}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Text="{Binding Label}"
+                                                       Style="{StaticResource IdentityLabelStyle}" />
+                                            <TextBlock Grid.Row="1" Text="{Binding Value}"
+                                                       Style="{StaticResource IdentityValueStyle}" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+
+            <!-- ===== Right: Accordion + Alerts ===== -->
+            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <dxa:AccordionControl SelectionMode="None"
+                                          BorderThickness="0"
+                                          Background="Transparent"
+                                          Margin="0,0,0,10">
+
+                        <!-- ===== Real-Time Monitors ===== -->
+                        <dxa:AccordionItem IsExpanded="True">
+                            <dxa:AccordionItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                               Text="&#xE9D2;" VerticalAlignment="Center"
+                                               Foreground="{StaticResource OpenCmisAccentBrush}" Margin="0,0,8,0" />
+                                    <TextBlock Text="Real-Time Monitors" FontWeight="Bold"
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+                            </dxa:AccordionItem.Header>
+                            <WrapPanel Margin="4,8,4,4">
+                                <!-- Temperature -->
+                                <Border>
+                                    <Border.Style>
+                                        <Style TargetType="Border" BasedOn="{StaticResource GaugeCardStyle}">
+                                            <Setter Property="BorderBrush" Value="{Binding DashData.Monitors.Temperature, Converter={StaticResource MonitorValueToColorConverter}}" />
+                                            <Setter Property="BorderThickness" Value="1" />
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                                    <Setter Property="Foreground" Value="{StaticResource OpenCmisTextBrush}" />
-                                                    <Setter Property="FontWeight" Value="Bold" />
+                                                <DataTrigger Binding="{Binding DashData.Monitors.Temperature.HasAlarm}" Value="True">
+                                                    <Setter Property="BorderBrush" Value="{StaticResource OpenCmisDangerBrush}" />
+                                                    <Setter Property="BorderThickness" Value="2" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding DashData.Monitors.Temperature.HasWarning}" Value="True">
+                                                    <Setter Property="BorderBrush" Value="{StaticResource OpenCmisWarningBrush}" />
+                                                    <Setter Property="BorderThickness" Value="2" />
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
-                                    </TextBlock.Style>
-                                    <Run Text="{Binding Name}" />
-                                </TextBlock>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </GroupBox>
+                                    </Border.Style>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="TEMPERATURE" FontSize="9"
+                                                       Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                                            <Ellipse Width="8" Height="8" Margin="6,0,0,0"
+                                                     VerticalAlignment="Center"
+                                                     Fill="{Binding DashData.Monitors.Temperature, Converter={StaticResource MonitorValueToColorConverter}}">
+                                                <Ellipse.Effect>
+                                                    <DropShadowEffect Color="{Binding DashData.Monitors.Temperature, Converter={StaticResource MonitorValueToColorConverter}}"
+                                                                      BlurRadius="5" ShadowDepth="0" Opacity="0.6" />
+                                                </Ellipse.Effect>
+                                            </Ellipse>
+                                        </StackPanel>
+                                        <StackPanel Grid.Row="1" VerticalAlignment="Center">
+                                            <TextBlock FontSize="22" FontWeight="Bold" Margin="0,4,0,0">
+                                                <Run Text="{Binding DashData.Monitors.Temperature.Value, StringFormat=F2}" />
+                                                <Run Text=" " FontSize="13" />
+                                                <Run Text="{Binding DashData.Monitors.Temperature.Unit}" FontSize="13"
+                                                     Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                                            </TextBlock>
+                                            <TextBlock FontSize="11" Margin="0,1,0,0"
+                                                       Foreground="{Binding DashData.Monitors.Temperature, Converter={StaticResource MonitorValueToColorConverter}}">
+                                                <Run Text="{Binding DashData.Monitors.Temperature.StatusText, Mode=OneWay}" />
+                                            </TextBlock>
+                                            <!-- Threshold Bar -->
+                                            <Grid Height="6" Margin="0,5,0,0">
+                                                <Rectangle Fill="{StaticResource OpenCmisInputBackgroundBrush}" RadiusX="3" RadiusY="3" />
+                                                <Rectangle HorizontalAlignment="Left" RadiusX="3" RadiusY="3"
+                                                           Fill="{Binding DashData.Monitors.Temperature, Converter={StaticResource MonitorValueToColorConverter}}">
+                                                    <Rectangle.Width>
+                                                        <Binding Path="DashData.Monitors.Temperature"
+                                                                 Converter="{StaticResource ThresholdWidthConverter}"
+                                                                 ConverterParameter="132" />
+                                                    </Rectangle.Width>
+                                                </Rectangle>
+                                            </Grid>
+                                            <!-- Threshold Values -->
+                                            <Grid Margin="0,4,0,0">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+                                                <TextBlock FontSize="8" Foreground="{StaticResource OpenCmisMutedTextBrush}">
+                                                    <Run Text="H:" />
+                                                    <Run Text="{Binding DashData.Monitors.Temperature.AlarmHigh, StringFormat=F1}"
+                                                         Foreground="{StaticResource OpenCmisDangerBrush}" />
+                                                    <Run Text=" " />
+                                                    <Run Text="{Binding DashData.Monitors.Temperature.WarnHigh, StringFormat=F1}"
+                                                         Foreground="{StaticResource OpenCmisWarningBrush}" />
+                                                </TextBlock>
+                                                <TextBlock Grid.Row="1" FontSize="8" Foreground="{StaticResource OpenCmisMutedTextBrush}">
+                                                    <Run Text="L:" />
+                                                    <Run Text="{Binding DashData.Monitors.Temperature.WarnLow, StringFormat=F1}"
+                                                         Foreground="{StaticResource OpenCmisWarningBrush}" />
+                                                    <Run Text=" " />
+                                                    <Run Text="{Binding DashData.Monitors.Temperature.AlarmLow, StringFormat=F1}"
+                                                         Foreground="{StaticResource OpenCmisDangerBrush}" />
+                                                </TextBlock>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
 
-            <!-- Lane Details Table -->
-            <GroupBox Header="Lane Details" Padding="10" Margin="0,0,0,15">
-                <dxg:GridControl ItemsSource="{Binding DashData.Lanes}"
-                                 AutoGenerateColumns="None"
-                                 MaxHeight="250">
-                    <dxg:GridControl.View>
-                        <dxg:TableView ShowGroupPanel="False"
-                                       ShowSearchPanelMode="Never"
-                                       AllowEditing="False"
-                                       AutoWidth="False" />
-                    </dxg:GridControl.View>
-                    <dxg:GridControl.Columns>
-                        <dxg:GridColumn Header="Lane" FieldName="LaneNumber" Width="50" />
-                        <dxg:GridColumn Header="TX Power (mW)" Width="120">
-                            <dxg:GridColumn.Binding>
-                                <Binding Path="TxPower" StringFormat="F4" />
-                            </dxg:GridColumn.Binding>
-                        </dxg:GridColumn>
-                        <dxg:GridColumn Header="RX Power (mW)" Width="120">
-                            <dxg:GridColumn.Binding>
-                                <Binding Path="RxPower" StringFormat="F4" />
-                            </dxg:GridColumn.Binding>
-                        </dxg:GridColumn>
-                        <dxg:GridColumn Header="TX Bias (mA)" Width="120">
-                            <dxg:GridColumn.Binding>
-                                <Binding Path="TxBias" StringFormat="F3" />
-                            </dxg:GridColumn.Binding>
-                        </dxg:GridColumn>
-                        <dxg:GridColumn Header="Enabled" FieldName="IsEnabled" Width="70" />
-                        <dxg:GridColumn Header="Status" FieldName="StatusText" Width="*"
-                                        MaxWidth="80">
-                            <dxg:GridColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Value}">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Foreground"
-                                                        Value="{StaticResource OpenCmisSuccessBrush}" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Row.HasFault}" Value="True">
-                                                        <Setter Property="Foreground"
-                                                                Value="{StaticResource OpenCmisDangerBrush}" />
-                                                        <Setter Property="FontWeight" Value="Bold" />
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding Row.IsEnabled}" Value="False">
-                                                        <Setter Property="Foreground"
-                                                                Value="{StaticResource OpenCmisMutedTextBrush}" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </DataTemplate>
-                            </dxg:GridColumn.CellTemplate>
-                        </dxg:GridColumn>
-                        <dxg:GridColumn Header="TX LOS" FieldName="TxLos" Width="55">
-                            <dxg:GridColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock>
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Text" Value="—" />
-                                                <Setter Property="Foreground"
-                                                        Value="{StaticResource OpenCmisMutedTextBrush}" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Value}" Value="True">
-                                                        <Setter Property="Text" Value="LOS" />
-                                                        <Setter Property="Foreground"
-                                                                Value="{StaticResource OpenCmisDangerBrush}" />
-                                                        <Setter Property="FontWeight" Value="Bold" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </DataTemplate>
-                            </dxg:GridColumn.CellTemplate>
-                        </dxg:GridColumn>
-                        <dxg:GridColumn Header="RX LOS" FieldName="RxLos" Width="55">
-                            <dxg:GridColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock>
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Text" Value="—" />
-                                                <Setter Property="Foreground"
-                                                        Value="{StaticResource OpenCmisMutedTextBrush}" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Value}" Value="True">
-                                                        <Setter Property="Text" Value="LOS" />
-                                                        <Setter Property="Foreground"
-                                                                Value="{StaticResource OpenCmisDangerBrush}" />
-                                                        <Setter Property="FontWeight" Value="Bold" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </DataTemplate>
-                            </dxg:GridColumn.CellTemplate>
-                        </dxg:GridColumn>
-                        <dxg:GridColumn Header="TX LOL" FieldName="TxLol" Width="55">
-                            <dxg:GridColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock>
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Text" Value="—" />
-                                                <Setter Property="Foreground"
-                                                        Value="{StaticResource OpenCmisMutedTextBrush}" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Value}" Value="True">
-                                                        <Setter Property="Text" Value="LOL" />
-                                                        <Setter Property="Foreground"
-                                                                Value="{StaticResource OpenCmisDangerBrush}" />
-                                                        <Setter Property="FontWeight" Value="Bold" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </DataTemplate>
-                            </dxg:GridColumn.CellTemplate>
-                        </dxg:GridColumn>
-                        <dxg:GridColumn Header="RX LOL" FieldName="RxLol" Width="55">
-                            <dxg:GridColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock>
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Text" Value="—" />
-                                                <Setter Property="Foreground"
-                                                        Value="{StaticResource OpenCmisMutedTextBrush}" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Value}" Value="True">
-                                                        <Setter Property="Text" Value="LOL" />
-                                                        <Setter Property="Foreground"
-                                                                Value="{StaticResource OpenCmisDangerBrush}" />
-                                                        <Setter Property="FontWeight" Value="Bold" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </DataTemplate>
-                            </dxg:GridColumn.CellTemplate>
-                        </dxg:GridColumn>
-                        <dxg:GridColumn Header="Fault" FieldName="HasFault" Width="55">
-                            <dxg:GridColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock>
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Text" Value="—" />
-                                                <Setter Property="Foreground"
-                                                        Value="{StaticResource OpenCmisMutedTextBrush}" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Value}" Value="True">
-                                                        <Setter Property="Text" Value="FAULT" />
-                                                        <Setter Property="Foreground"
-                                                                Value="{StaticResource OpenCmisDangerBrush}" />
-                                                        <Setter Property="FontWeight" Value="Bold" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </DataTemplate>
-                            </dxg:GridColumn.CellTemplate>
-                        </dxg:GridColumn>
-                    </dxg:GridControl.Columns>
-                </dxg:GridControl>
-            </GroupBox>
+                                <!-- VCC -->
+                                <Border>
+                                    <Border.Style>
+                                        <Style TargetType="Border" BasedOn="{StaticResource GaugeCardStyle}">
+                                            <Setter Property="BorderBrush" Value="{Binding DashData.Monitors.VCC, Converter={StaticResource MonitorValueToColorConverter}}" />
+                                            <Setter Property="BorderThickness" Value="1" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding DashData.Monitors.VCC.HasAlarm}" Value="True">
+                                                    <Setter Property="BorderBrush" Value="{StaticResource OpenCmisDangerBrush}" />
+                                                    <Setter Property="BorderThickness" Value="2" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding DashData.Monitors.VCC.HasWarning}" Value="True">
+                                                    <Setter Property="BorderBrush" Value="{StaticResource OpenCmisWarningBrush}" />
+                                                    <Setter Property="BorderThickness" Value="2" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="SUPPLY VOLTAGE" FontSize="9"
+                                                       Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                                            <Ellipse Width="8" Height="8" Margin="6,0,0,0"
+                                                     VerticalAlignment="Center"
+                                                     Fill="{Binding DashData.Monitors.VCC, Converter={StaticResource MonitorValueToColorConverter}}">
+                                                <Ellipse.Effect>
+                                                    <DropShadowEffect Color="{Binding DashData.Monitors.VCC, Converter={StaticResource MonitorValueToColorConverter}}"
+                                                                      BlurRadius="5" ShadowDepth="0" Opacity="0.6" />
+                                                </Ellipse.Effect>
+                                            </Ellipse>
+                                        </StackPanel>
+                                        <StackPanel Grid.Row="1" VerticalAlignment="Center">
+                                            <TextBlock FontSize="22" FontWeight="Bold" Margin="0,4,0,0">
+                                                <Run Text="{Binding DashData.Monitors.VCC.Value, StringFormat=F3}" />
+                                                <Run Text=" " FontSize="13" />
+                                                <Run Text="{Binding DashData.Monitors.VCC.Unit}" FontSize="13"
+                                                     Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                                            </TextBlock>
+                                            <TextBlock FontSize="11" Margin="0,1,0,0"
+                                                       Foreground="{Binding DashData.Monitors.VCC, Converter={StaticResource MonitorValueToColorConverter}}">
+                                                <Run Text="{Binding DashData.Monitors.VCC.StatusText, Mode=OneWay}" />
+                                            </TextBlock>
+                                            <!-- Threshold Bar -->
+                                            <Grid Height="6" Margin="0,5,0,0">
+                                                <Rectangle Fill="{StaticResource OpenCmisInputBackgroundBrush}" RadiusX="3" RadiusY="3" />
+                                                <Rectangle HorizontalAlignment="Left" RadiusX="3" RadiusY="3"
+                                                           Fill="{Binding DashData.Monitors.VCC, Converter={StaticResource MonitorValueToColorConverter}}">
+                                                    <Rectangle.Width>
+                                                        <Binding Path="DashData.Monitors.VCC"
+                                                                 Converter="{StaticResource ThresholdWidthConverter}"
+                                                                 ConverterParameter="132" />
+                                                    </Rectangle.Width>
+                                                </Rectangle>
+                                            </Grid>
+                                            <!-- Threshold Values -->
+                                            <Grid Margin="0,4,0,0">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+                                                <TextBlock FontSize="8" Foreground="{StaticResource OpenCmisMutedTextBrush}">
+                                                    <Run Text="H:" />
+                                                    <Run Text="{Binding DashData.Monitors.VCC.AlarmHigh, StringFormat=F3}"
+                                                         Foreground="{StaticResource OpenCmisDangerBrush}" />
+                                                    <Run Text=" " />
+                                                    <Run Text="{Binding DashData.Monitors.VCC.WarnHigh, StringFormat=F3}"
+                                                         Foreground="{StaticResource OpenCmisWarningBrush}" />
+                                                </TextBlock>
+                                                <TextBlock Grid.Row="1" FontSize="8" Foreground="{StaticResource OpenCmisMutedTextBrush}">
+                                                    <Run Text="L:" />
+                                                    <Run Text="{Binding DashData.Monitors.VCC.AlarmLow, StringFormat=F3}"
+                                                         Foreground="{StaticResource OpenCmisDangerBrush}" />
+                                                    <Run Text="  (no low warn)" FontStyle="Italic" />
+                                                </TextBlock>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
 
-            <!-- Active Alerts -->
-            <GroupBox Header="Active Alerts" Padding="10" Margin="0,0,0,15"
-                      Visibility="{Binding HasAlerts, Converter={StaticResource BoolToVisibilityConverter}}">
-                <ListBox ItemsSource="{Binding ActiveAlerts}"
-                         MaxHeight="150"
-                         ItemContainerStyle="{StaticResource AlertItemStyle}" />
-            </GroupBox>
+                                <!-- TX Power Total -->
+                                <Border Style="{StaticResource GaugeCardStyle}"
+                                        BorderBrush="{StaticResource OpenCmisBorderBrush}" BorderThickness="0">
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="TX POWER TOTAL" FontSize="9"
+                                                   Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                                        <TextBlock FontSize="22" FontWeight="Bold" Margin="0,6,0,0">
+                                            <Run Text="{Binding DashData.Monitors.TotalTxPower, StringFormat=F3}" />
+                                            <Run Text=" mW" FontSize="13" Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                                        </TextBlock>
+                                        <TextBlock Text="AGGREGATE" FontSize="10"
+                                                   Foreground="{StaticResource OpenCmisMutedTextBrush}" Margin="0,4,0,0" />
+                                    </StackPanel>
+                                </Border>
 
-            <!-- Controls -->
-            <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                <TextBlock Text="Refresh:" VerticalAlignment="Center" Margin="0,0,8,0"
-                           Style="{StaticResource SectionLabelStyle}" />
-                <dxe:ComboBoxEdit ItemsSource="{Binding RefreshIntervalOptions}"
-                                  EditValue="{Binding RefreshInterval}"
-                                  Width="60"
-                                  IsEnabled="{Binding IsMonitoring, Converter={StaticResource BoolInvertConverter}}" />
-                <TextBlock Text="s" VerticalAlignment="Center" Margin="2,0,12,0"
-                           Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                                <!-- RX Power Total -->
+                                <Border Style="{StaticResource GaugeCardStyle}"
+                                        BorderBrush="{StaticResource OpenCmisBorderBrush}" BorderThickness="0">
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="RX POWER TOTAL" FontSize="9"
+                                                   Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                                        <TextBlock FontSize="22" FontWeight="Bold" Margin="0,6,0,0">
+                                            <Run Text="{Binding DashData.Monitors.TotalRxPower, StringFormat=F3}" />
+                                            <Run Text=" mW" FontSize="13" Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                                        </TextBlock>
+                                        <TextBlock Text="AGGREGATE" FontSize="10"
+                                                   Foreground="{StaticResource OpenCmisMutedTextBrush}" Margin="0,4,0,0" />
+                                    </StackPanel>
+                                </Border>
 
-                <dx:SimpleButton Content="Start Monitor"
-                                 Command="{Binding StartMonitoringCommand}"
-                                 Margin="0,0,8,0"
-                                 Visibility="{Binding IsMonitoring, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" />
-                <dx:SimpleButton Content="Stop Monitor"
-                                 Command="{Binding StopMonitoringCommand}"
-                                 Visibility="{Binding IsMonitoring, Converter={StaticResource BoolToVisibilityConverter}}" />
-                <dx:SimpleButton Content="Refresh Identity"
-                                 Command="{Binding RefreshIdentityCommand}"
-                                 Margin="16,0,0,0"
-                                 Style="{StaticResource OpenCmisFlatButtonStyle}" />
-            </StackPanel>
+                                <!-- TX Bias Max -->
+                                <Border Style="{StaticResource GaugeCardStyle}"
+                                        BorderBrush="{StaticResource OpenCmisBorderBrush}" BorderThickness="0">
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="TX BIAS MAX" FontSize="9"
+                                                   Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                                        <TextBlock FontSize="22" FontWeight="Bold" Margin="0,6,0,0">
+                                            <Run Text="{Binding DashData.Monitors.MaxTxBias, StringFormat=F2}" />
+                                            <Run Text=" mA" FontSize="13" Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                                        </TextBlock>
+                                        <TextBlock Text="MAX ACROSS LANES" FontSize="10"
+                                                   Foreground="{StaticResource OpenCmisMutedTextBrush}" Margin="0,4,0,0" />
+                                    </StackPanel>
+                                </Border>
+                            </WrapPanel>
+                        </dxa:AccordionItem>
 
-            <!-- Status -->
-            <TextBlock Text="{Binding StatusText}" Style="{StaticResource StatusTextStyle}" />
+                        <!-- ===== Per-Lane Monitors ===== -->
+                        <dxa:AccordionItem IsExpanded="True">
+                            <dxa:AccordionItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                               Text="&#xE71B;" VerticalAlignment="Center"
+                                               Foreground="{StaticResource OpenCmisAccentBrush}" Margin="0,0,8,0" />
+                                    <TextBlock Text="Per-Lane Monitors" FontWeight="Bold"
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+                            </dxa:AccordionItem.Header>
+                            <ItemsControl ItemsSource="{Binding PerLaneMonitorItems}" Margin="4,8,4,4">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Style="{StaticResource LaneRowStyle}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="80" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <!-- Lane Status LED -->
+                                                <Ellipse Grid.Column="0" Width="10" Height="10"
+                                                         VerticalAlignment="Center" Margin="0,0,8,0">
+                                                    <Ellipse.Style>
+                                                        <Style TargetType="Ellipse">
+                                                            <Setter Property="Fill" Value="{StaticResource OpenCmisSuccessBrush}" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding HasFault}" Value="True">
+                                                                    <Setter Property="Fill" Value="{StaticResource OpenCmisDangerBrush}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding IsEnabled}" Value="False">
+                                                                    <Setter Property="Fill" Value="{StaticResource OpenCmisMutedTextBrush}" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Ellipse.Style>
+                                                </Ellipse>
+
+                                                <!-- Lane Label -->
+                                                <TextBlock Grid.Column="1" VerticalAlignment="Center"
+                                                           FontSize="11" FontWeight="Bold">
+                                                    <Run Text="LANE " /><Run Text="{Binding LaneNumber}" />
+                                                </TextBlock>
+
+                                                <!-- TX Power -->
+                                                <StackPanel Grid.Column="2" Orientation="Horizontal"
+                                                            VerticalAlignment="Center" Margin="8,0">
+                                                    <TextBlock Text="TX" FontSize="10" Width="20"
+                                                               Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                                                    <TextBlock FontSize="11" FontWeight="SemiBold" Width="56">
+                                                        <Run Text="{Binding TxPower, StringFormat=F2}" />
+                                                        <Run Text=" mW" FontSize="9"
+                                                             Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                                                    </TextBlock>
+                                                </StackPanel>
+
+                                                <!-- RX Power -->
+                                                <StackPanel Grid.Column="3" Orientation="Horizontal"
+                                                            VerticalAlignment="Center" Margin="8,0">
+                                                    <TextBlock Text="RX" FontSize="10" Width="20"
+                                                               Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                                                    <TextBlock FontSize="11" FontWeight="SemiBold" Width="56">
+                                                        <Run Text="{Binding RxPower, StringFormat=F2}" />
+                                                        <Run Text=" mW" FontSize="9"
+                                                             Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                                                    </TextBlock>
+                                                </StackPanel>
+
+                                                <!-- TX Bias -->
+                                                <StackPanel Grid.Column="4" Orientation="Horizontal"
+                                                            VerticalAlignment="Center" Margin="8,0">
+                                                    <TextBlock Text="Bias" FontSize="10" Width="28"
+                                                               Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                                                    <TextBlock FontSize="11" FontWeight="SemiBold" Width="56">
+                                                        <Run Text="{Binding TxBias, StringFormat=F2}" />
+                                                        <Run Text=" mA" FontSize="9"
+                                                             Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+                                                    </TextBlock>
+                                                </StackPanel>
+
+                                                <!-- Fault Flags -->
+                                                <StackPanel Grid.Column="5" Orientation="Horizontal"
+                                                            VerticalAlignment="Center">
+                                                    <Border CornerRadius="3" Padding="4,1" Margin="1,0"
+                                                            Background="{StaticResource OpenCmisDangerBrush}"
+                                                            Visibility="{Binding TxLos, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                        <TextBlock Text="TX LOS" FontSize="8" FontWeight="Bold"
+                                                                   Foreground="{StaticResource OpenCmisTextBrush}" />
+                                                    </Border>
+                                                    <Border CornerRadius="3" Padding="4,1" Margin="1,0"
+                                                            Background="{StaticResource OpenCmisDangerBrush}"
+                                                            Visibility="{Binding RxLos, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                        <TextBlock Text="RX LOS" FontSize="8" FontWeight="Bold"
+                                                                   Foreground="{StaticResource OpenCmisTextBrush}" />
+                                                    </Border>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </dxa:AccordionItem>
+
+                        <!-- ===== Interrupt Flags ===== -->
+                        <dxa:AccordionItem IsExpanded="True">
+                            <dxa:AccordionItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                               Text="&#xE7BA;" VerticalAlignment="Center"
+                                               Foreground="{StaticResource OpenCmisAccentBrush}" Margin="0,0,8,0" />
+                                    <TextBlock Text="Interrupt Flags" FontWeight="Bold"
+                                               VerticalAlignment="Center" />
+                                    <TextBlock Margin="8,0,0,0" VerticalAlignment="Center" FontSize="10"
+                                               Foreground="{StaticResource OpenCmisMutedTextBrush}">
+                                        <Run Text="(" />
+                                        <Run Text="{Binding ActiveInterruptCount, Mode=OneWay}"
+                                             Foreground="{StaticResource OpenCmisDangerBrush}" FontWeight="Bold" />
+                                        <Run Text=" active)" />
+                                    </TextBlock>
+                                </StackPanel>
+                            </dxa:AccordionItem.Header>
+                            <ItemsControl ItemsSource="{Binding InterruptFlagItems}" Margin="4,8,4,4">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <UniformGrid Columns="4" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border>
+                                            <Border.Style>
+                                                <Style TargetType="Border" BasedOn="{StaticResource InterruptChipStyle}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                            <Setter Property="Background" Value="{StaticResource OpenCmisDangerBrush}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <!-- LED -->
+                                                <Ellipse Width="8" Height="8" Margin="0,0,6,0">
+                                                    <Ellipse.Style>
+                                                        <Style TargetType="Ellipse">
+                                                            <Setter Property="Fill" Value="{StaticResource OpenCmisMutedTextBrush}" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                                    <Setter Property="Fill" Value="{StaticResource OpenCmisTextBrush}" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Ellipse.Style>
+                                                    <Ellipse.Effect>
+                                                        <DropShadowEffect Color="White" BlurRadius="6"
+                                                                          ShadowDepth="0" Opacity="0.8" />
+                                                    </Ellipse.Effect>
+                                                </Ellipse>
+                                                <!-- Label -->
+                                                <TextBlock VerticalAlignment="Center" FontSize="10">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                                    <Setter Property="Foreground" Value="{StaticResource OpenCmisTextBrush}" />
+                                                                    <Setter Property="FontWeight" Value="Bold" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                    <Run Text="{Binding Name}" />
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </dxa:AccordionItem>
+
+                        <!-- ===== Lane Details Table ===== -->
+                        <dxa:AccordionItem IsExpanded="False">
+                            <dxa:AccordionItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                               Text="&#xE70F;" VerticalAlignment="Center"
+                                               Foreground="{StaticResource OpenCmisAccentBrush}" Margin="0,0,8,0" />
+                                    <TextBlock Text="Lane Details" FontWeight="Bold"
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+                            </dxa:AccordionItem.Header>
+                            <dxg:GridControl ItemsSource="{Binding DashData.Lanes}"
+                                             AutoGenerateColumns="None"
+                                             MaxHeight="250" Margin="4,8,4,4">
+                                <dxg:GridControl.View>
+                                    <dxg:TableView ShowGroupPanel="False"
+                                                   ShowSearchPanelMode="Never"
+                                                   AllowEditing="False"
+                                                   AutoWidth="False" />
+                                </dxg:GridControl.View>
+                                <dxg:GridControl.Columns>
+                                    <!-- Status LED -->
+                                    <dxg:GridColumn Header="" Width="28" AllowResizing="False">
+                                        <dxg:GridColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Ellipse Width="8" Height="8">
+                                                    <Ellipse.Style>
+                                                        <Style TargetType="Ellipse">
+                                                            <Setter Property="Fill" Value="{StaticResource OpenCmisSuccessBrush}" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Row.HasFault}" Value="True">
+                                                                    <Setter Property="Fill" Value="{StaticResource OpenCmisDangerBrush}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Row.IsEnabled}" Value="False">
+                                                                    <Setter Property="Fill" Value="{StaticResource OpenCmisMutedTextBrush}" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Ellipse.Style>
+                                                </Ellipse>
+                                            </DataTemplate>
+                                        </dxg:GridColumn.CellTemplate>
+                                    </dxg:GridColumn>
+                                    <dxg:GridColumn Header="Lane" FieldName="LaneNumber" Width="45" />
+                                    <dxg:GridColumn Header="TX Power (mW)" Width="110">
+                                        <dxg:GridColumn.Binding>
+                                            <Binding Path="TxPower" StringFormat="F4" />
+                                        </dxg:GridColumn.Binding>
+                                    </dxg:GridColumn>
+                                    <dxg:GridColumn Header="RX Power (mW)" Width="110">
+                                        <dxg:GridColumn.Binding>
+                                            <Binding Path="RxPower" StringFormat="F4" />
+                                        </dxg:GridColumn.Binding>
+                                    </dxg:GridColumn>
+                                    <dxg:GridColumn Header="TX Bias (mA)" Width="110">
+                                        <dxg:GridColumn.Binding>
+                                            <Binding Path="TxBias" StringFormat="F3" />
+                                        </dxg:GridColumn.Binding>
+                                    </dxg:GridColumn>
+                                    <dxg:GridColumn Header="Enabled" FieldName="IsEnabled" Width="60" />
+                                    <dxg:GridColumn Header="TX LOS" FieldName="TxLos" Width="55">
+                                        <dxg:GridColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock>
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Text" Value="—" />
+                                                            <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Value}" Value="True">
+                                                                    <Setter Property="Text" Value="LOS" />
+                                                                    <Setter Property="Foreground" Value="{StaticResource OpenCmisDangerBrush}" />
+                                                                    <Setter Property="FontWeight" Value="Bold" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </dxg:GridColumn.CellTemplate>
+                                    </dxg:GridColumn>
+                                    <dxg:GridColumn Header="RX LOS" FieldName="RxLos" Width="55">
+                                        <dxg:GridColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock>
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Text" Value="—" />
+                                                            <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Value}" Value="True">
+                                                                    <Setter Property="Text" Value="LOS" />
+                                                                    <Setter Property="Foreground" Value="{StaticResource OpenCmisDangerBrush}" />
+                                                                    <Setter Property="FontWeight" Value="Bold" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </dxg:GridColumn.CellTemplate>
+                                    </dxg:GridColumn>
+                                    <dxg:GridColumn Header="TX LOL" FieldName="TxLol" Width="55">
+                                        <dxg:GridColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock>
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Text" Value="—" />
+                                                            <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Value}" Value="True">
+                                                                    <Setter Property="Text" Value="LOL" />
+                                                                    <Setter Property="Foreground" Value="{StaticResource OpenCmisDangerBrush}" />
+                                                                    <Setter Property="FontWeight" Value="Bold" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </dxg:GridColumn.CellTemplate>
+                                    </dxg:GridColumn>
+                                    <dxg:GridColumn Header="RX LOL" FieldName="RxLol" Width="55">
+                                        <dxg:GridColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock>
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Text" Value="—" />
+                                                            <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Value}" Value="True">
+                                                                    <Setter Property="Text" Value="LOL" />
+                                                                    <Setter Property="Foreground" Value="{StaticResource OpenCmisDangerBrush}" />
+                                                                    <Setter Property="FontWeight" Value="Bold" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </dxg:GridColumn.CellTemplate>
+                                    </dxg:GridColumn>
+                                    <dxg:GridColumn Header="Fault" FieldName="HasFault" Width="50">
+                                        <dxg:GridColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock>
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Text" Value="—" />
+                                                            <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Value}" Value="True">
+                                                                    <Setter Property="Text" Value="FAULT" />
+                                                                    <Setter Property="Foreground" Value="{StaticResource OpenCmisDangerBrush}" />
+                                                                    <Setter Property="FontWeight" Value="Bold" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </dxg:GridColumn.CellTemplate>
+                                    </dxg:GridColumn>
+                                </dxg:GridControl.Columns>
+                            </dxg:GridControl>
+                        </dxa:AccordionItem>
+                    </dxa:AccordionControl>
+
+                    <!-- Active Alerts (outside accordion, conditional) -->
+                    <Border Margin="0,0,0,10"
+                            Background="{StaticResource OpenCmisSurfaceBrush}"
+                            CornerRadius="6" Padding="10"
+                            Visibility="{Binding HasAlerts, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                           Text="&#xE7BA;" VerticalAlignment="Center"
+                                           Foreground="{StaticResource OpenCmisDangerBrush}" Margin="0,0,6,0" />
+                                <TextBlock Text="ACTIVE ALERTS" FontWeight="Bold" FontSize="11"
+                                           VerticalAlignment="Center"
+                                           Foreground="{StaticResource OpenCmisDangerBrush}" />
+                            </StackPanel>
+                            <ListBox Grid.Row="1" ItemsSource="{Binding ActiveAlerts}"
+                                     MaxHeight="120"
+                                     ItemContainerStyle="{StaticResource AlertItemStyle}"
+                                     Background="Transparent" BorderThickness="0" />
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- ===== Row 3: Controls ===== -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,8,0,0">
+            <TextBlock Text="Refresh:" VerticalAlignment="Center" Margin="0,0,8,0"
+                       Style="{StaticResource SectionLabelStyle}" />
+            <dxe:ComboBoxEdit ItemsSource="{Binding RefreshIntervalOptions}"
+                              EditValue="{Binding RefreshInterval}"
+                              Width="56"
+                              IsEnabled="{Binding IsMonitoring, Converter={StaticResource BoolInvertConverter}}" />
+            <TextBlock Text="s" VerticalAlignment="Center" Margin="2,0,12,0"
+                       Foreground="{StaticResource OpenCmisMutedTextBrush}" />
+
+            <dx:SimpleButton Content="Start Monitor"
+                             Command="{Binding StartMonitoringCommand}"
+                             Margin="0,0,8,0"
+                             Visibility="{Binding IsMonitoring, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" />
+            <dx:SimpleButton Content="Stop Monitor"
+                             Command="{Binding StopMonitoringCommand}"
+                             Visibility="{Binding IsMonitoring, Converter={StaticResource BoolToVisibilityConverter}}" />
+            <dx:SimpleButton Content="Refresh Identity"
+                             Command="{Binding RefreshIdentityCommand}"
+                             Margin="16,0,0,0"
+                             Style="{StaticResource OpenCmisFlatButtonStyle}" />
         </StackPanel>
-    </ScrollViewer>
+
+        <!-- ===== Row 4: Status ===== -->
+        <TextBlock Grid.Row="4" Text="{Binding StatusText}" Style="{StaticResource StatusTextStyle}" />
+    </Grid>
 </UserControl>

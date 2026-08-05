@@ -42,6 +42,18 @@ namespace OpenCMIS.UI.WPF.ViewModels
         [ObservableProperty]
         private ObservableCollection<InterruptFlagItem> _interruptFlagItems = [];
 
+        [ObservableProperty]
+        private bool _isIdentityPanelVisible = true;
+
+        [ObservableProperty]
+        private ObservableCollection<IdentityPropertyItem> _identityProperties = [];
+
+        [ObservableProperty]
+        private ObservableCollection<LaneMonitorItem> _perLaneMonitorItems = [];
+
+        [ObservableProperty]
+        private int _activeInterruptCount;
+
         public List<int> RefreshIntervalOptions { get; } = [1, 2, 5, 10];
 
         public void SetDevice(ICmisDevice? device)
@@ -71,6 +83,8 @@ namespace OpenCMIS.UI.WPF.ViewModels
                 DashData         = await _device.ReadModuleDashDataAsync();
                 CurrentStateText = DashData.CurrentState.ToString();
                 UpdateAlertsAndFlags(DashData.Status);
+                UpdateIdentityProperties();
+                UpdatePerLaneMonitors(DashData.Monitors, DashData.Lanes);
                 StatusText       = $"Last refresh: {DateTime.Now:HH:mm:ss}";
             }
             catch (Exception ex)
@@ -144,6 +158,7 @@ namespace OpenCMIS.UI.WPF.ViewModels
                                                                                  };
                                                                       CurrentStateText = modStatus.CurrentState.ToString();
                                                                       UpdateAlertsAndFlags(modStatus);
+                                                                      UpdatePerLaneMonitors(monitors, lanes);
                                                                       StatusText =
                                                                               $"Monitoring every {RefreshInterval}s — Last: {DateTime.Now:HH:mm:ss}";
                                                                   });
@@ -163,6 +178,12 @@ namespace OpenCMIS.UI.WPF.ViewModels
                 IsMonitoring = false;
                 StatusText   = "Monitoring stopped.";
             }
+        }
+
+        [RelayCommand]
+        private void ToggleIdentityPanel()
+        {
+            IsIdentityPanelVisible = !IsIdentityPanelVisible;
         }
 
         [RelayCommand]
@@ -216,8 +237,61 @@ namespace OpenCMIS.UI.WPF.ViewModels
                 new("TX Fault", status.InterruptFlags.TxFault),
                 new("RX LOS",   status.InterruptFlags.RxLOS)
             };
+            ActiveInterruptCount = InterruptFlagItems.Count(i => i.IsActive);
+        }
+
+        private void UpdateIdentityProperties()
+        {
+            if (DashData?.Identity == null)
+            {
+                IdentityProperties = [];
+                return;
+            }
+            var id = DashData.Identity;
+            IdentityProperties = new ObservableCollection<IdentityPropertyItem>
+            {
+                new("Vendor Name",      id.VendorName),
+                new("Vendor OUI",       id.VendorOUI),
+                new("Part Number",      id.PartNumber),
+                new("Serial Number",    id.SerialNumber),
+                new("Hardware Rev",     id.HardwareRevision),
+                new("Firmware Rev",     id.FirmwareRevision),
+                new("Date Code",        id.DateCode),
+                new("Module Type",      id.ModuleType),
+                new("Connector Type",   id.ConnectorType),
+                new("CMIS Version",     id.CmisVersion),
+                new("CLEI Code",        id.CLEICode),
+            };
+        }
+
+        private void UpdatePerLaneMonitors(ModuleMonitors? monitors, List<LaneStatus>? lanes)
+        {
+            if (monitors == null || lanes == null)
+            {
+                PerLaneMonitorItems = [];
+                return;
+            }
+
+            var items = new List<LaneMonitorItem>();
+            for (var i = 0; i < lanes.Count; i++)
+            {
+                var lane = lanes[i];
+                items.Add(new LaneMonitorItem(
+                    lane.LaneNumber,
+                    lane.IsEnabled,
+                    lane.HasFault,
+                    i < monitors.TxPowerPerLane.Count ? monitors.TxPowerPerLane[i].Value : 0,
+                    i < monitors.RxPowerPerLane.Count ? monitors.RxPowerPerLane[i].Value : 0,
+                    i < monitors.TxBiasPerLane.Count   ? monitors.TxBiasPerLane[i].Value   : 0,
+                    lane.TxLos,
+                    lane.RxLos
+                ));
+            }
+            PerLaneMonitorItems = new ObservableCollection<LaneMonitorItem>(items);
         }
     }
 
     public record InterruptFlagItem(string Name, bool IsActive);
+    public record IdentityPropertyItem(string Label, string Value);
+    public record LaneMonitorItem(int LaneNumber, bool IsEnabled, bool HasFault, double TxPower, double RxPower, double TxBias, bool TxLos, bool RxLos);
 }
