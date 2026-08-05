@@ -45,6 +45,11 @@ namespace OpenCMIS.Shared
         public const string CmisVersion52 = "5.2";
 
         /// <summary>
+        ///     CMIS protocol version 5.3.
+        /// </summary>
+        public const string CmisVersion53 = "5.3";
+
+        /// <summary>
         ///     Lower page address range start (0x00).
         /// </summary>
         public const byte LowerPageStart = 0x00;
@@ -176,8 +181,11 @@ namespace OpenCMIS.Shared
         /// <summary>First per-lane upper page number.</summary>
         public const byte FirstLanePage = 0x10;
 
-        /// <summary>Maximum supported lanes.</summary>
-        public const byte MaxLanes = 8;
+        /// <summary>Maximum supported lanes (CMIS 5.3 supports up to 16 lanes for 1.6T modules).</summary>
+        public const byte MaxLanes = 16;
+
+        /// <summary>Default lane count used when actual count cannot be determined.</summary>
+        public const byte DefaultLaneCount = 8;
 
         /// <summary>Per-lane TX bias monitor (2 bytes, unsigned int16, LSB=2µA).</summary>
         public const byte RegLaneTxBiasMSB = 0xA0;
