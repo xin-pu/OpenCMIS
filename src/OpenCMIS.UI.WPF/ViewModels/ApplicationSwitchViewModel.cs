@@ -6,8 +6,8 @@ using OpenCMIS.Protocol.Core;
 
 namespace OpenCMIS.UI.WPF.ViewModels
 {
-    public class ApplicationSwitchViewModel : ObservableObject
-    {
+	public partial class ApplicationSwitchViewModel : ObservableObject
+	{
         private ICmisDevice?            _device;
         private CmisApplicationFactory? _factory;
 

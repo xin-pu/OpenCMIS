@@ -23,7 +23,7 @@ namespace OpenCMIS.UI.WPF.Tests
             var session   = new DeviceSession();
             var viewModel = new DeviceConnectionViewModel(manager, session);
 
-            await viewModel.RefreshAsync();
+            await viewModel.ScanPortsAsync();
             viewModel.SelectedAdapter = viewModel.AvailableAdapters.Single();
             viewModel.SelectedDevice  = viewModel.AvailableDevices.Single();
             await viewModel.ConnectAsync();
@@ -41,7 +41,7 @@ namespace OpenCMIS.UI.WPF.Tests
             var manager   = new FakeDeviceManager(linktel, hm);
             var viewModel = new DeviceConnectionViewModel(manager, new ());
 
-            await viewModel.RefreshAsync();
+            await viewModel.ScanPortsAsync();
             viewModel.SelectedAdapter = viewModel.AvailableAdapters.Single(x => x.AdapterId == "hm");
 
             var selected = Assert.Single(viewModel.AvailableDevices);
@@ -73,7 +73,7 @@ namespace OpenCMIS.UI.WPF.Tests
             var manager   = new FakeDeviceManager(sim800g, sim1p6t);
             var viewModel = new DeviceConnectionViewModel(manager, new ());
 
-            await viewModel.RefreshAsync();
+            await viewModel.ScanPortsAsync();
             await viewModel.ConnectAsync();
 
             Assert.Same(sim800g, viewModel.SelectedDevice);
@@ -89,7 +89,7 @@ namespace OpenCMIS.UI.WPF.Tests
             var manager   = new FakeDeviceManager(com3Ch1, com8Ch3);
             var viewModel = new DeviceConnectionViewModel(manager, new ());
 
-            await viewModel.RefreshAsync();
+            await viewModel.ScanPortsAsync();
             viewModel.SelectedAdapter = viewModel.AvailableAdapters.Single();
 
             // Scan auto-selects the first device (COM3 / CH1).
@@ -111,7 +111,7 @@ namespace OpenCMIS.UI.WPF.Tests
             var manager   = new FakeDeviceManager(info) {OpenException = new IOException("open failed")};
             var session   = new DeviceSession();
             var viewModel = new DeviceConnectionViewModel(manager, session);
-            await viewModel.RefreshAsync();
+            await viewModel.ScanPortsAsync();
             viewModel.SelectedAdapter = viewModel.AvailableAdapters.Single();
             viewModel.SelectedDevice  = viewModel.AvailableDevices.Single();
 
@@ -129,7 +129,7 @@ namespace OpenCMIS.UI.WPF.Tests
             var manager   = new FakeDeviceManager(info);
             var session   = new DeviceSession();
             var viewModel = new DeviceConnectionViewModel(manager, session);
-            await viewModel.RefreshAsync();
+            await viewModel.ScanPortsAsync();
             viewModel.SelectedAdapter = viewModel.AvailableAdapters.Single();
             viewModel.SelectedDevice  = viewModel.AvailableDevices.Single();
             await viewModel.ConnectAsync();
@@ -151,7 +151,7 @@ namespace OpenCMIS.UI.WPF.Tests
                           };
             var session   = new DeviceSession();
             var viewModel = new DeviceConnectionViewModel(manager, session);
-            await viewModel.RefreshAsync();
+            await viewModel.ScanPortsAsync();
             viewModel.SelectedAdapter = viewModel.AvailableAdapters.Single();
             viewModel.SelectedDevice  = viewModel.AvailableDevices.Single();
 

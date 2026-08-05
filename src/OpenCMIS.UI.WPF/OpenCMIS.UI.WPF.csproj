@@ -15,10 +15,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="DevExpress.Mvvm" Version="25.2.4" />
-    <PackageReference Include="DevExpress.Mvvm.CodeGenerators" Version="22.1.1">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
     <PackageReference Include="DevExpress.Wpf.Accordion" Version="25.2.4" />
     <PackageReference Include="DevExpress.Wpf.Controls" Version="25.2.4" />
     <PackageReference Include="DevExpress.Wpf.Core" Version="25.2.4" />

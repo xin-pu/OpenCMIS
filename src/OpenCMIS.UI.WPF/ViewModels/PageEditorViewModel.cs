@@ -7,8 +7,8 @@ using OpenCMIS.UI.WPF.Models;
 
 namespace OpenCMIS.UI.WPF.ViewModels
 {
-    public class PageEditorViewModel : ObservableObject
-    {
+	public partial class PageEditorViewModel : ObservableObject
+	{
         private ICmisDevice?   _device;
         private MsaPageBuffer? _pageBuffer;
 
@@ -540,8 +540,8 @@ namespace OpenCMIS.UI.WPF.ViewModels
         }
     }
 
-    public class HexRowViewModel : ObservableObject
-    {
+	public partial class HexRowViewModel : ObservableObject
+	{
         [ObservableProperty]
         private string _offset = "0x00";
 
@@ -563,8 +563,8 @@ namespace OpenCMIS.UI.WPF.ViewModels
         }
     }
 
-    public class HexByteViewModel : ObservableObject
-    {
+	public partial class HexByteViewModel : ObservableObject
+	{
         private string _hex = "00";
 
         [ObservableProperty]

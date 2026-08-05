@@ -5,8 +5,8 @@ using OpenCMIS.Shared;
 
 namespace OpenCMIS.UI.WPF.ViewModels
 {
-    public class ControlPanelViewModel : ObservableObject
-    {
+	public partial class ControlPanelViewModel : ObservableObject
+	{
         private ICmisDevice? _device;
 
         [ObservableProperty]

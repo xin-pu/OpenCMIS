@@ -8,8 +8,8 @@ using OpenCMIS.Shared;
 
 namespace OpenCMIS.UI.WPF.ViewModels
 {
-    public class CdbEditorViewModel : ObservableObject
-    {
+	public partial class CdbEditorViewModel : ObservableObject
+	{
         private ICmisDevice? _device;
 
         [ObservableProperty]
@@ -99,8 +99,8 @@ namespace OpenCMIS.UI.WPF.ViewModels
         }
     }
 
-    public class CdbFieldViewModel : ObservableObject
-    {
+	public partial class CdbFieldViewModel : ObservableObject
+	{
         [ObservableProperty]
         private string _id = string.Empty;
 

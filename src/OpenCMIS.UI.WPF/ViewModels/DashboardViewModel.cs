@@ -7,8 +7,8 @@ using OpenCMIS.Protocol.Abstractions;
 
 namespace OpenCMIS.UI.WPF.ViewModels
 {
-    public class DashboardViewModel : ObservableObject
-    {
+	public partial class DashboardViewModel : ObservableObject
+	{
         private DeviceMonitor? _monitor;
         private ICmisDevice?   _device;
 

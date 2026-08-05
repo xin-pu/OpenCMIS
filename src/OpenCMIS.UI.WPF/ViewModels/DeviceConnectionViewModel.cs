@@ -1,4 +1,6 @@
 using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using OpenCMIS.Protocol.Abstractions;
 using OpenCMIS.Transport.Abstractions;
 using OpenCMIS.UI.WPF.Models;
@@ -6,42 +8,41 @@ using OpenCMIS.UI.WPF.Services;
 
 namespace OpenCMIS.UI.WPF.ViewModels
 {
-    [GenerateViewModel]
-    public class DeviceConnectionViewModel
-    {
+	public partial class DeviceConnectionViewModel : ObservableObject
+	{
         private readonly IDeviceManager            _deviceManager;
         private readonly DeviceSession             _session;
         private          IReadOnlyList<DeviceInfo> _discoveredDevices = [];
         private          bool                      _isSynchronizingSelection;
 
-        [GenerateProperty(OnChangedMethod = nameof(OnSelectedAdapterChanged))]
+        [ObservableProperty]
         private AdapterChoice? _selectedAdapter;
 
-        [GenerateProperty(OnChangedMethod = nameof(OnSelectedDeviceChanged))]
+        [ObservableProperty]
         private DeviceInfo? _selectedDevice;
 
-        [GenerateProperty(OnChangedMethod = nameof(OnSelectedPortChanged))]
+        [ObservableProperty]
         private string _selectedPort = string.Empty;
 
-        [GenerateProperty]
+        [ObservableProperty]
         private bool _isRefreshing;
 
-        [GenerateProperty]
+        [ObservableProperty]
         private bool _isScanning;
 
-        [GenerateProperty]
+        [ObservableProperty]
         private bool _isConnected;
 
-        [GenerateProperty]
+        [ObservableProperty]
         private string _statusMessage = "Ready";
 
-        [GenerateProperty]
+        [ObservableProperty]
         private string _vendorName = string.Empty;
 
-        [GenerateProperty]
+        [ObservableProperty]
         private string _partNumber = string.Empty;
 
-        [GenerateProperty]
+        [ObservableProperty]
         private string _serialNumber = string.Empty;
 
         public DeviceConnectionViewModel(IDeviceManager deviceManager,
@@ -59,8 +60,8 @@ namespace OpenCMIS.UI.WPF.ViewModels
         public ICmisDevice?                 CurrentDevice  => _session.CurrentDevice;
         public event Action<bool, string>?  ConnectionChanged;
 
-        [GenerateCommand(Name = "ScanPortsCommand")]
-        public async Task RefreshAsync()
+        [RelayCommand]
+        public async Task ScanPortsAsync()
         {
             IsRefreshing  = true;
             IsScanning    = true;
@@ -90,7 +91,7 @@ namespace OpenCMIS.UI.WPF.ViewModels
             }
         }
 
-        [GenerateCommand(Name = "ConnectCommand")]
+        [RelayCommand]
         public async Task ConnectAsync()
         {
             if (SelectedDevice is null)
@@ -127,7 +128,7 @@ namespace OpenCMIS.UI.WPF.ViewModels
             }
         }
 
-        [GenerateCommand(Name = "DisconnectCommand")]
+        [RelayCommand]
         public async Task DisconnectAsync()
         {
             var device = _session.CurrentDevice;
@@ -157,7 +158,7 @@ namespace OpenCMIS.UI.WPF.ViewModels
                 AvailableAdapters.Add(new (adapterId!, adapterId!));
         }
 
-        private void OnSelectedAdapterChanged()
+        partial void OnSelectedAdapterChanged(AdapterChoice? value)
         {
             ApplyAdapterFilter();
         }
@@ -183,12 +184,12 @@ namespace OpenCMIS.UI.WPF.ViewModels
                 SelectedDevice = AvailableDevices.FirstOrDefault();
         }
 
-        private void OnSelectedDeviceChanged()
+        partial void OnSelectedDeviceChanged(DeviceInfo? value)
         {
             if (_isSynchronizingSelection)
                 return;
 
-            var label = SelectedDevice is null ? string.Empty : GetDeviceLabel(SelectedDevice);
+            var label = value is null ? string.Empty : GetDeviceLabel(value);
             if (!string.Equals(SelectedPort, label, StringComparison.Ordinal))
             {
                 _isSynchronizingSelection = true;
@@ -203,23 +204,19 @@ namespace OpenCMIS.UI.WPF.ViewModels
             }
         }
 
-        private void OnSelectedPortChanged()
+        partial void OnSelectedPortChanged(string value)
         {
             if (_isSynchronizingSelection)
                 return;
 
-            // Note: the generated setter invokes this method without arguments,
-            // so the current (new) value must be read from the property itself.
-            // Passing a parameter would receive the OLD value and break selection.
-            var port = SelectedPort;
             if (SelectedDevice is not null
              && string.Equals(
                         GetDeviceLabel(SelectedDevice),
-                        port,
+                        value,
                         StringComparison.Ordinal))
                 return;
 
-            var device = AvailableDevices.FirstOrDefault(candidate => string.Equals(GetDeviceLabel(candidate), port, StringComparison.Ordinal));
+            var device = AvailableDevices.FirstOrDefault(candidate => string.Equals(GetDeviceLabel(candidate), value, StringComparison.Ordinal));
             if (!ReferenceEquals(SelectedDevice, device))
             {
                 _isSynchronizingSelection = true;
