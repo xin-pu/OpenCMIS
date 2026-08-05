@@ -12,7 +12,7 @@ namespace OpenCMIS.Protocol.Core
         private const byte AppSelectReg    = 0x80;
         private const byte AppSupportedReg = 0x84;
 
-        // Predefined CMIS 5.2 Applications
+        // Predefined CMIS 5.2/5.3 Applications
         private static readonly Dictionary<byte, CmisApplication> KnownApplications = new ()
                                                                                       {
                                                                                           [0x01] = new (0x01,
@@ -27,6 +27,18 @@ namespace OpenCMIS.Protocol.Core
                                                                                           [0x04] = new (0x04,
                                                                                               "Application 4",
                                                                                               "Standard application for 800G modules"),
+                                                                                          [0x05] = new (0x05,
+                                                                                              "Application 5",
+                                                                                              "Standard application for 1.6T modules (CMIS 5.3)"),
+                                                                                          [0x06] = new (0x06,
+                                                                                              "Application 6",
+                                                                                              "Co-Packaged Optics application (CMIS 5.3)"),
+                                                                                          [0x07] = new (0x07,
+                                                                                              "Application 7",
+                                                                                              "Reserved CMIS 5.3 application"),
+                                                                                          [0x08] = new (0x08,
+                                                                                              "Application 8",
+                                                                                              "Reserved CMIS 5.3 application"),
                                                                                           [0x10] = new (0x10,
                                                                                               "Custom App 1",
                                                                                               "Vendor-specific custom application 1"),
