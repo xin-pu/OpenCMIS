@@ -7,16 +7,20 @@ namespace OpenCMIS.Transport.Simulated.Tests
     public sealed class SimulatedI2cAdapterProviderTests
     {
         [Fact]
-        public async Task DiscoverAsync_returns_two_devices()
+        public async Task DiscoverAsync_returns_four_devices()
         {
             var provider    = new SimulatedI2cAdapterProvider();
             var descriptors = await provider.DiscoverAsync();
 
-            Assert.Equal(2, descriptors.Count);
+            Assert.Equal(4, descriptors.Count);
             Assert.Contains(descriptors,
                             d => d.DeviceId == "sim-800g-qsfpdd");
             Assert.Contains(descriptors,
                             d => d.DeviceId == "sim-1p6t-osfp");
+            Assert.Contains(descriptors,
+                            d => d.DeviceId == "sim-800g-qsfpdd-53");
+            Assert.Contains(descriptors,
+                            d => d.DeviceId == "sim-1p6t-osfp-53");
         }
 
         [Fact]
@@ -36,7 +40,7 @@ namespace OpenCMIS.Transport.Simulated.Tests
             var descriptors = await provider.DiscoverAsync();
             var d800g = Assert.Single(descriptors,
                                       d => d.DeviceId == "sim-800g-qsfpdd");
-            Assert.Equal("Simulated 800G CMIS Module", d800g.DisplayName);
+            Assert.Equal("Simulated 800G CMIS Module (5.2)", d800g.DisplayName);
         }
 
         [Fact]

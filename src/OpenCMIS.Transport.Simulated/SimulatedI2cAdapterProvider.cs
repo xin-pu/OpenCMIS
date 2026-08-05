@@ -15,11 +15,17 @@ namespace OpenCMIS.Transport.Simulated
             var descriptors = new List<I2cAdapterDescriptor>
                               {
                                   CreateDescriptor("sim-800g-qsfpdd",
-                                                   "Simulated 800G CMIS Module",
+                                                   "Simulated 800G CMIS Module (5.2)",
                                                    "800g-qsfpdd"),
                                   CreateDescriptor("sim-1p6t-osfp",
-                                                   "Simulated 1.6T CMIS Module",
-                                                   "1p6t-osfp")
+                                                   "Simulated 1.6T CMIS Module (5.2)",
+                                                   "1p6t-osfp"),
+                                  CreateDescriptor("sim-800g-qsfpdd-53",
+                                                   "Simulated 800G CMIS Module (5.3)",
+                                                   "800g-qsfpdd-cmis53"),
+                                  CreateDescriptor("sim-1p6t-osfp-53",
+                                                   "Simulated 1.6T CMIS Module (5.3, 16 lanes)",
+                                                   "1p6t-osfp-cmis53")
                               };
 
             return ValueTask.FromResult<IReadOnlyList<I2cAdapterDescriptor>>(

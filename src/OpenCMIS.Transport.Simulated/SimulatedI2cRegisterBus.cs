@@ -243,9 +243,11 @@ namespace OpenCMIS.Transport.Simulated
         private void PopulateIdentity(string profile)
         {
             var is1p6t    = profile.Contains("1p6t", StringComparison.OrdinalIgnoreCase);
-            var laneCount = is1p6t ? 8 : 8;                       // keep 8 lanes for both by default
+            var isCmis53  = profile.Contains("cmis53", StringComparison.OrdinalIgnoreCase);
+            var laneCount = is1p6t ? 16 : 8;
+            var revByte   = isCmis53 ? (byte) 0x53 : (byte) 0x52;
             SetByte(0, 0x00, CmisConstants.RegIdentifier,  0x18); // QSFP-DD
-            SetByte(0, 0x00, CmisConstants.RegRevision,    0x52); // CMIS 5.2
+            SetByte(0, 0x00, CmisConstants.RegRevision,     revByte); // CMIS 5.2 or 5.3
             SetByte(0, 0x00, CmisConstants.RegStatus,      0x03); // ready + dp_ready
             SetByte(0, 0x00, CmisConstants.RegModuleState, 0x03); // ModuleReady
 
@@ -310,7 +312,7 @@ namespace OpenCMIS.Transport.Simulated
             SetAscii(0, 0x01, CmisConstants.RegDateCode, 8,  "20260802");
             SetAscii(0, 0x01, CmisConstants.RegCLEICode, 10, "SIMCLEI01");
 
-            // Per-lane pages 0x10–0x17 (lanes 0–7)
+            // Per-lane pages: 0x10–0x1F (up to 16 lanes for CMIS 5.3 1.6T)
             for (var lane = 0; lane < laneCount; lane++)
             {
                 var page = (byte) (CmisConstants.FirstLanePage + lane);
