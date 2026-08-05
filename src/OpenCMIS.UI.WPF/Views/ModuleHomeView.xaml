@@ -145,7 +145,7 @@
                             </TextBlock>
                             <TextBlock FontSize="11" Margin="0,2,0,0"
                                        Foreground="{Binding DashData.Monitors.Temperature, Converter={StaticResource MonitorValueToColorConverter}}">
-                                <Run Text="{Binding DashData.Monitors.Temperature.GetStatusText}" />
+                                <Run Text="{Binding DashData.Monitors.Temperature.StatusText, Mode=OneWay}" />
                             </TextBlock>
                             <!-- Threshold Range Bar -->
                             <Grid Height="8" Margin="0,4,0,0">
@@ -201,7 +201,7 @@
                             </TextBlock>
                             <TextBlock FontSize="11" Margin="0,2,0,0"
                                        Foreground="{Binding DashData.Monitors.VCC, Converter={StaticResource MonitorValueToColorConverter}}">
-                                <Run Text="{Binding DashData.Monitors.VCC.GetStatusText}" />
+                                <Run Text="{Binding DashData.Monitors.VCC.StatusText, Mode=OneWay}" />
                             </TextBlock>
                             <!-- Threshold Range Bar -->
                             <Grid Height="8" Margin="0,4,0,0">

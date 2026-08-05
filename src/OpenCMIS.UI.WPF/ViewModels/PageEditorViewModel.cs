@@ -13,16 +13,16 @@ namespace OpenCMIS.UI.WPF.ViewModels
         private MsaPageBuffer? _pageBuffer;
 
         [ObservableProperty]
-        private string _bankNumber = "0";
+        private int _bankNumber;
 
         [ObservableProperty]
-        private string _pageNumber = "0";
+        private int _pageNumber;
 
         [ObservableProperty]
-        private string _startAddress = "80";
+        private int _startAddress = 128;
 
         [ObservableProperty]
-        private string _readLength = "128";
+        private int _readLength = 128;
 
         [ObservableProperty]
         private ObservableCollection<HexRowViewModel> _hexRows = [];
@@ -36,6 +36,12 @@ namespace OpenCMIS.UI.WPF.ViewModels
         [ObservableProperty]
         private bool _isLoaded;
 
+        [ObservableProperty]
+        private int _selectedByteAddress = -1;
+
+        [ObservableProperty]
+        private byte _selectedByteValue;
+
         public void SetDevice(ICmisDevice? device)
         {
             _device     = device;
@@ -44,6 +50,65 @@ namespace OpenCMIS.UI.WPF.ViewModels
             PageInfo      = "No data loaded";
             StatusMessage = string.Empty;
             IsLoaded      = false;
+        }
+
+        /// <summary>Selects the byte at a given address for bit-level editing.</summary>
+        public void SelectByteAt(int address)
+        {
+            if (_pageBuffer == null || (uint)address >= 256)
+                return;
+
+            SelectedByteAddress = address;
+            SelectedByteValue   = _pageBuffer.GetByte(address);
+        }
+
+        /// <summary>Syncs BitEditor changes back to the hex grid, page buffer, and writes to device.</summary>
+        partial void OnSelectedByteValueChanged(byte oldValue, byte newValue)
+        {
+            if (_pageBuffer == null || SelectedByteAddress < 0 || SelectedByteAddress >= 256)
+                return;
+
+            var address = SelectedByteAddress;
+
+            // Update page buffer
+            _pageBuffer.SetByte(address, newValue);
+
+            // Update hex grid cell
+            var rowIndex = address / 16;
+            var colIndex = address % 16;
+            if (rowIndex < HexRows.Count && colIndex < HexRows[rowIndex].Bytes.Count)
+            {
+                HexRows[rowIndex].Bytes[colIndex].Hex = $"{newValue:X2}";
+                HexRows[rowIndex].RefreshAscii();
+            }
+
+            // Immediately write to device register
+            _ = WriteSingleByteAsync(address, newValue);
+        }
+
+        private async Task WriteSingleByteAsync(int address, byte value)
+        {
+            if (_device == null) return;
+
+            try
+            {
+                if (address < 0x80)
+                {
+                    // Lower addresses go to common page (0,0)
+                    await _device.RegisterAccess.WriteByteAsync(0, (byte)address, value);
+                    StatusMessage = $"Wrote 0x{value:X2} to common[0x{address:X2}]";
+                }
+                else
+                {
+                    // Upper addresses go to selected bank/page
+                    await _device.RegisterAccess.WriteByteAsync((byte)BankNumber, (byte)address, value);
+                    StatusMessage = $"Wrote 0x{value:X2} to page {BankNumber},{PageNumber}[0x{address:X2}]";
+                }
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Write error: {ex.Message}";
+            }
         }
 
         /// <summary>
@@ -94,17 +159,8 @@ namespace OpenCMIS.UI.WPF.ViewModels
                 return;
             }
 
-            if (!TryParseHexByte(PageNumber, out var page))
-            {
-                StatusMessage = "Invalid page number.";
-                return;
-            }
-
-            if (!TryParseHexByte(BankNumber, out var bank))
-            {
-                StatusMessage = "Invalid bank number.";
-                return;
-            }
+            var page = (byte)PageNumber;
+            var bank = (byte)BankNumber;
 
             try
             {
@@ -155,17 +211,8 @@ namespace OpenCMIS.UI.WPF.ViewModels
                 return;
             }
 
-            if (!TryParseHexByte(PageNumber, out var page))
-            {
-                StatusMessage = "Invalid page number.";
-                return;
-            }
-
-            if (!TryParseHexByte(BankNumber, out var bank))
-            {
-                StatusMessage = "Invalid bank number.";
-                return;
-            }
+            var page = (byte)PageNumber;
+            var bank = (byte)BankNumber;
 
             try
             {
@@ -283,8 +330,8 @@ namespace OpenCMIS.UI.WPF.ViewModels
 
                 BuildHexRows();
                 PageInfo      = "Common Page (Bank 0, Page 0) — 256 bytes loaded";
-                BankNumber    = "0";
-                PageNumber    = "0";
+                BankNumber    = 0;
+                PageNumber    = 0;
                 StatusMessage = "Common page read successfully.";
             }
             catch (Exception ex)
@@ -384,64 +431,43 @@ namespace OpenCMIS.UI.WPF.ViewModels
         }
 
         [RelayCommand]
-        private void FillRow(HexRowViewModel row)
+        private async Task PrevPageAsync()
         {
-            if (row == null || _pageBuffer == null)
-                return;
-
-            var rowIndex = HexRows.IndexOf(row);
-            if (rowIndex < 0)
-                return;
-
-            var offset = rowIndex * 16;
-
-            foreach (var cell in row.Bytes)
-                cell.Hex = "00";
-
-            for (var col = 0; col < 16; col++)
-                _pageBuffer.SetByte(offset + col, 0x00);
-
-            row.RefreshAscii();
+            var page = PageNumber - 1;
+            var bank = BankNumber;
+            if (page < 0)
+            {
+                bank--;
+                page = 255;
+            }
+            if (bank < 0)
+            {
+                bank = 0;
+                page = 0;
+            }
+            BankNumber = bank;
+            PageNumber = page;
+            await ReadPageAsync();
         }
 
         [RelayCommand]
-        private void FillAll()
+        private async Task NextPageAsync()
         {
-            if (_pageBuffer == null)
-                return;
-
-            for (var rowIndex = 0; rowIndex < HexRows.Count; rowIndex++)
+            var page = PageNumber + 1;
+            var bank = BankNumber;
+            if (page > 255)
             {
-                var row    = HexRows[rowIndex];
-                var offset = rowIndex * 16;
-                foreach (var cell in row.Bytes)
-                    cell.Hex = "00";
-                for (var col = 0; col < 16; col++)
-                    _pageBuffer.SetByte(offset + col, 0x00);
-                row.RefreshAscii();
+                bank++;
+                page = 0;
             }
-
-            StatusMessage = "All bytes set to 00.";
-        }
-
-        [RelayCommand]
-        private void FillAllFF()
-        {
-            if (_pageBuffer == null)
-                return;
-
-            for (var rowIndex = 0; rowIndex < HexRows.Count; rowIndex++)
+            if (bank > 255)
             {
-                var row    = HexRows[rowIndex];
-                var offset = rowIndex * 16;
-                foreach (var cell in row.Bytes)
-                    cell.Hex = "FF";
-                for (var col = 0; col < 16; col++)
-                    _pageBuffer.SetByte(offset + col, 0xFF);
-                row.RefreshAscii();
+                bank = 255;
+                page = 255;
             }
-
-            StatusMessage = "All bytes set to FF.";
+            BankNumber = bank;
+            PageNumber = page;
+            await ReadPageAsync();
         }
 
         private void BuildHexRows()
@@ -504,38 +530,41 @@ namespace OpenCMIS.UI.WPF.ViewModels
         }
 
         /// <summary>
-        ///     Validates all four hex input fields (Bank, Page, StartAddress,
+        ///     Validates all four numeric input fields (Bank, Page, StartAddress,
         ///     ReadLength). Sets StatusMessage on first failure and returns
         ///     false so callers can bail out early.
         /// </summary>
         private bool ValidateHexInputs(out byte bank, out byte page, out byte start, out byte length)
         {
-            bank = page = start = length = 0;
-
-            if (!TryParseHexByte(BankNumber, out bank))
+            if (BankNumber is < 0 or > 255)
             {
-                StatusMessage = "Invalid bank number (hex 00–FF).";
+                bank = page = start = length = 0;
+                StatusMessage = "Bank must be 0–255.";
+                return false;
+            }
+            if (PageNumber is < 0 or > 255)
+            {
+                bank = page = start = length = 0;
+                StatusMessage = "Page must be 0–255.";
+                return false;
+            }
+            if (StartAddress is < 0 or > 255)
+            {
+                bank = page = start = length = 0;
+                StatusMessage = "Start address must be 0–255.";
+                return false;
+            }
+            if (ReadLength is < 1 or > 255)
+            {
+                bank = page = start = length = 0;
+                StatusMessage = "Read length must be 1–255.";
                 return false;
             }
 
-            if (!TryParseHexByte(PageNumber, out page))
-            {
-                StatusMessage = "Invalid page number (hex 00–FF).";
-                return false;
-            }
-
-            if (!TryParseHexByte(StartAddress, out start))
-            {
-                StatusMessage = "Invalid start address (hex 00–FF).";
-                return false;
-            }
-
-            if (!TryParseHexByte(ReadLength, out length))
-            {
-                StatusMessage = "Invalid read length (hex 01–FF).";
-                return false;
-            }
-
+            bank   = (byte)BankNumber;
+            page   = (byte)PageNumber;
+            start  = (byte)StartAddress;
+            length = (byte)ReadLength;
             return true;
         }
     }

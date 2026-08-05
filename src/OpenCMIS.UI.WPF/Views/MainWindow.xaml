@@ -165,7 +165,8 @@
                             Foreground="{StaticResource OpenCmisTextBrush}" />
 
             <StatusBar Grid.Row="1"
-                       Background="{StaticResource OpenCmisSidebarBrush}">
+                       Background="{StaticResource OpenCmisSidebarBrush}"
+                       Foreground="{StaticResource OpenCmisTextBrush}">
                 <StatusBar.ItemsPanel>
                     <ItemsPanelTemplate>
                         <Grid>

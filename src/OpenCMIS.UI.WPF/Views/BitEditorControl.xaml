@@ -1,0 +1,32 @@
+<UserControl x:Class="OpenCMIS.UI.WPF.Views.BitEditorControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root">
+    <Border Background="{StaticResource OpenCmisSurfaceBrush}"
+            CornerRadius="4" Padding="10,8">
+        <StackPanel>
+            <!-- Value display -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                <TextBlock Text="Bit Value:" FontWeight="Bold"
+                           Foreground="{StaticResource OpenCmisTextBrush}"
+                           VerticalAlignment="Center" Margin="0,0,6,0" />
+                <TextBlock x:Name="HexLabel" FontFamily="Consolas" FontSize="14"
+                           FontWeight="Bold"
+                           Foreground="{StaticResource OpenCmisAccentBrush}"
+                           VerticalAlignment="Center" Margin="0,0,8,0" />
+                <TextBlock x:Name="DecLabel" FontFamily="Consolas" FontSize="12"
+                           Foreground="{StaticResource OpenCmisMutedTextBrush}"
+                           VerticalAlignment="Center" />
+            </StackPanel>
+
+            <!-- Bit toggles -->
+            <ItemsControl x:Name="BitItems">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </StackPanel>
+    </Border>
+</UserControl>

@@ -33,14 +33,17 @@ namespace OpenCMIS.Protocol.Abstractions.Models
         /// <summary>Raw warning low threshold bytes (MSB first) for debug.</summary>
         public byte[] RawWarnLowBytes { get; set; } = [];
 
-        public string GetStatusText()
+        public string StatusText
         {
-            if (HasAlarm)
-                return "ALARM";
-            if (HasWarning)
-                return "WARN";
+            get
+            {
+                if (HasAlarm)
+                    return "ALARM";
+                if (HasWarning)
+                    return "WARN";
 
-            return "OK";
+                return "OK";
+            }
         }
     }
 }

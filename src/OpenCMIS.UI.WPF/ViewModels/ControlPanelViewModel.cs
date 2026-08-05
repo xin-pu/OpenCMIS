@@ -37,6 +37,33 @@ namespace OpenCMIS.UI.WPF.ViewModels
         [ObservableProperty]
         private string _regReadResult = string.Empty;
 
+        [ObservableProperty]
+        private byte _regBitsValue;
+
+        partial void OnRegBitsValueChanged(byte value)
+        {
+            RegValue = value.ToString();
+            // Immediately write to device register
+            _ = WriteBitsToDeviceAsync(value);
+        }
+
+        private async Task WriteBitsToDeviceAsync(byte value)
+        {
+            if (_device == null) return;
+
+            try
+            {
+                var page = byte.Parse(RegPage);
+                var addr = byte.Parse(RegAddress);
+                await _device.RegisterAccess.WriteByteAsync(page, addr, value);
+                RegReadResult = $"Written 0x{value:X2} to Page 0x{page:X2}, Reg 0x{addr:X2}";
+            }
+            catch (Exception ex)
+            {
+                RegReadResult = $"Error: {ex.Message}";
+            }
+        }
+
         public void SetDevice(ICmisDevice? device)
         {
             _device = device;
@@ -76,6 +103,7 @@ namespace OpenCMIS.UI.WPF.ViewModels
                 var addr  = byte.Parse(RegAddress);
                 var value = await _device.RegisterAccess.ReadByteAsync(page, addr);
                 RegReadResult = $"0x{value:X2} ({value})";
+                RegBitsValue = value;
             }
             catch (Exception ex)
             {
@@ -94,8 +122,8 @@ namespace OpenCMIS.UI.WPF.ViewModels
                 var page  = byte.Parse(RegPage);
                 var addr  = byte.Parse(RegAddress);
                 var value = byte.Parse(RegValue);
-                await _device.RegisterAccess.WriteByteAsync(page, addr, value);
-                RegReadResult = $"Written 0x{value:X2} to Page 0x{page:X2}, Reg 0x{addr:X2}";
+                await _device.RegisterAccess.WriteByteAsync(page, addr, RegBitsValue);
+                RegReadResult = $"Written 0x{RegBitsValue:X2} to Page 0x{page:X2}, Reg 0x{addr:X2}";
             }
             catch (Exception ex)
             {
