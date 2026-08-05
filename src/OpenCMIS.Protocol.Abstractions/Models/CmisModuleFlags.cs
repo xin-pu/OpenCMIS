@@ -22,6 +22,9 @@ namespace OpenCMIS.Protocol.Abstractions.Models
         /// <summary>Module state control supported.</summary>
         public bool StateControlSupported { get; init; }
 
+        /// <summary>Data path configuration supported (CMIS 5.3+).</summary>
+        public bool DataPathConfigSupported { get; init; }
+
         /// <summary>Reserved or additional capability bits in byte 0.</summary>
         public byte Byte0Reserved { get; init; }
 
@@ -42,6 +45,8 @@ namespace OpenCMIS.Protocol.Abstractions.Models
                 caps.Add("Diagnostic Monitoring");
             if (StateControlSupported)
                 caps.Add("State Control");
+            if (DataPathConfigSupported)
+                caps.Add("Data Path Config");
             return caps;
         }
     }

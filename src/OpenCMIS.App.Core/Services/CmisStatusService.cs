@@ -117,14 +117,20 @@ namespace OpenCMIS.App.Core.Services
         {
             var byte0 = rawBytes.Length > 0 ? rawBytes[0] : (byte) 0;
             var byte1 = rawBytes.Length > 1 ? rawBytes[1] : (byte) 0;
+
+            // CMIS 5.3 extends byte 0 flags: bit 3 = DataPathConfigSupported
+            var is53Plus = (rawBytes.Length > 0 && (rawBytes[0] & 0x08) != 0)
+                        || true; // Always decode extended bits for forward compatibility
+
             return new()
                    {
-                       RawBytes              = [byte0, byte1],
-                       CdbSupported          = (byte0        & 0x01) != 0,
-                       DiagMonSupported      = (byte0        & 0x02) != 0,
-                       StateControlSupported = (byte0        & 0x04) != 0,
-                       Byte0Reserved         = (byte) (byte0 & 0xF8),
-                       MaxDataRate           = byte1
+                       RawBytes                 = [byte0, byte1],
+                       CdbSupported             = (byte0        & 0x01) != 0,
+                       DiagMonSupported         = (byte0        & 0x02) != 0,
+                       StateControlSupported    = (byte0        & 0x04) != 0,
+                       DataPathConfigSupported  = (byte0        & 0x08) != 0,
+                       Byte0Reserved            = (byte) (byte0 & 0xF0),
+                       MaxDataRate              = byte1
                    };
         }
 
