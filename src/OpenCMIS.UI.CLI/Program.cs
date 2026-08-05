@@ -354,7 +354,7 @@ static async Task HandleAppAsync(IHost host, string portName, string[] args)
 
 static void PrintUsage()
 {
-    Console.WriteLine("OpenCMIS CLI - CMIS 5.2 Optical Module Control Tool");
+    Console.WriteLine("OpenCMIS CLI - CMIS 5.2/5.3 Optical Module Control Tool");
     Console.WriteLine("\nUsage:");
     Console.WriteLine("  OpenCMIS.UI.CLI <command> [port] [options]");
     Console.WriteLine("\nCommands:");
