@@ -1,25 +1,232 @@
 <UserControl x:Class="OpenCMIS.UI.WPF.Views.CdbEditorView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StackPanel>
-        <TextBlock Text="CDB Editor" Style="{StaticResource PageTitleStyle}" />
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:dx="http://schemas.devexpress.com/winfx/2008/xaml/core"
+             xmlns:dxe="http://schemas.devexpress.com/winfx/2008/xaml/editors"
+             xmlns:converters="clr-namespace:OpenCMIS.UI.WPF.Converters"
+             xmlns:vm="clr-namespace:OpenCMIS.UI.WPF.ViewModels">
 
-        <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
-            <Button Content="Read CDB" Command="{Binding ReadCdbCommand}" Margin="0,0,10,0" />
-            <Button Content="Write CDB" Command="{Binding WriteCdbCommand}" />
+    <UserControl.Resources>
+
+        <!-- Type-aware editor template selector -->
+        <converters:CdbFieldEditTemplateSelector x:Key="FieldEditTemplateSelector">
+            <converters:CdbFieldEditTemplateSelector.ByteTemplate>
+                <DataTemplate DataType="{x:Type vm:CdbEditorViewModel+CdbFieldViewModel}">
+                    <dxe:SpinEdit EditValue="{Binding ByteValue, UpdateSourceTrigger=PropertyChanged}"
+                                  MinValue="0" MaxValue="255" Increment="1"
+                                  MaskType="Numeric" Mask="N0"
+                                  Height="22" HorizontalContentAlignment="Center"
+                                  FontFamily="Consolas" FontSize="12" />
+                </DataTemplate>
+            </converters:CdbFieldEditTemplateSelector.ByteTemplate>
+
+            <converters:CdbFieldEditTemplateSelector.WordTemplate>
+                <DataTemplate DataType="{x:Type vm:CdbEditorViewModel+CdbFieldViewModel}">
+                    <TextBox Text="{Binding WordHexValue, UpdateSourceTrigger=PropertyChanged}"
+                             FontFamily="Consolas" FontSize="12"
+                             MaxLength="4"
+                             VerticalContentAlignment="Center" />
+                </DataTemplate>
+            </converters:CdbFieldEditTemplateSelector.WordTemplate>
+
+            <converters:CdbFieldEditTemplateSelector.DWordTemplate>
+                <DataTemplate DataType="{x:Type vm:CdbEditorViewModel+CdbFieldViewModel}">
+                    <TextBox Text="{Binding DwordHexValue, UpdateSourceTrigger=PropertyChanged}"
+                             FontFamily="Consolas" FontSize="12"
+                             MaxLength="8"
+                             VerticalContentAlignment="Center" />
+                </DataTemplate>
+            </converters:CdbFieldEditTemplateSelector.DWordTemplate>
+
+            <converters:CdbFieldEditTemplateSelector.StringTemplate>
+                <DataTemplate DataType="{x:Type vm:CdbEditorViewModel+CdbFieldViewModel}">
+                    <TextBox Text="{Binding StringValue, UpdateSourceTrigger=PropertyChanged}"
+                             FontFamily="Consolas" FontSize="12"
+                             VerticalContentAlignment="Center" />
+                </DataTemplate>
+            </converters:CdbFieldEditTemplateSelector.StringTemplate>
+        </converters:CdbFieldEditTemplateSelector>
+
+        <!-- Hex preview cell style -->
+        <Style x:Key="HexCellStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Consolas, Courier New" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <!-- Header label style -->
+        <Style x:Key="HeaderLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="0,0,4,0" />
+        </Style>
+
+        <Style x:Key="HeaderValueStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Consolas, Courier New" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="0,0,16,0" />
+        </Style>
+
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <!-- Title -->
+            <TextBlock Text="CDB Editor" Style="{StaticResource PageTitleStyle}" />
+
+            <!-- ── Toolbar ── -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                <dx:SimpleButton Command="{Binding ReadCdbCommand}" Margin="0,0,6,0"
+                                 Style="{StaticResource OpenCmisFlatButtonStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                   Text="&#xE896;" Margin="0,0,4,0" />
+                        <TextBlock Text="Read CDB" />
+                    </StackPanel>
+                </dx:SimpleButton>
+
+                <dx:SimpleButton Command="{Binding ValidateCdbCommand}" Margin="0,0,6,0"
+                                 Style="{StaticResource OpenCmisFlatButtonStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                   Text="&#xE783;" Margin="0,0,4,0" />
+                        <TextBlock Text="Validate" />
+                    </StackPanel>
+                </dx:SimpleButton>
+
+                <dx:SimpleButton Command="{Binding WriteCdbCommand}" Margin="0,0,12,0"
+                                 Style="{StaticResource OpenCmisFlatButtonStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                   Text="&#xE8FB;" Margin="0,0,4,0" />
+                        <TextBlock Text="Write CDB" />
+                    </StackPanel>
+                </dx:SimpleButton>
+
+                <!-- Separator -->
+                <Separator VerticalAlignment="Stretch" Margin="0,2,12,2" />
+
+                <dx:SimpleButton Command="{Binding ExportBinaryCommand}" Margin="0,0,4,0"
+                                 Style="{StaticResource OpenCmisFlatButtonStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                   Text="&#xED43;" Margin="0,0,4,0" />
+                        <TextBlock Text="Export .cdb" />
+                    </StackPanel>
+                </dx:SimpleButton>
+
+                <dx:SimpleButton Command="{Binding ExportJsonCommand}" Margin="0,0,12,0"
+                                 Style="{StaticResource OpenCmisFlatButtonStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                   Text="&#xEC92;" Margin="0,0,4,0" />
+                        <TextBlock Text="Export .json" />
+                    </StackPanel>
+                </dx:SimpleButton>
+
+                <dx:SimpleButton Command="{Binding ImportFileCommand}"
+                                 Style="{StaticResource OpenCmisFlatButtonStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                   Text="&#xE8E5;" Margin="0,0,4,0" />
+                        <TextBlock Text="Import" />
+                    </StackPanel>
+                </dx:SimpleButton>
+            </StackPanel>
+
+            <!-- ── Header GroupBox ── -->
+            <GroupBox Header="CDB Header" Padding="10" Margin="0,0,0,12">
+                <StackPanel>
+                    <!-- Row 1: Version / Flags -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                        <TextBlock Text="Version:" Style="{StaticResource HeaderLabelStyle}" />
+                        <TextBlock Text="{Binding CdbVersion}" Style="{StaticResource HeaderValueStyle}" />
+                        <TextBlock Text="Flags:" Style="{StaticResource HeaderLabelStyle}" />
+                        <TextBlock Text="{Binding CdbFlags}" Style="{StaticResource HeaderValueStyle}" />
+                    </StackPanel>
+                    <!-- Row 2: Total Length / Field Count -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                        <TextBlock Text="Total Length:" Style="{StaticResource HeaderLabelStyle}" />
+                        <TextBlock Text="{Binding CdbTotalLength}" Style="{StaticResource HeaderValueStyle}" />
+                        <TextBlock Text="Field Count:" Style="{StaticResource HeaderLabelStyle}" />
+                        <TextBlock Text="{Binding CdbFieldCount}" Style="{StaticResource HeaderValueStyle}" />
+                    </StackPanel>
+                    <!-- Row 3: Checksum -->
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Checksum Stored:" Style="{StaticResource HeaderLabelStyle}" />
+                        <TextBlock Text="{Binding CdbChecksumStored}"
+                                   Style="{StaticResource HeaderValueStyle}"
+                                   Foreground="{StaticResource OpenCmisAccentBrush}" />
+                        <TextBlock Text="Computed:" Style="{StaticResource HeaderLabelStyle}" />
+                        <TextBlock Text="{Binding CdbChecksumComputed}"
+                                   Style="{StaticResource HeaderValueStyle}"
+                                   Foreground="{StaticResource OpenCmisAccentBrush}" />
+                        <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                   Text="{Binding ChecksumStatusIcon}"
+                                   VerticalAlignment="Center" Margin="4,0,4,0">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsChecksumValid}" Value="True">
+                                            <Setter Property="Foreground" Value="#FF4CAF50" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsChecksumValid}" Value="False">
+                                            <Setter Property="Foreground" Value="#FFE53935" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+                </StackPanel>
+            </GroupBox>
+
+            <!-- ── DataGrid ── -->
+            <TextBlock Text="{Binding CdbInfo}" FontWeight="Bold" Margin="0,0,0,8" />
+
+            <DataGrid ItemsSource="{Binding Fields}" AutoGenerateColumns="False"
+                      CanUserAddRows="False" MaxHeight="400"
+                      Background="{StaticResource OpenCmisSurfaceAltBrush}"
+                      RowBackground="{StaticResource OpenCmisSurfaceAltBrush}"
+                      AlternatingRowBackground="{StaticResource OpenCmisSurfaceAltBrush}"
+                      Foreground="{StaticResource OpenCmisTextBrush}"
+                      BorderBrush="{StaticResource OpenCmisBorderBrush}"
+                      GridLinesVisibility="Horizontal"
+                      HeadersVisibility="Column">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="ID" Binding="{Binding Id}"
+                                        Width="140" IsReadOnly="True" />
+                    <DataGridTextColumn Header="Type" Binding="{Binding TypeName}"
+                                        Width="65" IsReadOnly="True" />
+                    <DataGridTemplateColumn Header="Value" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate DataType="{x:Type vm:CdbEditorViewModel+CdbFieldViewModel}">
+                                <TextBlock Text="{Binding ValueDisplay}" VerticalAlignment="Center"
+                                           FontFamily="Consolas, Courier New" FontSize="12" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                        <DataGridTemplateColumn.CellEditingTemplate>
+                            <DataTemplate DataType="{x:Type vm:CdbEditorViewModel+CdbFieldViewModel}">
+                                <ContentControl Content="{Binding}"
+                                                ContentTemplateSelector="{StaticResource FieldEditTemplateSelector}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellEditingTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Hex" Width="*" IsReadOnly="True">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate DataType="{x:Type vm:CdbEditorViewModel+CdbFieldViewModel}">
+                                <TextBlock Text="{Binding HexPreview}" Style="{StaticResource HexCellStyle}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <TextBlock Text="{Binding StatusMessage}" Style="{StaticResource StatusTextStyle}" />
+
         </StackPanel>
-
-        <TextBlock Text="{Binding CdbInfo}" FontWeight="Bold" Margin="0,0,0,10" />
-
-        <DataGrid ItemsSource="{Binding Fields}" AutoGenerateColumns="False"
-                  CanUserAddRows="False" MaxHeight="400">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="150" />
-                <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="80" />
-                <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="*" />
-            </DataGrid.Columns>
-        </DataGrid>
-
-        <TextBlock Text="{Binding StatusMessage}" Style="{StaticResource StatusTextStyle}" />
-    </StackPanel>
+    </ScrollViewer>
 </UserControl>

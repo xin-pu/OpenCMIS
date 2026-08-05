@@ -8,7 +8,7 @@ namespace OpenCMIS.CDB.Core
     /// </summary>
     public class CdbValidator : ICdbValidator
     {
-        private const int MaxCdbSize          = 2048;
+        private const int MaxCdbSize          = 4096;
         private const int MinCdbSize          = 10;
         private const int MaxFieldIdLength    = 64;
         private const int MaxFieldValueLength = 256;

@@ -111,7 +111,7 @@ namespace OpenCMIS.CDB.Core
             return result;
         }
 
-        private static byte[] SerializeCdb(ConfigurationDataBlock cdb)
+        public static byte[] SerializeCdb(ConfigurationDataBlock cdb)
         {
             var fields = new List<byte>();
 
