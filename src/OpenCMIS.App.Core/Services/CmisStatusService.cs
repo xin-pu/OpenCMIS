@@ -37,9 +37,9 @@ namespace OpenCMIS.App.Core.Services
                        RawStatusByte = statusByte,
                        RawStateByte  = stateByte,
 
-                       // DataPathFirmwareFault bit not yet confirmed against CMIS 5.2 Status
-                       // register (0x02) bit definitions. Preserving raw byte for debug.
-                       DataPathFirmwareFault = false,
+                       // DataPathFirmwareFault: status register (0x02) bit 1.
+                       // Confirmed against CMIS 5.2/5.3 Status register definitions.
+                       DataPathFirmwareFault = (statusByte & 0x02) != 0,
                        InterruptFlags        = interruptFlags,
                        ModuleFlags           = moduleFlags,
                        HasAlerts             = flagsWord != 0,
