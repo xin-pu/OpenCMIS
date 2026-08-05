@@ -37,11 +37,12 @@ namespace OpenCMIS.App.Core.Services
 
             return new()
                    {
-                       VendorName   = ReadAscii(vendor),
-                       PartNumber   = ReadAscii(part),
-                       SerialNumber = ReadAscii(serial),
-                       ModuleType   = GetModuleTypeName(identifier),
-                       CmisVersion  = $"{revision >> 4}.{revision & 0x0F}",
+                       VendorName      = ReadAscii(vendor),
+                       PartNumber      = ReadAscii(part),
+                       SerialNumber    = ReadAscii(serial),
+                       ModuleType      = GetModuleTypeName(identifier),
+                       CmisVersion     = $"{revision >> 4}.{revision & 0x0F}",
+                       RawRevisionByte = revision,
                        Capabilities = new()
                                       {
                                           SupportsCdb                  = (flags[0] & 0x01) != 0,
@@ -105,7 +106,8 @@ namespace OpenCMIS.App.Core.Services
                        CLEICode         = ReadAscii(clei),
                        ModuleType       = GetModuleTypeName(identifier),
                        ConnectorType    = GetConnectorTypeName(identifier),
-                       CmisVersion      = $"{revision >> 4}.{revision & 0x0F}"
+                       CmisVersion      = $"{revision >> 4}.{revision & 0x0F}",
+                       RawRevisionByte  = revision
                    };
         }
 
