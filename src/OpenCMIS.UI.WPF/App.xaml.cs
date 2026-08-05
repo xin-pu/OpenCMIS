@@ -50,7 +50,6 @@ namespace OpenCMIS.UI.WPF
                                                    services.AddSingleton<DeviceSession>();
                                                    services.AddSingleton<MainViewModel>();
                                                    services.AddSingleton<DeviceConnectionViewModel>();
-                                                   services.AddTransient<DashboardViewModel>();
                                                    services.AddTransient<ControlPanelViewModel>();
                                                    services.AddTransient<CdbEditorViewModel>();
                                                    services.AddTransient<ApplicationSwitchViewModel>();

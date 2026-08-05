@@ -22,7 +22,6 @@ namespace OpenCMIS.UI.WPF.ViewModels
         private bool _isNavigationPaneExpanded = true;
 
         public MainViewModel(DeviceConnectionViewModel  deviceConnectionVM,
-                             DashboardViewModel         dashboardVM,
                              ControlPanelViewModel      controlPanelVM,
                              CdbEditorViewModel         cdbEditorVM,
                              ApplicationSwitchViewModel applicationSwitchVM,
@@ -30,7 +29,6 @@ namespace OpenCMIS.UI.WPF.ViewModels
                              ModuleHomeViewModel        moduleHomeVM)
         {
             DeviceConnectionVM  = deviceConnectionVM;
-            DashboardVM         = dashboardVM;
             ControlPanelVM      = controlPanelVM;
             CdbEditorVM         = cdbEditorVM;
             ApplicationSwitchVM = applicationSwitchVM;
@@ -41,7 +39,6 @@ namespace OpenCMIS.UI.WPF.ViewModels
         }
 
         public DeviceConnectionViewModel  DeviceConnectionVM  { get; }
-        public DashboardViewModel         DashboardVM         { get; }
         public ControlPanelViewModel      ControlPanelVM      { get; }
         public CdbEditorViewModel         CdbEditorVM         { get; }
         public ApplicationSwitchViewModel ApplicationSwitchVM { get; }
@@ -50,7 +47,6 @@ namespace OpenCMIS.UI.WPF.ViewModels
 
         public void SetDevice(ICmisDevice? device)
         {
-            DashboardVM.SetDevice(device);
             ControlPanelVM.SetDevice(device);
             CdbEditorVM.SetDevice(device);
             ApplicationSwitchVM.SetDevice(device);
@@ -70,7 +66,6 @@ namespace OpenCMIS.UI.WPF.ViewModels
             SelectedViewName = viewName;
             ActiveView = viewName switch
                          {
-                             "Dashboard"         => DashboardVM,
                              "ControlPanel"      => ControlPanelVM,
                              "CdbEditor"         => CdbEditorVM,
                              "ApplicationSwitch" => ApplicationSwitchVM,

@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -29,6 +30,18 @@ namespace OpenCMIS.UI.WPF.ViewModels
         [ObservableProperty]
         private bool _isDeviceAvailable;
 
+        [ObservableProperty]
+        private bool _hasAlerts;
+
+        [ObservableProperty]
+        private ObservableCollection<string> _activeAlerts = [];
+
+        [ObservableProperty]
+        private CmisInterruptFlags? _interruptFlags;
+
+        [ObservableProperty]
+        private ObservableCollection<InterruptFlagItem> _interruptFlagItems = [];
+
         public List<int> RefreshIntervalOptions { get; } = [1, 2, 5, 10];
 
         public void SetDevice(ICmisDevice? device)
@@ -57,6 +70,7 @@ namespace OpenCMIS.UI.WPF.ViewModels
                 StatusText       = "Loading...";
                 DashData         = await _device.ReadModuleDashDataAsync();
                 CurrentStateText = DashData.CurrentState.ToString();
+                UpdateAlertsAndFlags(DashData.Status);
                 StatusText       = $"Last refresh: {DateTime.Now:HH:mm:ss}";
             }
             catch (Exception ex)
@@ -125,10 +139,11 @@ namespace OpenCMIS.UI.WPF.ViewModels
                                                                                      Lanes           = lanes,
                                                                                      CurrentState    = modStatus.CurrentState,
                                                                                      IsReady         = modStatus.IsReady,
-                                                                                     Status          = DashData.Status,
+                                                                                     Status          = modStatus,
                                                                                      StatusTimestamp = DateTime.Now
                                                                                  };
                                                                       CurrentStateText = modStatus.CurrentState.ToString();
+                                                                      UpdateAlertsAndFlags(modStatus);
                                                                       StatusText =
                                                                               $"Monitoring every {RefreshInterval}s — Last: {DateTime.Now:HH:mm:ss}";
                                                                   });
@@ -171,5 +186,38 @@ namespace OpenCMIS.UI.WPF.ViewModels
                 _ = StartMonitoringAsync();
             }
         }
+
+        private void UpdateAlertsAndFlags(ModuleStatus? status)
+        {
+            if (status == null)
+            {
+                HasAlerts         = false;
+                ActiveAlerts      = [];
+                InterruptFlags    = null;
+                InterruptFlagItems = [];
+                return;
+            }
+
+            HasAlerts      = status.HasAlerts;
+            ActiveAlerts   = new ObservableCollection<string>(status.ActiveAlerts);
+            InterruptFlags = status.InterruptFlags;
+            InterruptFlagItems = new ObservableCollection<InterruptFlagItem>
+            {
+                new("Temp H",   status.InterruptFlags.TempHighAlarm),
+                new("Temp L",   status.InterruptFlags.TempLowAlarm),
+                new("VCC H",    status.InterruptFlags.VccHighAlarm),
+                new("VCC L",    status.InterruptFlags.VccLowAlarm),
+                new("TX Pwr H", status.InterruptFlags.TxPowerHighAlarm),
+                new("TX Pwr L", status.InterruptFlags.TxPowerLowAlarm),
+                new("RX Pwr H", status.InterruptFlags.RxPowerHighAlarm),
+                new("RX Pwr L", status.InterruptFlags.RxPowerLowAlarm),
+                new("TX Bias H",status.InterruptFlags.TxBiasHighAlarm),
+                new("TX Bias L",status.InterruptFlags.TxBiasLowAlarm),
+                new("TX Fault", status.InterruptFlags.TxFault),
+                new("RX LOS",   status.InterruptFlags.RxLOS)
+            };
+        }
     }
+
+    public record InterruptFlagItem(string Name, bool IsActive);
 }

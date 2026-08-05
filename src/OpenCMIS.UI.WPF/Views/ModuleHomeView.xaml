@@ -29,6 +29,19 @@
             <Setter Property="FontFamily" Value="Consolas, Courier New" />
             <Setter Property="Margin" Value="0,3" />
         </Style>
+
+        <Style x:Key="InterruptChipStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Padding" Value="8,4" />
+            <Setter Property="MinWidth" Value="80" />
+            <Setter Property="Background" Value="{StaticResource OpenCmisInputBackgroundBrush}" />
+        </Style>
+
+        <Style x:Key="AlertItemStyle" TargetType="ListBoxItem">
+            <Setter Property="Foreground" Value="{StaticResource OpenCmisDangerBrush}" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Padding" Value="4,2" />
+        </Style>
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -305,6 +318,48 @@
                 </WrapPanel>
             </GroupBox>
 
+            <!-- Interrupt Flags -->
+            <GroupBox Header="Interrupt Flags" Padding="10" Margin="0,0,0,15">
+                <ItemsControl ItemsSource="{Binding InterruptFlagItems}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border CornerRadius="4" Padding="8,4" MinWidth="80" Margin="3">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background" Value="{StaticResource OpenCmisInputBackgroundBrush}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                <Setter Property="Background" Value="{StaticResource OpenCmisDangerBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <TextBlock>
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="{StaticResource OpenCmisMutedTextBrush}" />
+                                            <Setter Property="FontSize" Value="11" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                    <Setter Property="Foreground" Value="{StaticResource OpenCmisTextBrush}" />
+                                                    <Setter Property="FontWeight" Value="Bold" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                    <Run Text="{Binding Name}" />
+                                </TextBlock>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </GroupBox>
+
             <!-- Lane Details Table -->
             <GroupBox Header="Lane Details" Padding="10" Margin="0,0,0,15">
                 <dxg:GridControl ItemsSource="{Binding DashData.Lanes}"
@@ -477,6 +532,14 @@
                         </dxg:GridColumn>
                     </dxg:GridControl.Columns>
                 </dxg:GridControl>
+            </GroupBox>
+
+            <!-- Active Alerts -->
+            <GroupBox Header="Active Alerts" Padding="10" Margin="0,0,0,15"
+                      Visibility="{Binding HasAlerts, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ListBox ItemsSource="{Binding ActiveAlerts}"
+                         MaxHeight="150"
+                         ItemContainerStyle="{StaticResource AlertItemStyle}" />
             </GroupBox>
 
             <!-- Controls -->

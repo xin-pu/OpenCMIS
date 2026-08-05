@@ -15,9 +15,6 @@
         <DataTemplate DataType="{x:Type vm:DeviceConnectionViewModel}">
             <views:DeviceConnectionView />
         </DataTemplate>
-        <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
-            <views:DashboardView />
-        </DataTemplate>
         <DataTemplate DataType="{x:Type vm:ControlPanelViewModel}">
             <views:ControlPanelView />
         </DataTemplate>
@@ -96,16 +93,6 @@
                                 <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="14"
                                            Text="&#xE9D2;" VerticalAlignment="Center" Margin="0,0,8,0" />
                                 <TextBlock Text="Module Home" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </dxa:AccordionItem.Header>
-                    </dxa:AccordionItem>
-
-                    <dxa:AccordionItem Tag="Dashboard">
-                        <dxa:AccordionItem.Header>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="14"
-                                           Text="&#xE9F5;" VerticalAlignment="Center" Margin="0,0,8,0" />
-                                <TextBlock Text="Dashboard" VerticalAlignment="Center" />
                             </StackPanel>
                         </dxa:AccordionItem.Header>
                     </dxa:AccordionItem>

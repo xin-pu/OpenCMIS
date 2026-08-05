@@ -104,8 +104,8 @@ namespace OpenCMIS.UI.WPF.Tests
             SetBufferByte(vm, 0x05, 0xAB);
 
             // Must also set Bank/Page numbers
-            SetProperty(vm, "BankNumber", "01");
-            SetProperty(vm, "PageNumber", "10");
+            SetProperty(vm, "BankNumber", "1");
+            SetProperty(vm, "PageNumber", "16");
 
             var writeTask = InvokeWritePageAsync(vm);
             await writeTask;
@@ -128,8 +128,8 @@ namespace OpenCMIS.UI.WPF.Tests
 
             // Edit a byte in upper range
             SetBufferByte(vm, 0xA0, 0xCD);
-            SetProperty(vm, "BankNumber", "02");
-            SetProperty(vm, "PageNumber", "11");
+            SetProperty(vm, "BankNumber", "2");
+            SetProperty(vm, "PageNumber", "17");
 
             var writeTask = InvokeWritePageAsync(vm);
             await writeTask;
@@ -144,82 +144,82 @@ namespace OpenCMIS.UI.WPF.Tests
         public void ReadRange_invalid_bank_shows_error()
         {
             var vm = new PageEditorViewModel();
-            SetProperty(vm, "BankNumber",   "GG");
-            SetProperty(vm, "PageNumber",   "00");
-            SetProperty(vm, "StartAddress", "80");
-            SetProperty(vm, "ReadLength",   "10");
+            SetProperty(vm, "BankNumber",   "256");
+            SetProperty(vm, "PageNumber",   "0");
+            SetProperty(vm, "StartAddress", "128");
+            SetProperty(vm, "ReadLength",   "16");
 
             // Execute ReadRangeAsync via reflection (no device, so it will
             // bail out at validation before touching _device).
             InvokeReadRangeAsync(vm).GetAwaiter().GetResult();
 
-            Assert.Contains("Invalid bank number", GetStatusMessage(vm));
+            Assert.Contains("Bank must be 0–255", GetStatusMessage(vm));
         }
 
         [Fact]
         public void ReadRange_invalid_page_shows_error()
         {
             var vm = new PageEditorViewModel();
-            SetProperty(vm, "BankNumber",   "00");
-            SetProperty(vm, "PageNumber",   "ZZ");
-            SetProperty(vm, "StartAddress", "80");
-            SetProperty(vm, "ReadLength",   "10");
+            SetProperty(vm, "BankNumber",   "0");
+            SetProperty(vm, "PageNumber",   "256");
+            SetProperty(vm, "StartAddress", "128");
+            SetProperty(vm, "ReadLength",   "16");
 
             InvokeReadRangeAsync(vm).GetAwaiter().GetResult();
 
-            Assert.Contains("Invalid page number", GetStatusMessage(vm));
+            Assert.Contains("Page must be 0–255", GetStatusMessage(vm));
         }
 
         [Fact]
         public void ReadRange_invalid_start_address_shows_error()
         {
             var vm = new PageEditorViewModel();
-            SetProperty(vm, "BankNumber",   "00");
-            SetProperty(vm, "PageNumber",   "00");
-            SetProperty(vm, "StartAddress", "1G");
-            SetProperty(vm, "ReadLength",   "10");
+            SetProperty(vm, "BankNumber",   "0");
+            SetProperty(vm, "PageNumber",   "0");
+            SetProperty(vm, "StartAddress", "256");
+            SetProperty(vm, "ReadLength",   "16");
 
             InvokeReadRangeAsync(vm).GetAwaiter().GetResult();
 
-            Assert.Contains("Invalid start address", GetStatusMessage(vm));
+            Assert.Contains("Start address must be 0–255", GetStatusMessage(vm));
         }
 
         [Fact]
         public void ReadRange_invalid_length_shows_error()
         {
             var vm = new PageEditorViewModel();
-            SetProperty(vm, "BankNumber",   "00");
-            SetProperty(vm, "PageNumber",   "00");
-            SetProperty(vm, "StartAddress", "80");
-            SetProperty(vm, "ReadLength",   "XX");
+            SetProperty(vm, "BankNumber",   "0");
+            SetProperty(vm, "PageNumber",   "0");
+            SetProperty(vm, "StartAddress", "128");
+            SetProperty(vm, "ReadLength",   "256");
 
             InvokeReadRangeAsync(vm).GetAwaiter().GetResult();
 
-            Assert.Contains("Invalid read length", GetStatusMessage(vm));
+            Assert.Contains("Read length must be 1–255", GetStatusMessage(vm));
         }
 
         [Fact]
         public void ReadRange_zero_length_shows_error()
         {
             var vm = new PageEditorViewModel();
-            SetProperty(vm, "BankNumber",   "00");
-            SetProperty(vm, "PageNumber",   "00");
-            SetProperty(vm, "StartAddress", "80");
-            SetProperty(vm, "ReadLength",   "00");
+            SetProperty(vm, "BankNumber",   "0");
+            SetProperty(vm, "PageNumber",   "0");
+            SetProperty(vm, "StartAddress", "128");
+            SetProperty(vm, "ReadLength",   "0");
 
             InvokeReadRangeAsync(vm).GetAwaiter().GetResult();
 
-            Assert.Contains("1–FF", GetStatusMessage(vm));
+            Assert.Contains("1–255", GetStatusMessage(vm));
         }
 
         [Fact]
         public void ReadRange_exceeds_page_boundary_shows_error()
         {
             var vm = new PageEditorViewModel();
-            SetProperty(vm, "BankNumber",   "00");
-            SetProperty(vm, "PageNumber",   "00");
-            SetProperty(vm, "StartAddress", "F0");
-            SetProperty(vm, "ReadLength",   "20"); // 0xF0 + 0x20 = 0x110 > 256
+            SetProperty(vm, "BankNumber",   "0");
+            SetProperty(vm, "PageNumber",   "0");
+            SetProperty(vm, "StartAddress", "240");
+            SetProperty(vm, "ReadLength",   "32"); // 240 + 32 = 272 > 256
 
             InvokeReadRangeAsync(vm).GetAwaiter().GetResult();
 
@@ -234,10 +234,10 @@ namespace OpenCMIS.UI.WPF.Tests
             var vm     = new PageEditorViewModel();
             vm.SetDevice(device);
             LoadPageBuffer(vm, CreateEmptyPage());
-            SetProperty(vm, "BankNumber",   "02");
-            SetProperty(vm, "PageNumber",   "11");
-            SetProperty(vm, "StartAddress", "10");
-            SetProperty(vm, "ReadLength",   "08");
+            SetProperty(vm, "BankNumber",   "2");
+            SetProperty(vm, "PageNumber",   "17");
+            SetProperty(vm, "StartAddress", "16");
+            SetProperty(vm, "ReadLength",   "8");
 
             await InvokeReadRangeAsync(vm);
 
@@ -256,10 +256,10 @@ namespace OpenCMIS.UI.WPF.Tests
             var vm     = new PageEditorViewModel();
             vm.SetDevice(device);
             LoadPageBuffer(vm, CreateEmptyPage());
-            SetProperty(vm, "BankNumber",   "03");
-            SetProperty(vm, "PageNumber",   "1F");
-            SetProperty(vm, "StartAddress", "A0");
-            SetProperty(vm, "ReadLength",   "10");
+            SetProperty(vm, "BankNumber",   "3");
+            SetProperty(vm, "PageNumber",   "31");
+            SetProperty(vm, "StartAddress", "160");
+            SetProperty(vm, "ReadLength",   "16");
 
             await InvokeReadRangeAsync(vm);
 
@@ -276,10 +276,10 @@ namespace OpenCMIS.UI.WPF.Tests
             var vm     = new PageEditorViewModel();
             vm.SetDevice(device);
             LoadPageBuffer(vm, CreateEmptyPage());
-            SetProperty(vm, "BankNumber",   "01");
-            SetProperty(vm, "PageNumber",   "05");
-            SetProperty(vm, "StartAddress", "70");
-            SetProperty(vm, "ReadLength",   "20"); // 0x70..0x8F, crosses 0x80
+            SetProperty(vm, "BankNumber",   "1");
+            SetProperty(vm, "PageNumber",   "5");
+            SetProperty(vm, "StartAddress", "112");
+            SetProperty(vm, "ReadLength",   "32"); // 112..143, crosses 128
 
             await InvokeReadRangeAsync(vm);
 
@@ -307,11 +307,11 @@ namespace OpenCMIS.UI.WPF.Tests
             vm.SetDevice(device);
             LoadPageBuffer(vm, original);
 
-            // Range read only 0x80..0x87 (8 bytes). Spy returns zeroes.
-            SetProperty(vm, "BankNumber",   "00");
-            SetProperty(vm, "PageNumber",   "00");
-            SetProperty(vm, "StartAddress", "80");
-            SetProperty(vm, "ReadLength",   "08");
+            // Range read only 128..135 (8 bytes). Spy returns zeroes.
+            SetProperty(vm, "BankNumber",   "0");
+            SetProperty(vm, "PageNumber",   "0");
+            SetProperty(vm, "StartAddress", "128");
+            SetProperty(vm, "ReadLength",   "8");
 
             await InvokeReadRangeAsync(vm);
 
@@ -335,10 +335,10 @@ namespace OpenCMIS.UI.WPF.Tests
             vm.SetDevice(device);
 
             // No LoadPageBuffer — simulate first use
-            SetProperty(vm, "BankNumber",   "00");
-            SetProperty(vm, "PageNumber",   "00");
-            SetProperty(vm, "StartAddress", "80");
-            SetProperty(vm, "ReadLength",   "08");
+            SetProperty(vm, "BankNumber",   "0");
+            SetProperty(vm, "PageNumber",   "0");
+            SetProperty(vm, "StartAddress", "128");
+            SetProperty(vm, "ReadLength",   "8");
 
             InvokeReadRangeAsync(vm).GetAwaiter().GetResult();
 
@@ -386,11 +386,15 @@ namespace OpenCMIS.UI.WPF.Tests
 
         private static void SetProperty(PageEditorViewModel vm, string name, string value)
         {
-            typeof(PageEditorViewModel)
+            var prop = typeof(PageEditorViewModel)
                    .GetProperty(name,
                                 BindingFlags.Public |
-                                BindingFlags.Instance)!
-                   .SetValue(vm, value);
+                                BindingFlags.Instance)!;
+
+            if (prop.PropertyType == typeof(int))
+                prop.SetValue(vm, int.Parse(value));
+            else
+                prop.SetValue(vm, value);
         }
 
         private static Task InvokeWritePageAsync(PageEditorViewModel vm)
