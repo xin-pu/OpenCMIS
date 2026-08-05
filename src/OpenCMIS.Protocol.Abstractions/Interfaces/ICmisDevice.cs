@@ -59,21 +59,27 @@ namespace OpenCMIS.Protocol.Abstractions
         /// </summary>
         /// <param name="laneCount">Number of lanes to read.</param>
         /// <returns>Populated module monitors.</returns>
-        Task<ModuleMonitors> ReadModuleMonitorsAsync(int laneCount = 4);
+        Task<ModuleMonitors> ReadModuleMonitorsAsync(int laneCount = 8);
 
         /// <summary>
         ///     Reads per-lane status information.
         /// </summary>
         /// <param name="laneCount">Number of lanes to read.</param>
         /// <returns>List of lane status entries.</returns>
-        Task<List<LaneStatus>> ReadLaneStatusAsync(int laneCount = 4);
+        Task<List<LaneStatus>> ReadLaneStatusAsync(int laneCount = 8);
 
         /// <summary>
         ///     Reads all dashboard data: identity, monitors, lanes, and status.
         /// </summary>
         /// <param name="laneCount">Number of lanes to read.</param>
         /// <returns>Composite dashboard snapshot.</returns>
-        Task<ModuleDashData> ReadModuleDashDataAsync(int laneCount = 4);
+        Task<ModuleDashData> ReadModuleDashDataAsync(int laneCount = 8);
+
+        /// <summary>
+        ///     Reads the media lane count from the module capability register.
+        /// </summary>
+        /// <returns>The number of media lanes supported by the module.</returns>
+        Task<int> ReadMediaLaneCountAsync();
 
         /// <summary>
         ///     Closes the device connection.

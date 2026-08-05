@@ -97,19 +97,19 @@ namespace OpenCMIS.App.Core
             return _identityReader.ReadAsync();
         }
 
-        public Task<ModuleMonitors> ReadModuleMonitorsAsync(int laneCount = 4)
+        public Task<ModuleMonitors> ReadModuleMonitorsAsync(int laneCount = 8)
         {
             EnsureConnected();
             return _monitorReader.ReadAsync(laneCount);
         }
 
-        public Task<List<LaneStatus>> ReadLaneStatusAsync(int laneCount = 4)
+        public Task<List<LaneStatus>> ReadLaneStatusAsync(int laneCount = 8)
         {
             EnsureConnected();
             return _laneReader.ReadAsync(laneCount);
         }
 
-        public async Task<ModuleDashData> ReadModuleDashDataAsync(int laneCount = 4)
+        public async Task<ModuleDashData> ReadModuleDashDataAsync(int laneCount = 8)
         {
             EnsureConnected();
             var identity = await _identityReader.ReadAsync();
@@ -126,6 +126,24 @@ namespace OpenCMIS.App.Core
                        Status          = status,
                        StatusTimestamp = DateTime.Now
                    };
+        }
+
+        public async Task<int> ReadMediaLaneCountAsync()
+        {
+            EnsureConnected();
+            try
+            {
+                var count = await RegisterAccess.ReadByteAsync(
+                                    0x00,
+                                    CmisConstants.RegMediaLaneCount);
+                return count > 0 && count <= CmisConstants.MaxLanes
+                               ? count
+                               : CmisConstants.DefaultLaneCount;
+            }
+            catch
+            {
+                return CmisConstants.DefaultLaneCount;
+            }
         }
 
         public async Task CloseAsync()

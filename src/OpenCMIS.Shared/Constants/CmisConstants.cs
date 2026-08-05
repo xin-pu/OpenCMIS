@@ -198,6 +198,13 @@ namespace OpenCMIS.Shared
 
         /// <summary>Per-lane status flags (1 byte, bit0=enabled, bit1=fault).</summary>
         public const byte RegLaneStatusFlags = 0xA6;
+
+        /// <summary>
+        ///     Media lane count register (Page 0x00, address 0x70).
+        ///     Indicates the number of media lanes supported by the module.
+        ///     CMIS 5.3 defines this for dynamic lane detection.
+        /// </summary>
+        public const byte RegMediaLaneCount = 0x70;
         #endregion
     }
 }

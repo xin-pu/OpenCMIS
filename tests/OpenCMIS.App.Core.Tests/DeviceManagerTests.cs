@@ -197,17 +197,22 @@ namespace OpenCMIS.App.Core.Tests
                 throw new NotSupportedException();
             }
 
-            public Task<ModuleMonitors> ReadModuleMonitorsAsync(int laneCount = 4)
+            public Task<ModuleMonitors> ReadModuleMonitorsAsync(int laneCount = 8)
             {
                 throw new NotSupportedException();
             }
 
-            public Task<List<LaneStatus>> ReadLaneStatusAsync(int laneCount = 4)
+            public Task<List<LaneStatus>> ReadLaneStatusAsync(int laneCount = 8)
             {
                 throw new NotSupportedException();
             }
 
-            public Task<ModuleDashData> ReadModuleDashDataAsync(int laneCount = 4)
+            public Task<ModuleDashData> ReadModuleDashDataAsync(int laneCount = 8)
+            {
+                throw new NotSupportedException();
+            }
+
+            public Task<int> ReadMediaLaneCountAsync()
             {
                 throw new NotSupportedException();
             }
