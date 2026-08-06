@@ -6,6 +6,7 @@
         xmlns:converters="clr-namespace:OpenCMIS.UI.WPF.Converters"
         xmlns:dxa="http://schemas.devexpress.com/winfx/2008/xaml/accordion"
         Title="OpenCMIS Manager"
+        Icon="/Resources/mote-green.ico"
         Height="700" Width="1100"
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource OpenCmisWindowBackgroundBrush}">

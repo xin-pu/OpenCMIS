@@ -3,6 +3,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>Resources\mote-green.ico</ApplicationIcon>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <IncludePackageReferencesDuringMarkupCompilation>true</IncludePackageReferencesDuringMarkupCompilation>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -12,6 +13,9 @@
   </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="OpenCMIS.UI.WPF.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\mote-green.ico" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
