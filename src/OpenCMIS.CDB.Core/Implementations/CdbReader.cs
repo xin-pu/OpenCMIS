@@ -124,8 +124,8 @@ namespace OpenCMIS.CDB.Core
         {
             return type switch
                    {
-                       CdbFieldType.Byte   => value.Length > 0 ? value[0] : 0,
-                       CdbFieldType.Word   => value.Length >= 2 ? (ushort) (value[0] | value[1] << 8) : 0,
+                       CdbFieldType.Byte   => value.Length > 0 ? value[0] : (byte) 0,
+                       CdbFieldType.Word   => value.Length >= 2 ? (ushort) (value[0] | value[1] << 8) : (ushort) 0,
                        CdbFieldType.DWord  => value.Length >= 4 ? (uint) (value[0]   | value[1] << 8 | value[2] << 16 | value[3] << 24) : 0U,
                        CdbFieldType.String => Encoding.ASCII.GetString(value).TrimEnd('\0'),
                        _                   => value

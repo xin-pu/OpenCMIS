@@ -246,7 +246,7 @@ namespace OpenCMIS.Transport.Simulated
             var isCmis53  = profile.Contains("cmis53", StringComparison.OrdinalIgnoreCase);
             var laneCount = is1p6t ? 16 : 8;
             var revByte   = isCmis53 ? (byte) 0x53 : (byte) 0x52;
-            SetByte(0, 0x00, CmisConstants.RegIdentifier,  0x18); // QSFP-DD
+            SetByte(0, 0x00, CmisConstants.RegIdentifier,  0x1E); // QSFP-DD
             SetByte(0, 0x00, CmisConstants.RegRevision,     revByte); // CMIS 5.2 or 5.3
             SetByte(0, 0x00, CmisConstants.RegStatus,      0x03); // ready + dp_ready
             SetByte(0, 0x00, CmisConstants.RegModuleState, 0x03); // ModuleReady
@@ -295,6 +295,7 @@ namespace OpenCMIS.Transport.Simulated
                       3.400);
 
             // Vendor page 0x01
+            SetByte(0, 0x01, 0x80, 0x04); // Application Select: 800G standard app (Application 4)
             SetAscii(0, 0x01, CmisConstants.RegVendorNameStart, 16, "OpenCMIS-Sim");
             SetBytes(0, 0x01, CmisConstants.RegVendorOUI, [0x00, 0x11, 0x22]);
             SetAscii(0,
@@ -321,6 +322,73 @@ namespace OpenCMIS.Transport.Simulated
                 SetPower(0, page, CmisConstants.RegLaneRxPowerMSB, 0.708);
                 SetByte(0, page, CmisConstants.RegLaneStatusFlags, 0x01); // enabled
             }
+
+            PopulateCdb();
+        }
+
+        // ---- CDB population (page 9Fh, offset 80h) ----
+
+        private void PopulateCdb()
+        {
+            // Field format: [Type:1][IdLength:1][Id:N][ValueLength:2][Value:N]
+            var body = new List<byte>();
+
+            // Byte field: temperature setpoint (0x2A = 42)
+            body.Add(0);                                   // Type = Byte
+            body.Add(4);                                   // IdLength
+            body.AddRange(Encoding.ASCII.GetBytes("TMP1"));
+            body.AddRange([0x01, 0x00]);                   // ValueLength = 1
+            body.Add(0x2A);
+
+            // Word field: VCC setpoint 3.100 V (raw 3100 = 0x0C1C)
+            body.Add(1);                                   // Type = Word
+            body.Add(4);                                   // IdLength
+            body.AddRange(Encoding.ASCII.GetBytes("VCC1"));
+            body.AddRange([0x02, 0x00]);                   // ValueLength = 2
+            body.AddRange([0x1C, 0x0C]);
+
+            // String field: application tag
+            body.Add(3);                                   // Type = String
+            body.Add(3);                                   // IdLength
+            body.AddRange(Encoding.ASCII.GetBytes("APP"));
+            body.AddRange([0x04, 0x00]);                   // ValueLength = 4
+            body.AddRange(Encoding.ASCII.GetBytes("TEST"));
+
+            // CDB = header (Length[2], Version[1], Flags[1]) + body + CRC16
+            var totalLength = (ushort) (4 + body.Count + 2);
+            var version     = (byte) 0x10; // CMIS CDB version 1.0
+            var flags       = (byte) 0x00;
+
+            var cdb = new byte[totalLength];
+            cdb[0] = (byte) (totalLength & 0xFF);
+            cdb[1] = (byte) (totalLength >> 8);
+            cdb[2] = version;
+            cdb[3] = flags;
+            body.CopyTo(cdb, 4);
+
+            var crc = CalculateCrc16(cdb, cdb.Length - 2);
+            cdb[^2] = (byte) (crc & 0xFF);
+            cdb[^1] = (byte) (crc >> 8);
+
+            SetBytes(0, 0x9F, 0x80, cdb);
+        }
+
+        private static ushort CalculateCrc16(byte[] data, int length)
+        {
+            const ushort polynomial   = 0x1021;
+            const ushort initialValue = 0xFFFF;
+            var          crc          = initialValue;
+
+            for (var i = 0; i < length; i++)
+            {
+                crc ^= (ushort) (data[i] << 8);
+                for (var bit = 0; bit < 8; bit++)
+                    crc = (crc & 0x8000) != 0
+                                  ? (ushort) ((crc << 1) ^ polynomial)
+                                  : (ushort) (crc << 1);
+            }
+
+            return crc;
         }
 
         // ---- raw byte helpers ----

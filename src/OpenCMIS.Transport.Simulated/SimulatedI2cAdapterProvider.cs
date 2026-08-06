@@ -32,8 +32,9 @@ namespace OpenCMIS.Transport.Simulated
                     descriptors);
         }
 
-        public ValueTask<II2cRegisterBus> OpenAsync(I2cConnectionProfile profile,
-                                                    CancellationToken    cancellationToken = default)
+        public async ValueTask<II2cRegisterBus> OpenAsync(
+                I2cConnectionProfile profile,
+                CancellationToken    cancellationToken = default)
         {
             if (profile is not SimulatedI2cConnectionProfile simProfile
              || !profile.AdapterId.Equals(
@@ -54,7 +55,8 @@ namespace OpenCMIS.Transport.Simulated
                     seed,
                     simProfile.NoiseEnabled);
 
-            return ValueTask.FromResult<II2cRegisterBus>(bus);
+            await bus.OpenAsync(cancellationToken).ConfigureAwait(false);
+            return bus;
         }
 
         private I2cAdapterDescriptor CreateDescriptor(string deviceId,

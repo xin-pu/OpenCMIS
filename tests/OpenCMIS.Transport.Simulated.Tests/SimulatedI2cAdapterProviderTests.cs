@@ -52,10 +52,10 @@ namespace OpenCMIS.Transport.Simulated.Tests
 
             var bus = await provider.OpenAsync(d800g.Profile);
             Assert.NotNull(bus);
-            Assert.False(bus.IsOpen); // not opened yet
+            Assert.True(bus.IsOpen); // provider opens the bus
 
-            await bus.OpenAsync();
-            Assert.True(bus.IsOpen);
+            await bus.CloseAsync();
+            Assert.False(bus.IsOpen);
         }
 
         [Fact]

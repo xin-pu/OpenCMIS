@@ -1,22 +1,84 @@
 # OpenCMIS
 
-OpenCMIS 是面向 CMIS 光模块的 .NET 10 通信库和工具集。核心协议不依赖 Pulse、NuGet 形式的 Cypress 包或具体硬件驱动；串口和 Cypress USB 通过可替换的 I2C provider 接入。
+<img src="src/OpenCMIS.UI.WPF/Resources/mote-green.ico" alt="OpenCMIS" width="48"/>
 
-## 当前架构
+OpenCMIS 是面向 CMIS 5.2/5.3 光模块的 .NET 10 通信库与工具集，提供 **CLI** 与 **GUI** 双入口，支持 **串口桥**、**Cypress USB** 与 **内置模拟器** 三种 I2C provider。
 
-- `OpenCMIS.Transport.Abstractions`：硬件无关的 `II2cRegisterBus`、provider、连接 profile 和 I2C 值对象。
-- `OpenCMIS.Module.Core`：一个光模块会话，以及共享同一原子锁的 MSA 页面访问和 vendor HCI 访问。
-- `OpenCMIS.Protocol.*`：CMIS 协议模型和兼容 facade。
-- `OpenCMIS.App.Core`：设备发现、provider 选择和光模块工厂，不引用具体串口或 Cypress 实现。
-- `OpenCMIS.Transport.I2C.Serial`：跨平台编译的 Linktel、HM 和 HM 多通道串口适配器。
-- `OpenCMIS.Cypress`：从已授权公司源码导入的 Windows-only Cypress USB 低层库。
-- `OpenCMIS.Transport.I2C.Cypress`：Windows-only FIC2USB/EUI3 I2C provider；低层阻塞调用封装在 `ICypressDeviceApi` 后。
-- `OpenCMIS.UI.CLI`：只组合核心和串口 provider。
-- `OpenCMIS.UI.WPF`：Windows 上组合核心、串口和 Cypress provider。
+核心协议不依赖 Pulse、NuGet 形式的 Cypress 包或具体硬件驱动；串口和 Cypress USB 通过可替换的 I2C provider 接入，无真实硬件时可直接使用内置模拟器开发与演示。
+
+## 功能特性
+
+- **CMIS 协议读写**：MSA 页选择（bank/page）、寄存器级 `read` / `write`（写后回读验证）
+- **模块信息与状态**：厂商、PN/SN、模块类型、CMIS 版本、能力标志、运行状态（Ready / LowPwr / PwrDn…）
+- **实时监控**：温度、电压、Per-Lane 发射/接收参数，支持噪声模拟与告警事件
+- **CDB（Configuration Data Block）**：读取、字段编辑、校验（CRC-16）、写入、`.cdb` / `.json` 导入导出
+- **应用切换**：枚举模块支持的 CMIS Applications，查询当前应用并执行切换
+- **模拟设备**：内置 800G QSFP-DD / 1.6T OSFP（CMIS 5.2 / 5.3）四种模拟模块，无硬件即可体验全部功能
+
+## 架构分层
+
+| 层 | 项目 | 职责 |
+|---|---|---|
+| 传输抽象 | `OpenCMIS.Transport.Abstractions` | 硬件无关的 `II2cRegisterBus`、provider、连接 profile 与 I2C 值对象 |
+| 传输实现 | `OpenCMIS.Transport.I2C.Serial` | 跨平台串口桥适配器（Linktel / HM / HM 多通道） |
+| 传输实现 | `OpenCMIS.Transport.I2C.Cypress` + `OpenCMIS.Cypress` | Windows-only FIC2USB / EUI3 USB 适配器（`OpenCMIS.Cypress` 为第三方低层库，低层阻塞调用封装在 `ICypressDeviceApi` 后） |
+| 传输实现 | `OpenCMIS.Transport.Simulated` | 内置模拟 I2C 总线，含噪声与确定性 seed，无硬件演示/测试 |
+| 模块会话 | `OpenCMIS.Module.Core` | 光模块会话：MSA 页访问与 vendor HCI 访问共享同一原子锁串行化 |
+| 协议 | `OpenCMIS.Protocol.Abstractions` / `OpenCMIS.Protocol.Core` | CMIS 协议模型、`IRegisterAccess`、命令处理与兼容 facade |
+| 应用核心 | `OpenCMIS.App.Core` | 设备发现、provider 选择、光模块工厂，不引用具体串口/Cypress 实现 |
+| 配置数据 | `OpenCMIS.CDB.Abstractions` / `OpenCMIS.CDB.Core` | CDB 读取、写入（跨页分段）、校验（CRC-16/CCITT） |
+| 共享 | `OpenCMIS.Shared` | CMIS 常量、枚举、异常与工具 |
+| 用户界面 | `OpenCMIS.UI.CLI` | 命令行工具：只组合核心与串口 provider |
+| 用户界面 | `OpenCMIS.UI.WPF` | Windows 桌面应用：组合核心、串口、Cypress 与模拟 provider |
 
 详细设计见 [光模块 I2C 架构](docs/architecture/optical-module-i2c.md)。
 
-## I2C 地址
+## 快速开始
+
+环境要求：**.NET 10 SDK**（WPF 另需 Windows）。
+
+```powershell
+# 还原并构建
+dotnet restore OpenCMIS.sln
+dotnet build OpenCMIS.sln
+
+# 运行全部测试
+dotnet test OpenCMIS.sln
+```
+
+### CLI
+
+```powershell
+# 列出可用设备
+dotnet run --project src/OpenCMIS.UI.CLI -- list
+
+# 查看模块信息（串口）
+dotnet run --project src/OpenCMIS.UI.CLI -- info COM3
+```
+
+完整命令说明见 [CLI 使用指南](docs/cli-guide.md)。
+
+### GUI（WPF）
+
+```powershell
+dotnet run --project src/OpenCMIS.UI.WPF
+```
+
+**无真实硬件？** 在 Device Connection 页点击 **Scan**，Adapter 选择 **`sim`**，设备选择 **"Simulated 800G CMIS Module (5.2)"**（或 5.3 / 1.6T 变体），点 **Connect** 即可体验全部功能。
+
+界面功能与截图见 [GUI 使用指南](docs/gui-guide.md)。
+
+## 用户文档入口
+
+| 文档 | 内容 |
+|---|---|
+| [CLI 使用指南](docs/cli-guide.md) | 命令速查、逐命令详解与示例 |
+| [GUI 使用指南](docs/gui-guide.md) | 主窗口布局、六大页面功能、模拟设备使用（含截图） |
+| [光模块 I2C 架构](docs/architecture/optical-module-i2c.md) | MSA / HCI 会话、传输抽象与 provider 设计 |
+
+## 技术参考
+
+### I2C 地址
 
 核心统一使用 7-bit 地址：
 
@@ -30,7 +92,7 @@ var moduleAddress = new I2cDeviceAddress(0x50);
 var moduleAddress = I2cDeviceAddress.FromLegacy8Bit(0xA0);
 ```
 
-## MSA 与 HCI
+### MSA 与 HCI
 
 ```csharp
 await using var session = new OpticalModuleSession(bus);
@@ -56,16 +118,17 @@ var data = await hci.ReadAsync(
 
 MSA 的选页和数据传输，以及完整 HCI 命令序列，都通过同一个 `OpticalModuleSession` gate 串行化，避免并发任务相互改变页面或命令状态。
 
-## Provider ID
+### Provider ID
 
-| Provider ID | 实现 | 平台 |
-|---|---|---|
-| `linktel` | Linktel 串口桥 | .NET 10 支持的平台 |
-| `hm` | HM 串口桥 | .NET 10 支持的平台 |
-| `hm-multichannel` | HM 多通道串口桥 | .NET 10 支持的平台 |
-| `cypress` | FIC2USB / EUI3 | Windows |
+| Provider ID | 实现 | 平台 | 注册入口 |
+|---|---|---|---|
+| `linktel` | Linktel 串口桥 | .NET 10 支持的平台 | `AddOpenCmisSerialAdapters()` |
+| `hm` | HM 串口桥 | .NET 10 支持的平台 | `AddOpenCmisSerialAdapters()` |
+| `hm-multichannel` | HM 多通道串口桥 | .NET 10 支持的平台 | `AddOpenCmisSerialAdapters()` |
+| `cypress` | FIC2USB / EUI3 | Windows | `AddOpenCmisCypressAdapters()` |
+| `sim` | 内置模拟器 | 全平台 | `AddOpenCmisSimulatedAdapters()` |
 
-CLI 不引用 Cypress 项目。WPF 通过 `AddOpenCmisCypressAdapters()` 在 Windows 组合根注册 Cypress provider。
+CLI 只注册串口 provider；WPF 在组合根注册串口、Cypress 与模拟 provider。
 
 ## 构建与测试
 

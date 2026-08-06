@@ -17,7 +17,7 @@ namespace OpenCMIS.Transport.Simulated.Tests
             await using var bus  = await OpenBusAsync();
             var             data = new byte[2];
             await bus.ReadAsync(Address, new (0x00), data);
-            Assert.Equal(0x18, data[0]); // QSFP-DD identifier
+            Assert.Equal(0x1E, data[0]); // QSFP-DD identifier
             Assert.Equal(0x52, data[1]); // CMIS 5.2
         }
 
@@ -156,7 +156,7 @@ namespace OpenCMIS.Transport.Simulated.Tests
             // Identity bytes on page 0x00 must remain intact
             var identifier = new byte[1];
             await bus.ReadAsync(Address, new (0x00), identifier);
-            Assert.Equal(0x18, identifier[0]);
+            Assert.Equal(0x1E, identifier[0]);
 
             var status = new byte[1];
             await bus.ReadAsync(Address, new (0x02), status);
