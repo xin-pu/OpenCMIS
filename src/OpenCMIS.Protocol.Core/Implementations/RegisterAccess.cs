@@ -71,6 +71,7 @@ namespace OpenCMIS.Protocol.Core
         /// <inheritdoc />
         public async Task WriteByteAsync(byte page, byte address, byte value)
         {
+            ValidateWritablePage(page);
             ValidateAddress(page, address);
 
             if (_msaMemory is not null)
@@ -142,6 +143,7 @@ namespace OpenCMIS.Protocol.Core
                                           byte   startAddress,
                                           byte[] data)
         {
+            ValidateWritablePage(page);
             if (data == null || data.Length == 0)
                 throw new CmisException(CmisErrorCode.InvalidParameterValue, nameof(data));
 
@@ -167,6 +169,12 @@ namespace OpenCMIS.Protocol.Core
             EnsureLegacyConnected();
             await _pageManager!.SwitchPageAsync(page);
             await _registerTransport!.WriteRegisterBlockAsync(startAddress, data);
+        }
+
+        private static void ValidateWritablePage(byte page)
+        {
+            if (page is >= CmisConstants.VdmDescriptorPageStart and <= CmisConstants.VdmDescriptorPageEnd)
+                throw new NotSupportedException("CMIS VDM descriptor pages 20h-23h are read-only.");
         }
 
         private void EnsureLegacyConnected()

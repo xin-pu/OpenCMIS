@@ -420,24 +420,7 @@ static async Task MonitorVdmAsync(ICmisDevice device)
     }
 }
 
-static void PrintVdmDiagnostics(VdmDiagnostics diag)
-{
-    if (!diag.IsSupported)
-    {
-        Console.WriteLine("VDM is not supported by this module or it has no advertised observables.");
-        return;
-    }
-
-    Console.WriteLine("\nVDM Diagnostics (descriptor-driven, read-only)");
-    Console.WriteLine(new string('=', 60));
-    Console.WriteLine($"  {"Instance",-8} {"Descriptor",-12} {"Sample",-8} {"High alarm",-12} {"High warning",-13} {"Low warning",-12} {"Low alarm",-10}");
-    foreach (var observable in diag.ObservableInstances)
-    {
-        Console.WriteLine($"  {observable.Instance,-8} {Convert.ToHexString(observable.Descriptor),-12} 0x{observable.Sample:X4}   {ToFlagText(observable.Flags.HighAlarm),-12} {ToFlagText(observable.Flags.HighWarning),-13} {ToFlagText(observable.Flags.LowWarning),-12} {ToFlagText(observable.Flags.LowAlarm),-10}");
-    }
-}
-
-static string ToFlagText(bool isSet) => isSet ? "set" : "clear";
+static void PrintVdmDiagnostics(VdmDiagnostics diag) => VdmDiagnosticsPrinter.Write(Console.Out, diag);
 
 static void PrintUsage()
 {

@@ -14,8 +14,8 @@ public sealed class VdmObservable
         init => _descriptor = value?.ToArray() ?? [];
     }
 
-    /// <summary>The raw unsigned 16-bit sample associated with the descriptor.</summary>
-    public ushort Sample { get; init; }
+    /// <summary>The raw unsigned 16-bit sample, or null when it could not be read.</summary>
+    public ushort? Sample { get; init; }
 
     public VdmObservableFlags Flags { get; init; } = new();
 }

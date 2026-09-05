@@ -23,7 +23,7 @@
                               EditValue="{Binding RefreshInterval, Mode=TwoWay}" Width="60" Margin="0,0,12,0" />
             <dx:SimpleButton Content="Start Monitor" Command="{Binding StartMonitoringCommand}" Margin="0,0,8,0" />
             <dx:SimpleButton Content="Stop Monitor" Command="{Binding StopMonitoringCommand}" Margin="0,0,16,0" />
-            <TextBlock Text="{Binding ActiveFlagCount, StringFormat='Active flags: {0}'}" VerticalAlignment="Center" />
+            <TextBlock Text="{Binding ActiveFlagCount, StringFormat='Known active flags: {0}'}" VerticalAlignment="Center" />
         </StackPanel>
         <dxg:GridControl Grid.Row="2" ItemsSource="{Binding ObservableRows}" AutoGenerateColumns="None">
             <dxg:GridControl.View>
@@ -33,10 +33,10 @@
                 <dxg:GridColumn Header="Instance" FieldName="Instance" Width="75" />
                 <dxg:GridColumn Header="Descriptor (hex bytes)" FieldName="DescriptorHex" Width="170" />
                 <dxg:GridColumn Header="Raw sample (hex)" FieldName="SampleHex" Width="140" />
-                <dxg:GridColumn Header="High alarm" FieldName="Flags.HighAlarm" Width="100" />
-                <dxg:GridColumn Header="High warning" FieldName="Flags.HighWarning" Width="110" />
-                <dxg:GridColumn Header="Low warning" FieldName="Flags.LowWarning" Width="110" />
-                <dxg:GridColumn Header="Low alarm" FieldName="Flags.LowAlarm" Width="100" />
+                <dxg:GridColumn Header="High alarm" FieldName="HighAlarmText" Width="100" />
+                <dxg:GridColumn Header="High warning" FieldName="HighWarningText" Width="110" />
+                <dxg:GridColumn Header="Low warning" FieldName="LowWarningText" Width="110" />
+                <dxg:GridColumn Header="Low alarm" FieldName="LowAlarmText" Width="100" />
             </dxg:GridControl.Columns>
         </dxg:GridControl>
         <TextBlock Grid.Row="3" Text="{Binding StatusText}" Margin="0,12,0,0"

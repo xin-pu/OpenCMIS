@@ -8,6 +8,33 @@ namespace OpenCMIS.UI.WPF.Tests;
 
 public sealed class VdmDiagnosticsViewModelTests
 {
+    [Theory]
+    [InlineData(VdmReadStatus.Partial, "partial")]
+    [InlineData(VdmReadStatus.Unavailable, "unavailable")]
+    public async Task Incomplete_diagnostics_report_status_and_unknown_sample(VdmReadStatus status, string expected)
+    {
+        var device = new FakeCmisDevice(new DeviceInfo())
+        {
+            VdmRead = () => Task.FromResult(new VdmDiagnostics
+            {
+                IsSupported = true, ReadStatus = status,
+                ObservableInstances = [new VdmObservable { Instance = 1, Descriptor = [0, 1] }]
+            })
+        };
+        var vm = new VdmDiagnosticsViewModel();
+        await vm.SetDeviceAsync(device);
+        await vm.RefreshAllCommand.ExecuteAsync(null);
+        Assert.Contains(expected, vm.StatusText, StringComparison.OrdinalIgnoreCase);
+        var row = Assert.Single(vm.ObservableRows);
+        Assert.Equal("unknown", row.SampleHex);
+        Assert.Null(row.Flags.HighAlarm);
+        Assert.Equal("unknown", row.HighAlarmText);
+        Assert.Equal("unknown", row.LowAlarmText);
+        Assert.Equal("unknown", row.HighWarningText);
+        Assert.Equal("unknown", row.LowWarningText);
+        Assert.Equal(0, vm.ActiveFlagCount);
+    }
+
     [Fact]
     public async Task Refresh_preserves_unknown_descriptors_raw_samples_and_flags()
     {
@@ -19,7 +46,7 @@ public sealed class VdmDiagnosticsViewModelTests
                 ObservableInstances = [new VdmObservable
                 {
                     Instance = 65, Descriptor = [0xFE, 0xAB], Sample = 0x1234,
-                    Flags = new VdmObservableFlags { HighAlarm = true, LowWarning = true }
+                    Flags = new VdmObservableFlags { HighAlarm = true, LowWarning = true, HighWarning = false, LowAlarm = false }
                 }]
             })
         };
@@ -35,6 +62,8 @@ public sealed class VdmDiagnosticsViewModelTests
         Assert.False(row.Flags.HighWarning);
         Assert.True(row.Flags.LowWarning);
         Assert.False(row.Flags.LowAlarm);
+        Assert.Equal("set", row.HighAlarmText);
+        Assert.Equal("clear", row.HighWarningText);
         Assert.Equal(2, vm.ActiveFlagCount);
 
         await vm.SetDeviceAsync(null);

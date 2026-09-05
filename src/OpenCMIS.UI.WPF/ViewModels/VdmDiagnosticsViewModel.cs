@@ -62,11 +62,16 @@ public partial class VdmDiagnosticsViewModel : ObservableObject
         IsVdmSupported = diagnostics.IsSupported;
         ObservableRows = new(diagnostics.ObservableInstances.Select(o => new VdmObservableRow(o)));
         ActiveFlagCount = diagnostics.ObservableInstances.Sum(o =>
-            (o.Flags.HighAlarm ? 1 : 0) + (o.Flags.HighWarning ? 1 : 0) +
-            (o.Flags.LowWarning ? 1 : 0) + (o.Flags.LowAlarm ? 1 : 0));
-        StatusText = diagnostics.IsSupported
-            ? $"Last refresh: {DateTime.Now:HH:mm:ss}"
-            : "VDM is unsupported or has no advertised observables.";
+            (o.Flags.HighAlarm == true ? 1 : 0) + (o.Flags.HighWarning == true ? 1 : 0) +
+            (o.Flags.LowWarning == true ? 1 : 0) + (o.Flags.LowAlarm == true ? 1 : 0));
+        StatusText = diagnostics.ReadStatus switch
+        {
+            VdmReadStatus.Unavailable => "VDM diagnostics unavailable; support or advertisement could not be read.",
+            VdmReadStatus.Partial => "Partial VDM snapshot; some advertised data could not be read.",
+            _ => diagnostics.IsSupported
+                ? $"Last refresh: {DateTime.Now:HH:mm:ss}"
+                : "VDM is unsupported."
+        };
     }
 
     [RelayCommand]
@@ -171,6 +176,11 @@ public sealed class VdmObservableRow(VdmObservable observable)
 {
     public int Instance => observable.Instance;
     public string DescriptorHex => Convert.ToHexString(observable.Descriptor);
-    public string SampleHex => $"0x{observable.Sample:X4}";
+    public string SampleHex => observable.Sample is { } sample ? $"0x{sample:X4}" : "unknown";
     public VdmObservableFlags Flags => observable.Flags;
+    public string HighAlarmText => FlagText(Flags.HighAlarm);
+    public string HighWarningText => FlagText(Flags.HighWarning);
+    public string LowWarningText => FlagText(Flags.LowWarning);
+    public string LowAlarmText => FlagText(Flags.LowAlarm);
+    private static string FlagText(bool? value) => value switch { true => "set", false => "clear", null => "unknown" };
 }
