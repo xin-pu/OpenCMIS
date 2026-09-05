@@ -26,7 +26,8 @@ namespace OpenCMIS.UI.WPF.ViewModels
                              CdbEditorViewModel         cdbEditorVM,
                              ApplicationSwitchViewModel applicationSwitchVM,
                              PageEditorViewModel        pageEditorVM,
-                             ModuleHomeViewModel        moduleHomeVM)
+                             ModuleHomeViewModel        moduleHomeVM,
+                             VdmDiagnosticsViewModel    vdmDiagnosticsVM)
         {
             DeviceConnectionVM  = deviceConnectionVM;
             ControlPanelVM      = controlPanelVM;
@@ -34,6 +35,7 @@ namespace OpenCMIS.UI.WPF.ViewModels
             ApplicationSwitchVM = applicationSwitchVM;
             PageEditorVM        = pageEditorVM;
             ModuleHomeVM        = moduleHomeVM;
+            VdmDiagnosticsVM    = vdmDiagnosticsVM;
 
             ActiveView = DeviceConnectionVM;
         }
@@ -44,9 +46,11 @@ namespace OpenCMIS.UI.WPF.ViewModels
         public ApplicationSwitchViewModel ApplicationSwitchVM { get; }
         public PageEditorViewModel        PageEditorVM        { get; }
         public ModuleHomeViewModel        ModuleHomeVM        { get; }
+        public VdmDiagnosticsViewModel    VdmDiagnosticsVM    { get; }
 
-        public void SetDevice(ICmisDevice? device)
+        public async Task SetDeviceAsync(ICmisDevice? device)
         {
+            await VdmDiagnosticsVM.SetDeviceAsync(device);
             ControlPanelVM.SetDevice(device);
             CdbEditorVM.SetDevice(device);
             ApplicationSwitchVM.SetDevice(device);
@@ -71,6 +75,7 @@ namespace OpenCMIS.UI.WPF.ViewModels
                              "ApplicationSwitch" => ApplicationSwitchVM,
                              "PageEditor"        => PageEditorVM,
                              "ModuleHome"        => ModuleHomeVM,
+                             "VdmDiagnostics"    => VdmDiagnosticsVM,
                              _                   => DeviceConnectionVM
                          };
         }

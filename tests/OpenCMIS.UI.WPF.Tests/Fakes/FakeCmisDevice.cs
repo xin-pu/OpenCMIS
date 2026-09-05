@@ -13,6 +13,7 @@ namespace OpenCMIS.UI.WPF.Tests.Fakes
         public bool                IsConnected    { get; private set; } = true;
         public IRegisterAccess     RegisterAccess => throw new NotSupportedException();
         public IHciMemoryAccessor? HciAccess      => null;
+        public Func<Task<VdmDiagnostics>>? VdmRead { get; init; }
 
         public Task<ModuleInfo> GetModuleInfoAsync()
         {
@@ -74,7 +75,7 @@ namespace OpenCMIS.UI.WPF.Tests.Fakes
 
         public Task<VdmDiagnostics> ReadVdmDiagnosticsAsync()
         {
-            throw new NotSupportedException();
+            return VdmRead?.Invoke() ?? Task.FromResult(new VdmDiagnostics());
         }
     }
 }

@@ -31,6 +31,9 @@
         <DataTemplate DataType="{x:Type vm:ModuleHomeViewModel}">
             <views:ModuleHomeView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:VdmDiagnosticsViewModel}">
+            <views:VdmDiagnosticsView />
+        </DataTemplate>
 
     </Window.Resources>
 
@@ -94,6 +97,16 @@
                                 <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="14"
                                            Text="&#xE9D2;" VerticalAlignment="Center" Margin="0,0,8,0" />
                                 <TextBlock Text="Module Home" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </dxa:AccordionItem.Header>
+                    </dxa:AccordionItem>
+
+                    <dxa:AccordionItem Tag="VdmDiagnostics">
+                        <dxa:AccordionItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                           Text="&#xE9D5;" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                <TextBlock Text="VDM Diagnostics" VerticalAlignment="Center" />
                             </StackPanel>
                         </dxa:AccordionItem.Header>
                     </dxa:AccordionItem>

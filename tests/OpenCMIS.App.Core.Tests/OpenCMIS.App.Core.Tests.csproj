@@ -15,5 +15,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\OpenCMIS.App.Core\OpenCMIS.App.Core.csproj" />
     <ProjectReference Include="..\..\src\OpenCMIS.Module.Core\OpenCMIS.Module.Core.csproj" />
+    <ProjectReference Include="..\..\src\OpenCMIS.UI.CLI\OpenCMIS.UI.CLI.csproj" />
   </ItemGroup>
 </Project>

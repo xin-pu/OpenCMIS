@@ -8,6 +8,7 @@ using OpenCMIS.Protocol.Core;
 using OpenCMIS.Shared;
 using OpenCMIS.Transport.Abstractions;
 using OpenCMIS.Transport.I2C.Serial;
+using OpenCMIS.UI.CLI;
 using Serilog;
 
 try
@@ -402,15 +403,13 @@ static async Task MonitorVdmAsync(ICmisDevice device)
 
     try
     {
-        while (!cts.Token.IsCancellationRequested)
+        await VdmMonitor.RunAsync(device.ReadVdmDiagnosticsAsync, diag =>
         {
-            var diag = await device.ReadVdmDiagnosticsAsync();
             Console.Clear();
             Console.WriteLine($"VDM Live Monitor — {DateTime.Now:HH:mm:ss}");
             Console.WriteLine(new string('=', 60));
             PrintVdmDiagnostics(diag);
-            await Task.Delay(2000, cts.Token);
-        }
+        }, TimeSpan.FromSeconds(2), cts.Token);
     }
     catch (TaskCanceledException) { }
     finally

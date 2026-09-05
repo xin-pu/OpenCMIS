@@ -15,9 +15,9 @@ namespace OpenCMIS.UI.WPF.Views
             _viewModel  = viewModel;
             DataContext = viewModel;
 
-            viewModel.DeviceConnectionVM.ConnectionChanged += (_, _) =>
+            viewModel.DeviceConnectionVM.ConnectionChanged += async (_, _) =>
                                                                   {
-                                                                      _viewModel.SetDevice(viewModel.DeviceConnectionVM.CurrentDevice);
+                                                                      await _viewModel.SetDeviceAsync(viewModel.DeviceConnectionVM.CurrentDevice);
                                                                       _viewModel.UpdateConnectionStatus(
                                                                               viewModel.DeviceConnectionVM.IsConnected,
                                                                               viewModel.DeviceConnectionVM.VendorName);
