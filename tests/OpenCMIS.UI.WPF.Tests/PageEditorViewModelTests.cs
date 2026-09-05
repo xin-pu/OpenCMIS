@@ -523,6 +523,16 @@ namespace OpenCMIS.UI.WPF.Tests
             {
                 return Task.CompletedTask;
             }
+
+            public Task<bool> IsVdmSupportedAsync()
+            {
+                return Task.FromResult(false);
+            }
+
+            public Task<VdmDiagnostics> ReadVdmDiagnosticsAsync()
+            {
+                throw new NotSupportedException();
+            }
         }
     }
 }

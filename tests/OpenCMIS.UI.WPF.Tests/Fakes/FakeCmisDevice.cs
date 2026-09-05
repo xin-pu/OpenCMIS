@@ -66,5 +66,15 @@ namespace OpenCMIS.UI.WPF.Tests.Fakes
         {
             throw new NotSupportedException();
         }
+
+        public Task<bool> IsVdmSupportedAsync()
+        {
+            return Task.FromResult(false);
+        }
+
+        public Task<VdmDiagnostics> ReadVdmDiagnosticsAsync()
+        {
+            throw new NotSupportedException();
+        }
     }
 }

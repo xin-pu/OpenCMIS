@@ -21,6 +21,7 @@ namespace OpenCMIS.App.Core
         private readonly CmisMonitorReader     _monitorReader;
         private readonly CmisLaneReader        _laneReader;
         private readonly CmisStatusService     _statusService;
+        private readonly VdmReader             _vdmReader;
 
         public CmisDevice(DeviceInfo        deviceInfo,
                           IDeviceConnection deviceConnection,
@@ -38,6 +39,7 @@ namespace OpenCMIS.App.Core
             _statusService = new (
                     RegisterAccess,
                     TimeProvider.System);
+            _vdmReader = new (RegisterAccess);
         }
 
         public CmisDevice(DeviceInfo           deviceInfo,
@@ -60,6 +62,7 @@ namespace OpenCMIS.App.Core
             _statusService = new (
                     RegisterAccess,
                     TimeProvider.System);
+            _vdmReader = new (RegisterAccess);
         }
 
         public DeviceInfo DeviceInfo { get; }
@@ -144,6 +147,28 @@ namespace OpenCMIS.App.Core
             {
                 return CmisConstants.DefaultLaneCount;
             }
+        }
+
+        public async Task<bool> IsVdmSupportedAsync()
+        {
+            EnsureConnected();
+            try
+            {
+                var capability = await RegisterAccess.ReadByteAsync(
+                    CmisConstants.VdmCapabilityPage,
+                    CmisConstants.VdmCapabilityByte);
+                return (capability & CmisConstants.VdmCapabilityBit) != 0;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public Task<VdmDiagnostics> ReadVdmDiagnosticsAsync()
+        {
+            EnsureConnected();
+            return _vdmReader.ReadAsync();
         }
 
         public async Task CloseAsync()

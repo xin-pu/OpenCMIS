@@ -85,5 +85,12 @@ namespace OpenCMIS.Protocol.Abstractions
         ///     Closes the device connection.
         /// </summary>
         Task CloseAsync();
+
+        /// <summary>Checks Page 01h byte 142 bit 6 for general VDM support.</summary>
+        /// <returns>True when the module advertises VDM support.</returns>
+        Task<bool> IsVdmSupportedAsync();
+
+        /// <summary>Reads the descriptor-driven, read-only VDM observable snapshot.</summary>
+        Task<VdmDiagnostics> ReadVdmDiagnosticsAsync();
     }
 }

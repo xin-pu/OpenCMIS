@@ -221,6 +221,16 @@ namespace OpenCMIS.App.Core.Tests
             {
                 return Task.CompletedTask;
             }
+
+            public Task<bool> IsVdmSupportedAsync()
+            {
+                return Task.FromResult(false);
+            }
+
+            public Task<VdmDiagnostics> ReadVdmDiagnosticsAsync()
+            {
+                throw new NotSupportedException();
+            }
         }
     }
 }

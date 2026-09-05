@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using OpenCMIS.App.Core;
 using OpenCMIS.CDB.Core;
 using OpenCMIS.Protocol.Abstractions;
+using OpenCMIS.Protocol.Abstractions.Models;
 using OpenCMIS.Protocol.Core;
 using OpenCMIS.Shared;
 using OpenCMIS.Transport.Abstractions;
@@ -87,6 +88,7 @@ static async Task RunAsync(string[] args)
             break;
         case "cdb": await HandleCdbAsync(host, portName, args.Skip(2).ToArray()); break;
         case "app": await HandleAppAsync(host, portName, args.Skip(2).ToArray()); break;
+        case "vdm": await HandleVdmAsync(host, portName, args.Skip(2).ToArray()); break;
         default:
             Console.Error.WriteLine($"Unknown command: {command}");
             PrintUsage();
@@ -273,6 +275,12 @@ static async Task ReadRegisterAsync(IHost host, string portName, byte page, byte
 
 static async Task WriteRegisterAsync(IHost host, string portName, byte page, byte address, byte value)
 {
+    if (page >= CmisConstants.VdmDescriptorPageStart && page <= CmisConstants.VdmDescriptorPageEnd)
+    {
+        Console.Error.WriteLine("Writes to CMIS VDM descriptor pages 20h-23h are not supported.");
+        return;
+    }
+
     var device = await ConnectDeviceAsync(host, portName);
     try
     {
@@ -352,6 +360,86 @@ static async Task HandleAppAsync(IHost host, string portName, string[] args)
     }
 }
 
+static async Task HandleVdmAsync(IHost host, string portName, string[] args)
+{
+    var device = await ConnectDeviceAsync(host, portName);
+    try
+    {
+        var subCommand = args.Length > 0 ? args[0].ToLowerInvariant() : "read";
+
+        switch (subCommand)
+        {
+            case "monitor":
+                await MonitorVdmAsync(device);
+                break;
+            case "read":
+            {
+                var diag = await device.ReadVdmDiagnosticsAsync();
+                PrintVdmDiagnostics(diag);
+                break;
+            }
+            default:
+                Console.Error.WriteLine($"Unknown VDM sub-command: {subCommand}. Valid: read, monitor");
+                break;
+        }
+    }
+    finally
+    {
+        await device.CloseAsync();
+    }
+}
+
+static async Task MonitorVdmAsync(ICmisDevice device)
+{
+    Console.WriteLine("VDM monitoring started. Press Ctrl+C to stop.");
+    var cts = new CancellationTokenSource();
+    ConsoleCancelEventHandler cancelHandler = (_, e) =>
+    {
+        e.Cancel = true;
+        cts.Cancel();
+    };
+    Console.CancelKeyPress += cancelHandler;
+
+    try
+    {
+        while (!cts.Token.IsCancellationRequested)
+        {
+            var diag = await device.ReadVdmDiagnosticsAsync();
+            Console.Clear();
+            Console.WriteLine($"VDM Live Monitor — {DateTime.Now:HH:mm:ss}");
+            Console.WriteLine(new string('=', 60));
+            PrintVdmDiagnostics(diag);
+            await Task.Delay(2000, cts.Token);
+        }
+    }
+    catch (TaskCanceledException) { }
+    finally
+    {
+        Console.CancelKeyPress -= cancelHandler;
+        cts.Dispose();
+        Console.WriteLine("\nVDM monitoring stopped.");
+    }
+}
+
+static void PrintVdmDiagnostics(VdmDiagnostics diag)
+{
+    if (!diag.IsSupported)
+    {
+        Console.WriteLine("VDM is not supported by this module or it has no advertised observables.");
+        return;
+    }
+
+    Console.WriteLine("\nVDM Diagnostics (descriptor-driven, read-only)");
+    Console.WriteLine(new string('=', 60));
+    Console.WriteLine($"  {"Instance",-8} {"Descriptor",-12} {"Sample",-8} {"High alarm",-12} {"High warning",-13} {"Low warning",-12} {"Low alarm",-10}");
+    foreach (var observable in diag.ObservableInstances)
+    {
+        Console.WriteLine($"  {observable.Instance,-8} {Convert.ToHexString(observable.Descriptor),-12} 0x{observable.Sample:X4}   {ToFlagText(observable.Flags.HighAlarm),-12} {ToFlagText(observable.Flags.HighWarning),-13} {ToFlagText(observable.Flags.LowWarning),-12} {ToFlagText(observable.Flags.LowAlarm),-10}");
+    }
+}
+
+static string ToFlagText(bool isSet) => isSet ? "set" : "clear";
+
 static void PrintUsage()
 {
     Console.WriteLine("OpenCMIS CLI - CMIS 5.2/5.3 Optical Module Control Tool");
@@ -368,4 +456,8 @@ static void PrintUsage()
     Console.WriteLine("  cdb     <port> read           Read CDB");
     Console.WriteLine("  app     <port> list           List supported applications");
     Console.WriteLine("  app     <port> switch <code>  Switch to application");
+    Console.WriteLine("  vdm     <port> [sub]          Read-only descriptor-driven VDM diagnostics");
+    Console.WriteLine("          Sub-commands:");
+    Console.WriteLine("            read                 Show generic observable instances (default)");
+    Console.WriteLine("            monitor              Live VDM monitoring");
 }
