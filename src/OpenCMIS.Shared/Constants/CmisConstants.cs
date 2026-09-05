@@ -206,5 +206,126 @@ namespace OpenCMIS.Shared
         /// </summary>
         public const byte RegMediaLaneCount = 0x70;
         #endregion
+
+        #region VDM Registers (CMIS 5.2, Versatile Diagnostics Monitor, Pages 0x20-0x2F)
+
+        /// <summary>CMIS Page 01h, where general VDM support is advertised.</summary>
+        public const byte VdmCapabilityPage = 0x01;
+
+        /// <summary>Page 01h byte 142 (0x8E), containing the VDM capability bit.</summary>
+        public const byte VdmCapabilityByte = 0x8E;
+
+        /// <summary>Bit 6 of Page 01h byte 142 indicates VDM support.</summary>
+        public const byte VdmCapabilityBit = 0x40;
+
+        /// <summary>First and last CMIS VDM descriptor pages (20h-23h).</summary>
+        public const byte VdmDescriptorPageStart = 0x20;
+        public const byte VdmDescriptorPageEnd = 0x23;
+
+        /// <summary>First and last CMIS VDM sample pages (24h-27h).</summary>
+        public const byte VdmSamplePageStart = 0x24;
+        public const byte VdmSamplePageEnd = 0x27;
+
+        /// <summary>CMIS VDM flags page (2Ch).</summary>
+        public const byte VdmFlagsPage = 0x2C;
+
+        /// <summary>First upper-page byte containing VDM descriptor/sample slots.</summary>
+        public const byte VdmObservableOffset = 0x80;
+
+        /// <summary>Descriptor and sample slot width in bytes.</summary>
+        public const byte VdmObservableSlotSize = 2;
+
+        // --- VDM Configuration Page (0x20) ---
+        /// <summary>VDM configuration and control page.</summary>
+        public const byte VdmConfigPage = 0x20;
+
+        /// <summary>VDM control register (0x80-0x81, 2 bytes: enable/disable, averaging control).</summary>
+        public const byte RegVdmControl = 0x80;
+
+        /// <summary>VDM status register (0x82-0x83, 2 bytes: active, error, data-ready).</summary>
+        public const byte RegVdmStatus = 0x82;
+
+        /// <summary>VDM monitoring period (0x84, 1 byte, ms).</summary>
+        public const byte RegVdmMonitorPeriod = 0x84;
+
+        /// <summary>VDM averaging time (0x85-0x86, 2 bytes, ms).</summary>
+        public const byte RegVdmAveragingTime = 0x85;
+
+        /// <summary>Number of media lanes for VDM reporting (0x87, 1 byte).</summary>
+        public const byte RegVdmMediaLaneCount = 0x87;
+
+        /// <summary>Laser age in hours (0x88-0x89, 2 bytes, optional).</summary>
+        public const byte RegVdmLaserAge = 0x88;
+
+        /// <summary>VDM group capabilities bitmap (0x8A-0x8D, 4 bytes).</summary>
+        public const byte RegVdmGroupCapabilities = 0x8A;
+
+        // --- VDM Module Monitors Page (0x21) ---
+        /// <summary>VDM module-level monitors page.</summary>
+        public const byte VdmModulePage = 0x21;
+
+        /// <summary>Module VDM alarm/warning flags (0x80-0x81, 2 bytes).</summary>
+        public const byte RegVdmFlags = 0x80;
+
+        /// <summary>VDM module temperature (0x82-0x83, 2 bytes, signed int16 /256 °C).</summary>
+        public const byte RegVdmTemp = 0x82;
+
+        /// <summary>VDM primary VCC (0x84-0x85, 2 bytes, unsigned int16, 100 µV).</summary>
+        public const byte RegVdmVccPrimary = 0x84;
+
+        /// <summary>VDM secondary VCC (0x86-0x87, 2 bytes, unsigned int16, 100 µV, optional).</summary>
+        public const byte RegVdmVccSecondary = 0x86;
+
+        /// <summary>VDM laser temperature (0x88-0x89, 2 bytes, signed int16 /256 °C, optional).</summary>
+        public const byte RegVdmLaserTemp = 0x88;
+
+        /// <summary>VDM TEC current (0x8A-0x8B, 2 bytes, optional).</summary>
+        public const byte RegVdmTecCurrent = 0x8A;
+
+        // --- Per-Lane VDM Pages (0x22-0x2F) ---
+        /// <summary>First VDM per-lane page (2 pages per lane, up to 8 lanes).</summary>
+        public const byte VdmFirstLanePage = 0x22;
+
+        /// <summary>Maximum number of VDM-supported lanes.</summary>
+        public const byte VdmMaxLanes = 8;
+
+        /// <summary>Per-lane VDM flags (0x80-0x81, 2 bytes).</summary>
+        public const byte RegVdmLaneFlags = 0x80;
+
+        /// <summary>Per-lane TX optical power (0x82-0x83, 2 bytes, unsigned int16, LSB=0.1 µW).</summary>
+        public const byte RegVdmLaneTxPower = 0x82;
+
+        /// <summary>Per-lane RX optical power (0x84-0x85, 2 bytes, unsigned int16, LSB=0.1 µW).</summary>
+        public const byte RegVdmLaneRxPower = 0x84;
+
+        /// <summary>Per-lane TX bias current (0x86-0x87, 2 bytes, unsigned int16, LSB=2 µA).</summary>
+        public const byte RegVdmLaneTxBias = 0x86;
+
+        /// <summary>Per-lane TX laser temperature (0x88-0x89, 2 bytes, optional).</summary>
+        public const byte RegVdmLaneTxLaserTemp = 0x88;
+
+        /// <summary>Per-lane RX LOS counter (0x8A-0x8B, 2 bytes).</summary>
+        public const byte RegVdmLaneRxLosCounter = 0x8A;
+
+        // --- Per-Lane FEC Statistics (odd pages: 0x23, 0x25, ..., 0x2F) ---
+        /// <summary>FEC corrected codewords low word (0x80-0x81, 2 bytes).</summary>
+        public const byte RegVdmFecCorrectedLo = 0x80;
+
+        /// <summary>FEC corrected codewords high word (0x82-0x83, 2 bytes).</summary>
+        public const byte RegVdmFecCorrectedHi = 0x82;
+
+        /// <summary>FEC uncorrectable codewords (0x84-0x85, 2 bytes).</summary>
+        public const byte RegVdmFecUncorrectable = 0x84;
+
+        /// <summary>FEC symbol errors count (0x86-0x87, 2 bytes).</summary>
+        public const byte RegVdmFecSymbolErrors = 0x86;
+
+        /// <summary>Pre-FEC BER mantissa (0x88-0x89, 2 bytes).</summary>
+        public const byte RegVdmFecPreBerMantissa = 0x88;
+
+        /// <summary>Pre-FEC BER exponent (0x8A, 1 byte).</summary>
+        public const byte RegVdmFecPreBerExponent = 0x8A;
+
+        #endregion
     }
 }
